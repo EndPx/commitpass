@@ -8,7 +8,7 @@ Participants reserve a place by depositing a fixed commitment into an event cont
 
 ## Status
 
-CommitPass is being built for the Metropolis hackathon. The monorepo bootstrap is ready: pnpm workspaces, Turborepo, shared TypeScript/Go project data, a Next.js health route, a Go health endpoint, and CI. Event pages, financial contracts, and sponsor integrations have not yet been implemented or deployed here.
+CommitPass is being built for the Metropolis hackathon. The monorepo bootstrap is ready, and the ATFI factory/vault contracts, deployment scripts, and tests have been ported with naming changes only. Event pages, Monad configuration, lifecycle extensions, and sponsor integrations remain unimplemented. Nothing has been deployed from this repository. See [the contract port's scope](contracts/README.md).
 
 ## Repository layout
 
@@ -18,7 +18,7 @@ apps/
   api/                  Go API; metadata, attendance, and snapshot endpoints
   indexer/              Reserved Envio HyperIndex workspace
   cre/                  Reserved Chainlink CRE workflow workspace
-contracts/              Foundry configuration and source/script/test directories
+contracts/              ATFI factory/vault port, scripts, and inherited Foundry tests
 packages/
   shared/               Public shared code and language-neutral project data
   typescript-config/    Common TypeScript compiler settings
@@ -35,6 +35,7 @@ Requirements: Node.js 22 or 24 (CI uses `.node-version`), pnpm 10.21.0, and Go 1
 
 ```sh
 pnpm install --frozen-lockfile
+git submodule update --init --recursive
 pnpm dev
 ```
 
@@ -54,7 +55,7 @@ pnpm dev
 | `pnpm check`           | Check formatting, types, Go vet, and builds      |
 | `pnpm contracts:build` | Run Foundry separately; requires `forge`         |
 
-Indexer and CRE are declared workspaces without runtime tasks until their actual integrations are implemented. The CI workflow checks the active bootstrap code; it does not claim to verify those integrations or the empty Solidity workspace.
+Use `pnpm contracts:test` to run the inherited Foundry tests. Indexer and CRE are declared workspaces without runtime tasks until their actual integrations are implemented. CI checks the active JS/Go code and runs a separate Solidity build/test job. The inherited mock vault tests do not verify real Morpho integration.
 
 ## Planned event lifecycle
 

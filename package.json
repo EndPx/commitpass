@@ -15,7 +15,8 @@
     "check": "pnpm format:check && pnpm typecheck && pnpm build",
     "format": "prettier --write . && gofmt -w apps/api packages/shared",
     "format:check": "prettier --check . && node scripts/check-go-format.mjs",
-    "contracts:build": "pnpm --filter @commitpass/contracts compile"
+    "contracts:build": "pnpm --filter @commitpass/contracts compile",
+    "contracts:test": "pnpm --filter @commitpass/contracts test"
   },
   "devDependencies": {
     "prettier": "3.9.9",
