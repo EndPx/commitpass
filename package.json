@@ -1,0 +1,24 @@
+{
+  "name": "commitpass",
+  "private": true,
+  "packageManager": "pnpm@10.21.0",
+  "engines": {
+    "node": ">=22 <25",
+    "pnpm": ">=10 <11"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:web": "turbo run dev --filter=@commitpass/web",
+    "dev:api": "turbo run dev --filter=@commitpass/api",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "check": "pnpm format:check && pnpm typecheck && pnpm build",
+    "format": "prettier --write . && gofmt -w apps/api packages/shared",
+    "format:check": "prettier --check . && node scripts/check-go-format.mjs",
+    "contracts:build": "pnpm --filter @commitpass/contracts compile"
+  },
+  "devDependencies": {
+    "prettier": "3.9.9",
+    "turbo": "2.11.4"
+  }
+}

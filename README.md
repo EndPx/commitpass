@@ -2,13 +2,59 @@
 
 **Commit to show up. Get rewarded when you do.**
 
-CommitPass makes RSVPs accountable on Monad with refundable stablecoin commitments and rewards for showing up.
+An event platform on Monad where guests reserve a spot with a refundable deposit and share rewards from people who don't show up.
 
 Participants reserve a place by depositing a fixed commitment into an event contract. Organizers record attendance. At settlement, attendees become eligible to claim their commitment and a share of forfeited no-show deposits, together with any realized yield available for distribution.
 
 ## Status
 
-CommitPass is being designed for the Metropolis hackathon. This repository currently contains project documentation only. Contracts, the application, and sponsor integrations have not yet been implemented or deployed here.
+CommitPass is being built for the Metropolis hackathon. The monorepo bootstrap is ready: pnpm workspaces, Turborepo, shared TypeScript/Go project data, a Next.js health route, a Go health endpoint, and CI. Event pages, financial contracts, and sponsor integrations have not yet been implemented or deployed here.
+
+## Repository layout
+
+```text
+apps/
+  web/                  Next.js 15; ShowOrSow frontend adaptation will live here
+  api/                  Go API; metadata, attendance, and snapshot endpoints
+  indexer/              Reserved Envio HyperIndex workspace
+  cre/                  Reserved Chainlink CRE workflow workspace
+contracts/              Foundry configuration and source/script/test directories
+packages/
+  shared/               Public shared code and language-neutral project data
+  typescript-config/    Common TypeScript compiler settings
+scripts/                Cross-platform repository tooling
+```
+
+`apps/*` may depend on `packages/*`. Shared packages must not import application code. Each app declares local package dependencies with `workspace:*`.
+
+The API and shared Go package are connected through `go.work`. Project identity is defined once in `packages/shared/src/project.json`, imported by TypeScript and embedded by Go. Both health endpoints consume this source. See [shared package boundaries](packages/shared/README.md).
+
+## Local development
+
+Requirements: Node.js 22 or 24 (CI uses `.node-version`), pnpm 10.21.0, and Go 1.24 or newer. Foundry is needed when working on Solidity. SDKs and credentials for Envio, CRE, Privy, and Neon will be added with their integrations.
+
+```sh
+pnpm install --frozen-lockfile
+pnpm dev
+```
+
+- Web liveness: `http://localhost:3000/health`
+- API liveness: `http://localhost:8080/health`
+- These endpoints prove the processes and shared imports work. They do not check a database or chain connection.
+- The event frontend has not been copied yet; `/` has no product page.
+
+| Command                | Purpose                                          |
+| ---------------------- | ------------------------------------------------ |
+| `pnpm dev`             | Run web, API, and the shared TypeScript watcher  |
+| `pnpm dev:web`         | Build shared dependencies and run Next.js        |
+| `pnpm dev:api`         | Build shared dependencies and run the Go API     |
+| `pnpm build`           | Build shared TypeScript, Next.js, and the Go API |
+| `pnpm typecheck`       | Run TypeScript checks and Go vet                 |
+| `pnpm format`          | Format repository files and Go source            |
+| `pnpm check`           | Check formatting, types, Go vet, and builds      |
+| `pnpm contracts:build` | Run Foundry separately; requires `forge`         |
+
+Indexer and CRE are declared workspaces without runtime tasks until their actual integrations are implemented. The CI workflow checks the active bootstrap code; it does not claim to verify those integrations or the empty Solidity workspace.
 
 ## Planned event lifecycle
 
@@ -32,16 +78,16 @@ The supported stablecoin and Morpho vault, fee policy, cancellation rules, and z
 
 ## Planned stack
 
-| Component | Role |
-| --- | --- |
-| Monad and Solidity | Event factory, event contracts, and financial settlement |
-| Next.js and TypeScript | Participant and organizer application |
-| Privy | Onboarding, embedded wallets, transaction signing, and sponsored gas |
-| Go | Metadata, organizer authorization, attendance, and snapshot APIs |
-| Envio HyperIndex | Contract discovery and indexing of confirmed onchain activity |
-| Neon PostgreSQL | Indexed data and application data |
-| Chainlink CRE | Event start and settlement orchestration |
-| Morpho | Yield deployment for committed funds |
+| Component              | Role                                                                 |
+| ---------------------- | -------------------------------------------------------------------- |
+| Monad and Solidity     | Event factory, event contracts, and financial settlement             |
+| Next.js and TypeScript | Participant and organizer application                                |
+| Privy                  | Onboarding, embedded wallets, transaction signing, and sponsored gas |
+| Go                     | Metadata, organizer authorization, attendance, and snapshot APIs     |
+| Envio HyperIndex       | Contract discovery and indexing of confirmed onchain activity        |
+| Neon PostgreSQL        | Indexed data and application data                                    |
+| Chainlink CRE          | Event start and settlement orchestration                             |
+| Morpho                 | Yield deployment for committed funds                                 |
 
 ## Implementation references
 

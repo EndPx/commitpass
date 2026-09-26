@@ -1,0 +1,13 @@
+{
+  "name": "@commitpass/api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "go run ./cmd/server",
+    "build": "go build -o dist/ ./cmd/server",
+    "typecheck": "go vet ./..."
+  },
+  "dependencies": {
+    "@commitpass/shared": "workspace:*"
+  }
+}

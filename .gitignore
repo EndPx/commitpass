@@ -14,6 +14,11 @@ out/
 cache/
 coverage/
 *.tsbuildinfo
+.turbo/
+.vercel/
+apps/web/next-env.d.ts
+go.work.sum
+contracts/broadcast/
 
 # Local runtime files
 *.log
