@@ -1,0 +1,21 @@
+# Local credentials
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+
+# Dependencies and generated output
+node_modules/
+.next/
+dist/
+out/
+cache/
+coverage/
+*.tsbuildinfo
+
+# Local runtime files
+*.log
+.DS_Store
+Thumbs.db
