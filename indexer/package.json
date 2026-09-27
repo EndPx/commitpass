@@ -4,6 +4,19 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@commitpass/shared": "workspace:*"
+    "@commitpass/shared": "workspace:*",
+    "envio": "3.12.1"
+  },
+  "devDependencies": {
+    "@commitpass/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  },
+  "scripts": {
+    "codegen": "node scripts/envio.mjs codegen",
+    "typecheck": "pnpm codegen && tsc -p tsconfig.json",
+    "build": "pnpm typecheck",
+    "start": "node scripts/envio.mjs start",
+    "db:setup": "node scripts/envio.mjs local db-migrate up"
   }
 }

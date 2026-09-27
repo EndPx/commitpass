@@ -1,0 +1,59 @@
+type CommitmentEvent {
+  id: ID!
+  chainId: Int! @index
+  vault: String! @index
+  eventId: BigInt!
+  organizer: String! @index
+  owner: String!
+  stakeAmount: BigInt!
+  maxParticipant: BigInt!
+  registrationDeadline: BigInt!
+  startAt: BigInt!
+  settleAt: BigInt
+  automation: String
+  status: String! @index
+  registrationClosed: Boolean!
+  participantCount: Int!
+  attendeeCount: Int!
+  claimCount: Int!
+  totalCommitted: BigInt!
+  yieldDeposited: BigInt!
+  totalYield: BigInt!
+  protocolFee: BigInt!
+  rewardPerAttendee: BigInt!
+  totalClaimed: BigInt!
+  snapshotHash: String
+  createdAt: BigInt!
+  updatedAt: BigInt!
+  lastBlock: BigInt!
+  lastTransaction: String!
+}
+
+type Participant {
+  id: ID!
+  event: CommitmentEvent! @index
+  wallet: String! @index
+  amount: BigInt!
+  attended: Boolean!
+  claimed: Boolean!
+  claimedAmount: BigInt!
+  depositedAt: BigInt!
+  depositTransaction: String!
+  claimTransaction: String
+}
+
+type ChainActivity {
+  id: ID!
+  event: CommitmentEvent! @index
+  kind: String! @index
+  chainId: Int!
+  contract: String!
+  blockNumber: BigInt!
+  blockHash: String!
+  timestamp: BigInt!
+  transactionHash: String! @index
+  logIndex: Int!
+  wallet: String
+  amount: BigInt
+  snapshotHash: String
+}

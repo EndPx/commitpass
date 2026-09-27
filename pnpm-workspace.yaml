@@ -7,9 +7,13 @@ packages:
   - contracts
 
 catalog:
-  typescript: 5.9.3
   "@types/node": 24.19.0
+  typescript: 5.9.3
 
 onlyBuiltDependencies:
   - sharp
   - unrs-resolver
+
+supportedArchitectures:
+  cpu: [current]
+  os: [current, linux]

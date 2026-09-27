@@ -1,7 +1,64 @@
-# Envio indexer
+# CommitPass Envio indexer
 
-Reserved workspace for Envio HyperIndex. No indexer runtime or handlers are implemented yet; this workspace has no build/dev task until the real integration is initialized.
+HyperIndex **3.12.1**, targeting **Monad testnet (10143)**. This service discovers event vaults from the factory and materializes their chain state in Neon. The Go API consumes those tables for event pages, capacity, participant eligibility, rewards and transaction history.
 
-The integration will discover event vaults from the factory and index deposits, yield operations, settlements, and claims into an Envio-owned Neon schema. Application check-ins and snapshots remain backend-owned. Use `@commitpass/shared` for shared public data and the compiled contract ABI package when it exists.
+## Data model
 
-Initialize against the actual contract artifacts and a pinned Envio version. Keep reorg-aware writes within HyperIndex's entity system; do not overwrite application tables during reindexing.
+| Entity            | Purpose                                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------------------- |
+| `CommitmentEvent` | Event metadata, lifecycle, capacity, commitments, attendance count, yield and claim aggregates |
+| `Participant`     | Depositing wallet, deposited amount, settled attendance and paid claims                        |
+| `ChainActivity`   | Contract address, block hash, transaction hash and log index for each action                   |
+
+`VaultCreated` dynamically registers event vaults. Receiver events record schedules and requests; vault events establish actual start and settlement. A request does not mark an event settled. Reward estimates use the contract's integer formula; payments use `RewardClaimed` amounts.
+
+All writes use HyperIndex entity operations and participate in reorg rollback. Handlers account for v3's preload pass. `AttendanceMarked` represents attendance accepted during settlement, not live application check-in. Share transfers do not transfer participant claim rights.
+
+## Neon
+
+Project: `withered-snow-61403908` (CommitPass). Branch: `br-restless-firefly-b398t5lv` (production). The blockchain target remains testnet despite the branch name.
+
+- Dedicated database: `commitpass_indexer`; schema: `envio`.
+- Application data can remain in `neondb`. Check-ins and frozen snapshots are not implemented here.
+- Direct Neon connection with TLS certificate verification. Hasura is disabled; Go reads Postgres.
+- Credentials are stored in git-ignored `indexer/.env` and `api/.env`.
+
+The database and HyperIndex schema have been initialized. No CommitPass chain events have been indexed yet.
+
+## Commands
+
+```sh
+# Repository root
+pnpm install --frozen-lockfile
+pnpm --filter @commitpass/shared build
+pnpm indexer:codegen
+pnpm --filter @commitpass/indexer typecheck
+# After configuring actual deployment addresses and block:
+pnpm indexer:start
+```
+
+On Windows, the wrapper uses Ubuntu WSL because this Envio release has no Windows native package. Install Node.js 24 inside WSL. On the current machine, a verified Node 24.18.0 runtime is also available under the WSL user's `.cache/commitpass-node`; the wrapper uses it if Node is absent from PATH. Linux/macOS uses the current Node process. pnpm includes Linux optional dependencies for WSL.
+
+Copy `.env.example` on another machine and supply credentials. Before indexing, configure:
+
+```dotenv
+ENVIO_FACTORY_ADDRESS=<deployed CommitPassFactory>
+ENVIO_AUTOMATION_ADDRESS=<deployed CommitPassAutomation>
+ENVIO_START_BLOCK=<earliest deployment block>
+```
+
+Start refuses missing/zero addresses and an unset deployment block. Config defaults exist solely for codegen before deployment. HyperIndex uses RPC ingestion, so no HyperSync API token is required. The five-block lag and reorg rollback are not a cryptographic finality guarantee.
+
+`pnpm --filter @commitpass/indexer db:setup` runs `db-migrate up` against the dedicated database. It does not invoke the CLI's destructive `setup` or `down` commands. Review migration/reindex requirements before changing configuration on populated databases. No indexing process has been activated.
+
+## Shared contracts and API
+
+Config reads compiled ABIs from `packages/shared/abi`. After changing Solidity, compile contracts, run `pnpm contracts:abi`, then regenerate Envio types. The exporter also updates CRE's shared ABI.
+
+Go exposes `/v1/events`, `/v1/events/{vault}`, `/v1/events/{vault}/participants`, and `/v1/events/{vault}/activity`. Lists return up to 100 records and a `nextCursor`; pass it as `?after=`. Onchain integers use decimal strings. Missing connection/schema returns 503.
+
+## Remaining bounty evidence
+
+The [Envio bounty](https://hackathon.monad.xyz/tracks/best-use-of-envio) requires live onchain data driving a useful feature. Source, codegen and empty tables do not establish that. Deploy CommitPass, configure its real addresses, start indexing, and show the API/UI reflecting actual deposits, settlement and claims with transaction references.
+
+References: [AI migration guide](https://docs.envio.dev/docs/HyperIndex/migrate-with-ai), [handlers](https://docs.envio.dev/docs/HyperIndex/event-handlers), [dynamic discovery](https://docs.envio.dev/docs/HyperIndex/dynamic-contracts), [Postgres configuration](https://docs.envio.dev/docs/HyperIndex/environment-variables).

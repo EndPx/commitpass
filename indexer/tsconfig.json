@@ -1,0 +1,11 @@
+{
+  "extends": "@commitpass/typescript-config/base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "types": ["node"],
+    "verbatimModuleSyntax": true
+  },
+  "include": ["envio-env.d.ts", "src/**/*.ts"]
+}

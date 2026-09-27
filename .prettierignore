@@ -7,3 +7,5 @@ node_modules/
 pnpm-lock.yaml
 apps/web/next-env.d.ts
 contracts/lib/
+indexer/.envio/
+indexer/envio-env.d.ts

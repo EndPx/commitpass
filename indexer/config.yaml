@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=./node_modules/envio/evm.schema.json
+name: commitpass
+description: CommitPass event commitments and settlement on Monad testnet
+address_format: lowercase
+rollback_on_reorg: true
+contracts:
+  - name: CommitPassFactory
+    abi_file_path: ../packages/shared/abi/CommitPassFactory.json
+    events:
+      - event: VaultCreated
+  - name: CommitPassVault
+    abi_file_path: ../packages/shared/abi/CommitPassVault.json
+    events:
+      - event: DepositMade
+      - event: RegistrationClosed
+      - event: AutomationConfigured
+      - event: DepositToYieldSource
+      - event: AttendanceMarked
+      - event: EventSettled
+      - event: RewardClaimed
+      - event: OwnershipTransferred
+  - name: CommitPassAutomation
+    abi_file_path: ../packages/shared/abi/CommitPassAutomation.json
+    events:
+      - event: EventRegistered
+      - event: LifecycleRequested
+      - event: LifecycleExecuted
+chains:
+  - id: 10143
+    start_block: ${ENVIO_START_BLOCK:-0}
+    block_lag: 5
+    rpc:
+      - url: ${ENVIO_RPC_URL:-https://testnet-rpc.monad.xyz}
+        for: sync
+    contracts:
+      - name: CommitPassFactory
+        address: "${ENVIO_FACTORY_ADDRESS:-0x0000000000000000000000000000000000000000}"
+      - name: CommitPassAutomation
+        address: "${ENVIO_AUTOMATION_ADDRESS:-0x0000000000000000000000000000000000000000}"
+      - name: CommitPassVault

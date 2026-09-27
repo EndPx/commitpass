@@ -93,6 +93,19 @@ importers:
       '@commitpass/shared':
         specifier: workspace:*
         version: link:../packages/shared
+      envio:
+        specifier: 3.12.1
+        version: 3.12.1(@types/react@19.1.17)(react-dom@19.1.9(react@19.2.5))(typescript@5.9.3)(zod@3.25.76)
+    devDependencies:
+      '@commitpass/typescript-config':
+        specifier: workspace:*
+        version: link:../packages/typescript-config
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.19.0
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
 
   packages/shared:
     devDependencies:

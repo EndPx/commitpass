@@ -2,6 +2,16 @@
   "$schema": "https://turborepo.dev/schema.json",
   "globalDependencies": ["go.work"],
   "tasks": {
+    "@commitpass/indexer#build": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "outputs": [".envio/**", "envio-env.d.ts"]
+    },
+    "@commitpass/indexer#typecheck": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "outputs": [".envio/**", "envio-env.d.ts"]
+    },
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
