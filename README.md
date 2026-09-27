@@ -8,7 +8,7 @@ Participants reserve a place by depositing a fixed commitment into an event cont
 
 ## Status
 
-CommitPass is being built for the Metropolis Consumer Products & Payments track, targeting Monad testnet (10143). CRE start/settlement workflow source, its receiver, configurable ERC-4626 yield integration and testnet mock assets are implemented. Envio v3 handlers, a dedicated Neon indexer database and Go endpoints for indexed events are also configured. Event UI, Privy onboarding and frozen attendance snapshots remain unimplemented. Indexing awaits deployment addresses. Nothing has been deployed. See [contract boundaries](contracts/README.md) and [CRE setup](cre/README.md).
+CommitPass is being built for the Metropolis Consumer Products & Payments track on Monad testnet (10143). MockAUSD, MockYieldVault, CommitPassFactory and the CRE receiver are deployed and verified on Monadscan through Etherscan API. Envio and the Go read API connect to Neon using the shared deployment manifest. Event UI, Privy onboarding and frozen attendance snapshots remain unimplemented; the CRE workflow is not activated. See [deployment evidence](contracts/DEPLOYMENT.md), [contract boundaries](contracts/README.md) and [CRE setup](cre/README.md).
 
 ## Repository layout
 

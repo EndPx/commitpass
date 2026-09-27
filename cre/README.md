@@ -76,7 +76,7 @@ Failed HTTP requests, malformed data, unknown fields, digest mismatch, empty att
 
 ## Current boundaries
 
-- No deployment or confirmed Monad/DON execution is claimed.
+- The receiver and mock-asset contracts are deployed on Monad testnet; see `contracts/DEPLOYMENT.md`. No deployed DON execution or completed event lifecycle is claimed. The receiver address is set in local config; its attendance API URL remains a placeholder until that service is implemented.
 - Testnet uses mockAUSD and a mock yield vault. It has no mainnet Clearstar connection or organic yield; token donations can model yield.
 - Empty attendance, cancellation and permanent loss/liquidity recovery need explicit policies. Automatic settlement rejects empty lists. Redemption failure or principal shortfall reverts atomically, leaving settlement pending.
 - Equal-share rounding dust remains in the event vault under the inherited formula.

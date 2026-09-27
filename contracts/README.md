@@ -33,7 +33,7 @@ See [CRE setup and snapshot API specification](../cre/README.md).
 
 ## Limits
 
-- No deployment claimed. Testnet asset addresses are determined at deployment.
+- Factory, receiver and mock assets are deployed and verified on Monad testnet. See [deployment evidence](DEPLOYMENT.md). The CRE workflow is not activated yet.
 - Redemption failure or recovery below committed principal reverts settlement. This preserves nominal refund accounting but does not solve permanent loss or unavailable liquidity.
 - Automated zero-attendee settlement is deferred. Cancellation/refund/recovery needs a policy; legacy owner-operated vaults retain inherited empty-attendance behavior.
 - Rounding dust remains in the vault. ERC-20 share transfers do not transfer participant claims; this event contract is not itself ERC-4626.
