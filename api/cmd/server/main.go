@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/EndPx/commitpass/api/internal/application"
 	"github.com/EndPx/commitpass/api/internal/indexed"
 	"github.com/EndPx/commitpass/packages/shared"
 )
@@ -33,6 +34,11 @@ func main() {
 		log.Fatal(err)
 	}
 	defer closeIndexer()
+	closeApplication, err := application.Register(mux)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer closeApplication()
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(map[string]any{
@@ -44,10 +50,11 @@ func main() {
 
 	server := &http.Server{
 		Addr:              net.JoinHostPort("", port),
-		Handler:           mux,
+		Handler:           application.CORS(mux, os.Getenv("CORS_ALLOWED_ORIGINS")),
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       10 * time.Second,
-		WriteTimeout:      10 * time.Second,
+		WriteTimeout:      25 * time.Second,
+		MaxHeaderBytes:    32 << 10,
 		IdleTimeout:       60 * time.Second,
 	}
 

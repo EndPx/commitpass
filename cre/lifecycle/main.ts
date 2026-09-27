@@ -113,7 +113,7 @@ function fetchSnapshot(
   const response = requester
     .sendRequest({
       url,
-      method: "GET",
+      method: "POST",
       headers: { Authorization: `Bearer ${token}` },
     })
     .result();

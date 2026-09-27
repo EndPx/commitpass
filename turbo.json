@@ -43,7 +43,16 @@
       "dependsOn": ["^build"],
       "cache": false,
       "persistent": true,
-      "passThroughEnv": ["PORT"]
+      "passThroughEnv": [
+        "PORT",
+        "DATABASE_URL",
+        "INDEXER_DATABASE_URL",
+        "PRIVY_APP_ID",
+        "PRIVY_APP_SECRET",
+        "ATTENDANCE_API_TOKEN",
+        "MONAD_RPC_URL",
+        "CORS_ALLOWED_ORIGINS"
+      ]
     }
   }
 }
