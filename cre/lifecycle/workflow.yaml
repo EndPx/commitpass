@@ -1,0 +1,7 @@
+testnet-settings:
+  user-workflow:
+    workflow-name: commitpass-lifecycle-testnet
+  workflow-artifacts:
+    workflow-path: ./main.ts
+    config-path: ./config.testnet.json
+    secrets-path: ../secrets.yaml

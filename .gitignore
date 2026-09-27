@@ -19,6 +19,10 @@ coverage/
 apps/web/next-env.d.ts
 go.work.sum
 contracts/broadcast/
+cre/lifecycle/config.testnet.json
+cre/secrets.yaml
+*.wasm
+indexer/.envio/
 
 # Local runtime files
 *.log
