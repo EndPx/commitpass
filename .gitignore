@@ -23,6 +23,7 @@ cre/lifecycle/config.testnet.json
 cre/secrets.yaml
 *.wasm
 indexer/.envio/
+cre/.local/
 
 # Local runtime files
 *.log

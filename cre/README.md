@@ -15,6 +15,8 @@ The log trigger reacts to finalized organizer requests. Cron runs every minute, 
 
 ## Build
 
+For the local start/settle/claim simulation, run `pnpm --filter @commitpass/cre local` from the repository root. See [the local runner](local/README.md) for its fixture boundary and assertions. It requires CLI authentication but no DON deployment access.
+
 Install Bun 1.3.8+, CRE CLI 1.30+ and root pnpm dependencies.
 
 ```sh
@@ -45,7 +47,7 @@ cre workflow simulate lifecycle --target testnet-settings --trigger-index 0 --no
 cre workflow simulate lifecycle --target testnet-settings --trigger-index 1 --evm-tx-hash <request-tx> --evm-event-index <log-index> --non-interactive
 ```
 
-The receiver validates its forwarder and workflow ID in **64-byte production KeystoneForwarder metadata**. Simulation mocks do not provide equivalent authenticated metadata. Do not weaken receiver checks to make a mock broadcast succeed. A non-broadcast simulation is separate evidence from a deployed DON write.
+The receiver validates its forwarder and workflow ID in **64-byte production KeystoneForwarder metadata**. Simulation reports do not establish deployed DON identity. The local runner uses an explicit Anvil-only forwarder fixture with a local workflow ID while leaving the receiver unchanged. A local simulation is separate evidence from a deployed DON write.
 
 ## Attendance API contract
 

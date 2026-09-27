@@ -2,3 +2,7 @@ testnet-settings:
   rpcs:
     - chain-name: monad-testnet
       url: https://testnet-rpc.monad.xyz
+local-settings:
+  rpcs:
+    - chain-name: monad-testnet
+      url: http://127.0.0.1:8547

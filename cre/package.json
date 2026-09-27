@@ -18,6 +18,7 @@
     "typecheck": "tsc -p tsconfig.json",
     "build": "tsc -p tsconfig.json",
     "compile:wasm": "cre-compile lifecycle/main.ts dist/lifecycle.wasm",
-    "simulate": "cre workflow simulate lifecycle --target testnet-settings --non-interactive"
+    "simulate": "cre workflow simulate lifecycle --target testnet-settings --non-interactive",
+    "local": "pnpm --filter @commitpass/shared build && pnpm compile:wasm && node local/run.mjs"
   }
 }
