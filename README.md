@@ -8,30 +8,30 @@ Participants reserve a place by depositing a fixed commitment into an event cont
 
 ## Status
 
-CommitPass is being built for the Metropolis hackathon. The monorepo bootstrap is ready, and the ATFI factory/vault contracts, deployment scripts, and tests have been ported with naming changes only. Event pages, Monad configuration, lifecycle extensions, and sponsor integrations remain unimplemented. Nothing has been deployed from this repository. See [the contract port's scope](contracts/README.md).
+CommitPass is being built for the Metropolis Consumer Products & Payments track, targeting Monad testnet (10143). CRE start/settlement workflow source, its receiver, configurable ERC-4626 yield integration and testnet mock assets are implemented. Envio v3 handlers, a dedicated Neon indexer database and Go endpoints for indexed events are also configured. Event UI, Privy onboarding and frozen attendance snapshots remain unimplemented. Indexing awaits deployment addresses. Nothing has been deployed. See [contract boundaries](contracts/README.md) and [CRE setup](cre/README.md).
 
 ## Repository layout
 
 ```text
 apps/
   web/                  Next.js 15; ShowOrSow frontend adaptation will live here
-api/                  Go API; metadata, attendance, and snapshot endpoints
-indexer/              Reserved Envio HyperIndex workspace
-cre/                  Reserved Chainlink CRE workflow workspace
-contracts/              ATFI factory/vault port, scripts, and inherited Foundry tests
+api/                    Go API; metadata, attendance, and snapshot endpoints
+cre/                    Chainlink CRE start/settlement workflow
+indexer/                Envio HyperIndex, schema and event handlers
+contracts/              Event contracts, CRE receiver, scripts and inherited tests
 packages/
   shared/               Public shared code and language-neutral project data
   typescript-config/    Common TypeScript compiler settings
 scripts/                Cross-platform repository tooling
 ```
 
-`apps/web`, `api`, `cre`, and `indexer` may depend on `packages/*`. Shared packages must not import application code. Each app declares local package dependencies with `workspace:*`.
+`apps/web`, `api`, `cre`, and `indexer` may depend on `packages/*`. Shared packages must not import application code. Each workspace declares local package dependencies with `workspace:*`.
 
 The API and shared Go package are connected through `go.work`. Project identity is defined once in `packages/shared/src/project.json`, imported by TypeScript and embedded by Go. Both health endpoints consume this source. See [shared package boundaries](packages/shared/README.md).
 
 ## Local development
 
-Requirements: Node.js 22 or 24 (CI uses `.node-version`), pnpm 10.21.0, and Go 1.24 or newer. Foundry is needed when working on Solidity. SDKs and credentials for Envio, CRE, Privy, and Neon will be added with their integrations.
+Requirements: Node.js 22 or 24 (CI uses `.node-version`), pnpm 10.21.0, and Go 1.24 or newer. Foundry is needed when working on Solidity. Bun 1.3.8+ is also needed for CRE WASM compilation.
 
 ```sh
 pnpm install --frozen-lockfile
@@ -55,7 +55,7 @@ pnpm dev
 | `pnpm check`           | Check formatting, types, Go vet, and builds      |
 | `pnpm contracts:build` | Run Foundry separately; requires `forge`         |
 
-Use `pnpm contracts:test` to run the inherited Foundry tests. Indexer and CRE are declared workspaces without runtime tasks until their actual integrations are implemented. CI checks the active JS/Go code and runs a separate Solidity build/test job. The inherited mock vault tests do not verify real Morpho integration.
+Use `pnpm contracts:test` to run the inherited Foundry tests. Indexer codegen and TypeScript compilation participate in builds; indexing starts explicitly after deployment configuration. CRE participates in TypeScript builds; run `pnpm --filter @commitpass/cre compile:wasm` for its executable artifact. CI checks the active JS/Go code and runs a separate Solidity build/test job. The inherited mock vault tests do not verify real Morpho integration.
 
 ## Planned event lifecycle
 
@@ -75,7 +75,7 @@ The contract must enforce timing, authorization, and one-time execution. Schedul
 - **Yield:** distributions use recovered assets and realized yield. Morpho withdrawal availability and potential losses must be handled explicitly; a settlement deadline is not a guarantee of immediate liquidity.
 - **Data:** Envio owns indexed chain data. The backend owns metadata, profiles, check-ins, and immutable settlement snapshots in separate database schemas.
 
-The supported stablecoin and Morpho vault, fee policy, cancellation rules, and zero-attendance outcome still need to be finalized before implementation.
+The current target uses mockAUSD and a mock ERC-4626 vault on Monad testnet. Mainnet Clearstar is not part of this deployment configuration. Cancellation, zero attendance and permanent loss/liquidity recovery still need explicit policies.
 
 ## Planned stack
 
@@ -106,4 +106,4 @@ The implementation should retain their direct product flows while adapting accou
 - [Best workflow with CRE](https://hackathon.monad.xyz/tracks/best-workflow-with-cre)
 - [Privy](https://hackathon.monad.xyz/tracks/privy)
 
-Additional Mera and Agora bounties are under consideration. They are not confirmed implementation requirements.
+Privy is the primary account and wallet integration for the first complete flow. Mera, alternate login methods and additional Agora bounty work are deferred until that flow is complete.

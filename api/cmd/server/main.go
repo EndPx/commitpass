@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/EndPx/commitpass/api/internal/indexed"
 	"github.com/EndPx/commitpass/packages/shared"
 )
 
@@ -27,6 +28,11 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
+	closeIndexer, err := indexed.Register(mux)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer closeIndexer()
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(map[string]any{

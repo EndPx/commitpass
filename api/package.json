@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "go run ./cmd/server",
+    "dev": "node scripts/dev.mjs",
     "build": "go build -o dist/ ./cmd/server",
     "typecheck": "go vet ./..."
   },
