@@ -56,8 +56,11 @@ const configSchema = z
     ),
     attendanceApi: z
       .string()
-      .url()
-      .refine((value) => new URL(value).protocol === "https:"),
+      // Javy has no global URL constructor; z.string().url() rejects every URL there.
+      .regex(
+        /^(https:\/\/[a-zA-Z0-9.-]+|http:\/\/(127\.0\.0\.1|localhost))(:[1-9]\d{0,4})?(\/[a-zA-Z0-9_./~-]*)?$/,
+        "Use an HTTPS API base URL, or HTTP loopback for local simulation",
+      ),
     attendanceSecretId: z.string().min(1),
     gasLimit: z.string().regex(/^[1-9][0-9]*$/),
   })
@@ -217,7 +220,7 @@ function processEvent(
     .result();
   const result = evm
     .writeReport(runtime, {
-      receiver: hexToBase64(runtime.config.receiver),
+      receiver: runtime.config.receiver,
       report,
       gasConfig: { gasLimit: runtime.config.gasLimit },
     })
