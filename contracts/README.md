@@ -1,44 +1,38 @@
-# Contracts
+# CommitPass contracts
 
-Naming-only port of [ATFI at `1c57d35b80bb67afc04ee3d9a26292721695aed5`](https://github.com/ATFi-Event/smart-contract/tree/1c57d35b80bb67afc04ee3d9a26292721695aed5). The original logic, function signatures, events, constants, and configuration addresses are preserved.
+Based on [ATFI at 1c57d35](https://github.com/ATFi-Event/smart-contract/tree/1c57d35b80bb67afc04ee3d9a26292721695aed5), extended for configurable ERC-4626 yield and CRE execution. The initial naming-only port remains in commit `3710d47`.
 
-| Original           | CommitPass               |
-| ------------------ | ------------------------ |
-| `FactoryATFi`      | `CommitPassFactory`      |
-| `VaultATFi`        | `CommitPassVault`        |
-| `ATFi Vault Share` | `CommitPass Vault Share` |
-| `ATFi-VS`          | `CommitPass-VS`          |
+## Contracts
 
-Deployment scripts, tests, their identifiers, and imports follow the renamed contracts. The original author attribution is retained. Interfaces in `src/interfaces/` are unchanged.
+- `CommitPassFactory(yieldVault, treasury)` creates event vaults with fixed deployment configuration; `vaultByEventId` exposes their addresses.
+- `CommitPassVault` accepts the configured yield vault's asset. Start deposits pooled assets; settlement redeems the entire share balance, charges the inherited 5% fee on positive realized yield and allocates attendee claims.
+- `CommitPassAutomation(forwarder, factory)` accepts CRE reports. Its deployer configures a nonzero workflow ID once. The application calls `factory.createAutomatedEvent(..., receiver, settleAt)` to create the vault and attach its immutable schedule atomically. The internal setup uses `vault.setAutomation`, callable only by its owner or creating factory before deposits. Only the receiver can start/settle once configured.
+- `mocks/MockYieldVault.sol` supplies faucet-funded mockAUSD (6 decimals) and a mock ERC-4626 vault, restricted to chain IDs 10143/31337. No real AUSD, Clearstar investment or organic yield is involved.
 
-## Setup
+## Authorization
+
+Manual requests and timestamps converge on one report path. Receiver checks the trusted forwarder, workflow ID in 64-byte metadata, chain ID, expiry, schedule, snapshot digest, sorted unique attendees and deposited membership. Duplicate start and identical settlement reports are no-ops; conflicting settlements revert. Deposits after start are rejected. Automation supports up to 500 participants per event.
+
+Attendance remains organizer-attested. A digest identifies the data used; it does not establish physical attendance.
+
+## Build and configuration
 
 ```sh
 git submodule update --init --recursive
+cd contracts
+forge build
 ```
 
-Dependencies use the exact commits recorded by ATFI:
+Solidity 0.8.28, Cancun, optimizer and `via_ir`. Dependencies remain pinned to forge-std `8bbcf6e3f8f62f419e5429a0bd89331c85c37824` and OpenZeppelin `c64a1edb67b6e3f4a15cca8909c9482ad33a02b0`.
 
-- forge-std: `8bbcf6e3f8f62f419e5429a0bd89331c85c37824`
-- OpenZeppelin: `c64a1edb67b6e3f4a15cca8909c9482ad33a02b0`
+`.env.example` lists deployment inputs. `script/DeployTestnet.s.sol` prepares mock assets, factory and receiver, rejecting chains other than Monad testnet. Compiling sends no transactions. Individual factory/vault scripts use `YIELD_VAULT`, `TREASURY`, and for standalone vaults `ORGANIZER`. A standalone vault cannot use the factory-validated automation registry.
 
-With Foundry installed:
+See [CRE setup and snapshot API specification](../cre/README.md).
 
-```sh
-# From the repository root
-pnpm contracts:build
-pnpm contracts:test
-```
+## Limits
 
-Alternatively, run `forge build` and `forge test` from `contracts/`. Windows users with Foundry installed only in WSL should run these commands inside WSL.
-
-Compilation uses the monorepo's pinned Solidity 0.8.28 compiler, `via_ir` as in the original project, and explicit import remappings. CI runs the contract build and inherited tests separately from the JS/Go checks.
-
-## Current boundaries
-
-- Base Sepolia USDC, Morpho market parameters, treasury, and deployment-script addresses remain exactly as supplied by ATFI. Monad deployment configuration has not been introduced.
-- Existing timing checks, yield accounting, fees, zero-attendee behavior, and claim logic are unchanged.
-- The inherited vault suite uses `TestCommitPassVault`, a separate test implementation with simulated yield. It does not establish live Morpho integration or full coverage of `CommitPassVault`.
-- No deployment is performed by build or test commands. Historical ATFI broadcast files are not copied as CommitPass deployment evidence.
-
-The root README describes the planned CommitPass product. Its scheduled lifecycle, CRE receiver, and other integration work are subsequent changes, not part of this naming-only port.
+- No deployment claimed. Testnet asset addresses are determined at deployment.
+- Redemption failure or recovery below committed principal reverts settlement. This preserves nominal refund accounting but does not solve permanent loss or unavailable liquidity.
+- Automated zero-attendee settlement is deferred. Cancellation/refund/recovery needs a policy; legacy owner-operated vaults retain inherited empty-attendance behavior.
+- Rounding dust remains in the vault. ERC-20 share transfers do not transfer participant claims; this event contract is not itself ERC-4626.
+- The inherited vault suite exercises a separate mock with simulated yield. It does not cover this receiver or establish live Morpho compatibility. Only the factory fixture was adapted for its constructor dependencies; no new tests were added or executed in this turn.

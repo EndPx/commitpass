@@ -13,17 +13,19 @@ contract DeployCommitPassVault is Script {
         vm.startBroadcast(privateKey);
         console.log("Deployer:", msg.sender);
 
-        uint256 stakeAmount = 1 * 10**6; // 1 USDC
+        uint256 stakeAmount = 1 * 10**6; // 1 asset unit for a token with 6 decimals
         uint256 registrationDeadline = block.timestamp + 1 days;
         uint256 eventDate = block.timestamp + 2 days;
 
         commitPassVault = new CommitPassVault(
             1, // eventId
-            0x6b732552C0E06F69312D7E81969E28179E228C20, // organizer
+            vm.envAddress("ORGANIZER"),
             stakeAmount,
             registrationDeadline,
             eventDate,
-            10 // maxParticipant
+            10, // maxParticipant
+            vm.envAddress("YIELD_VAULT"),
+            vm.envAddress("TREASURY")
         );
         console.log("CommitPassVault deployed at:", address(commitPassVault));
 

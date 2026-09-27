@@ -13,7 +13,7 @@ contract DeployCommitPassFactory is Script {
         console.log("Deploying CommitPassFactory...");
 
         vm.startBroadcast(privateKey);
-        commitPassFactory = new CommitPassFactory();
+        commitPassFactory = new CommitPassFactory(vm.envAddress("YIELD_VAULT"), vm.envAddress("TREASURY"));
         vm.stopBroadcast();
 
         console.log("CommitPassFactory deployed at:", address(commitPassFactory));

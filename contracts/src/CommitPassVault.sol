@@ -6,15 +6,20 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {IMorpho, Id} from "./interfaces/IMorpho.sol";
+import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
+
+interface IEventAutomation {
+    function registerEvent(address vault, uint256 settleAt) external;
+}
 
 contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
-    // PRD 2.5: ERC-4626 compliance with Morpho integration for yield generation
-    IERC20 public constant ASSET_TOKEN = IERC20(0x036CbD53842c5426634e7929541eC2318f3dCF7e);
+    IERC20 public immutable ASSET_TOKEN;
+    IERC4626 public immutable yieldVault;
     uint256 private constant BPS_PRECISION = 10000;
-    address public treasury = 0x6b732552C0E06F69312D7E81969E28179E228C20;
+    address public immutable treasury;
+    address public immutable factory;
     uint256 public protocolFeeBps = 500; // PRD 2.5: 5% protocol fee (500 bps)
 
     // Event specific data
@@ -37,26 +42,46 @@ contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
     mapping(address => Participant) public participants;
     address[] public participantAddresses;
 
-    // Morpho integration
-    IMorpho public morpho = IMorpho(0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb);
-    IMorpho.MarketParams public morphoMarketParams;
-    Id public marketId;
-
     // Yield tracking
     uint256 public totalDepositedToYield;
     uint256 public totalYieldEarned;
     uint256 public totalNetYield;
     bool public depositedToYield;
     bool public eventSettled;
+    address public automation;
+    bool public registrationClosed;
+
+    event AutomationConfigured(address indexed automation);
+    event RegistrationClosed();
+
+    modifier onlyLifecycleExecutor() {
+        require(msg.sender == (automation == address(0) ? owner() : automation), "Unauthorized executor");
+        _;
+    }
+
+    // Configure once, before accepting participant funds.
+    function setAutomation(address executor, uint256 settleAt) external {
+        require(msg.sender == owner() || msg.sender == factory, "Unauthorized configuration");
+        require(automation == address(0) && participantAddresses.length == 0 && !depositedToYield, "Configuration locked");
+        require(executor.code.length > 0, "Invalid executor");
+        automation = executor;
+        IEventAutomation(executor).registerEvent(address(this), settleAt);
+        emit AutomationConfigured(executor);
+    }
+
+    function closeRegistration() external onlyLifecycleExecutor {
+        if (!registrationClosed) {
+            registrationClosed = true;
+            emit RegistrationClosed();
+        }
+    }
 
     event DepositMade(address indexed participant, uint256 amount);
     event AttendanceMarked(address indexed participant);
     event EventSettled(uint256 totalYield, uint256 protocolFee);
     event DepositToYieldSource(uint256 amount);
     event RewardClaimed(address indexed participant, uint256 rewardAmount);
-    event MarketCreated(address indexed market, string message);
-    event AssetApproved(address indexed token, uint256 amount, address indexed spender);
-    event SupplyAttempted(uint256 amount, string message);
+
 
     constructor(
         uint256 _eventId,
@@ -64,8 +89,11 @@ contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
         uint256 _stakeAmount,
         uint256 _registrationDeadline,
         uint256 _eventDate,
-        uint256 _maxParticipant
+        uint256 _maxParticipant,
+        address _yieldVault,
+        address _treasury
     ) ERC20("CommitPass Vault Share", "CommitPass-VS") Ownable(_organizer) {
+        factory = msg.sender;
         require(_maxParticipant > 0, "Max participants must be greater than 0");
         eventId = _eventId;
         organizer = _organizer;
@@ -74,23 +102,22 @@ contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
         eventDate = _eventDate;
         maxParticipant = _maxParticipant;
 
-        morphoMarketParams = IMorpho.MarketParams({
-            loanToken: address(ASSET_TOKEN),
-            collateralToken: address(ASSET_TOKEN),
-            oracle:0x2DC205F24BCb6B311E5cdf0745B0741648Aebd3d,
-            irm: 0x46415998764C29aB2a25CbeA6254146D50D22687,
-            lltv: 860000000000000000
-        });
+        require(_yieldVault.code.length > 0 && _treasury != address(0), "Invalid yield configuration");
+        yieldVault = IERC4626(_yieldVault);
+        ASSET_TOKEN = IERC20(yieldVault.asset());
+        treasury = _treasury;
     }
 
-    
+
     /**
-     * @dev Peserta melakukan stake USDC untuk mendaftar event
+     * @dev Participants deposit the commitment asset to register for the event
      */
     function deposit() external nonReentrant {
+        require(block.timestamp < registrationDeadline, "Registration deadline passed");
+        require(!depositedToYield, "Event already started");
+        require(!registrationClosed, "Registration closed");
         Participant storage user = participants[msg.sender];
         require(!user.hasDeposited, "Already deposited");
-        require(block.timestamp < registrationDeadline, "Registration deadline passed");
         require(!eventSettled, "Event already settled");
         require(participantAddresses.length < maxParticipant, "Max participants reached");
 
@@ -103,59 +130,28 @@ contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
     }
 
     /**
-     * @dev Deposit all assets to Morpho for yield generation
+     * @dev Deposit pooled assets into the configured ERC-4626 yield vault
      */
-    function depositToYieldSource() external onlyOwner {
+    function depositToYieldSource() external onlyLifecycleExecutor nonReentrant {
         require(!depositedToYield, "Already deposited to yield");
-        require(address(morpho) != address(0), "Morpho not set");
-        require(totalAssets() > 0, "No assets to deposit");
-
-        uint256 amountToDeposit = totalAssets();
-        emit SupplyAttempted(amountToDeposit, "Starting deposit process");
-
-        // Step 1: Approve Morpho to spend USDC
-        try ASSET_TOKEN.approve(address(morpho), amountToDeposit) {
-            emit AssetApproved(address(ASSET_TOKEN), amountToDeposit, address(morpho));
-            emit SupplyAttempted(amountToDeposit, "USDC approval successful");
-        } catch Error(string memory reason) {
-            emit SupplyAttempted(amountToDeposit, string(abi.encodePacked("Approval failed: ", reason)));
-            revert(string(abi.encodePacked("Approval failed: ", reason)));
-        }
-
-        // Step 2: Create market if needed
-        try morpho.createMarket(morphoMarketParams) {
-            emit MarketCreated(address(morpho), "Market created successfully");
-            emit SupplyAttempted(amountToDeposit, "Market creation successful");
-        } catch Error(string memory reason) {
-            emit MarketCreated(address(morpho), string(abi.encodePacked("Market creation failed: ", reason)));
-            emit SupplyAttempted(amountToDeposit, "Market might already exist, continuing");
-        } catch {
-            emit MarketCreated(address(morpho), "Market creation failed with unknown error, continuing");
-        }
-
-        // Step 3: Supply to Morpho
-        try morpho.supply(morphoMarketParams, amountToDeposit, 0, address(this), "") {
-            emit SupplyAttempted(amountToDeposit, "Supply to Morpho successful");
-        } catch Error(string memory reason) {
-            emit SupplyAttempted(amountToDeposit, string(abi.encodePacked("Supply failed: ", reason)));
-            revert(string(abi.encodePacked("Supply failed: ", reason)));
-        } catch {
-            emit SupplyAttempted(amountToDeposit, "Supply failed with unknown error");
-            revert("Supply to Morpho failed");
-        }
-
+        uint256 amountToDeposit = ASSET_TOKEN.balanceOf(address(this));
+        require(amountToDeposit > 0, "No assets to deposit");
+        ASSET_TOKEN.forceApprove(address(yieldVault), amountToDeposit);
+        uint256 shares = yieldVault.deposit(amountToDeposit, address(this));
+        require(shares > 0, "No yield shares received");
+        ASSET_TOKEN.forceApprove(address(yieldVault), 0);
         totalDepositedToYield = amountToDeposit;
         depositedToYield = true;
+        registrationClosed = true;
         emit DepositToYieldSource(amountToDeposit);
-        emit SupplyAttempted(amountToDeposit, "Deposit process completed successfully");
     }
 
-    
-    
+
+
     /**
      * @dev Settle event and calculate reward for Attended Participants
      */
-    function settleEvent(address[] calldata _attendedParticipants) external onlyOwner nonReentrant {
+    function settleEvent(address[] calldata _attendedParticipants) external onlyLifecycleExecutor nonReentrant {
         require(depositedToYield, "Not yet deposited to yield");
         require(!eventSettled, "Event already settled");
 
@@ -170,8 +166,9 @@ contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
 
         _withdrawAllFromYieldSource();
 
-        // Calculate actual yield from Morpho (real balance - original deposited amount)
+        // Calculate realized yield after redemption (real balance - original deposited amount)
         uint256 currentBalance = ASSET_TOKEN.balanceOf(address(this));
+        require(currentBalance >= stakeAmount * participantAddresses.length, "Principal shortfall");
         uint256 actualYieldEarned = currentBalance > totalDepositedToYield ? currentBalance - totalDepositedToYield : 0;
         totalYieldEarned = actualYieldEarned;
 
@@ -189,29 +186,9 @@ contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
         emit EventSettled(totalYieldEarned, protocolFeeAmount);
     }
 
-    function _calculateYield() internal view returns (uint256) {
-        if (depositedToYield && address(morpho) != address(0)) {
-            // Simple fixed yield calculation (5% annually) for now
-            return (totalDepositedToYield * 5) / 100;
-        }
-        return 0;
-    }
-
-        /**
-     * @dev Internal function to withdraw from Morpho
-     */
-    function _withdrawFromMorpho(uint256 _amount) internal {
-        require(address(morpho) != address(0), "Morpho not set");
-
-        // Withdraw from Morpho
-        morpho.withdraw(morphoMarketParams, _amount, 0, address(this), address(this));
-    }
-
     function _withdrawAllFromYieldSource() internal {
-        if (address(morpho) != address(0) && depositedToYield) {
-            // Withdraw all assets from Morpho (use simple approach)
-            _withdrawFromMorpho(totalDepositedToYield);
-        }
+        uint256 shares = yieldVault.balanceOf(address(this));
+        if (shares > 0) yieldVault.redeem(shares, address(this), address(this));
     }
 
     function claimReward() external nonReentrant {
@@ -273,20 +250,20 @@ contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
                 return ASSET_TOKEN.balanceOf(address(this));
             } else {
                 // Before settlement: show gross assets (deposited + earned yield)
-                return totalDepositedToYield + totalYieldEarned;
+                return ASSET_TOKEN.balanceOf(address(this)) + yieldVault.convertToAssets(yieldVault.balanceOf(address(this)));
             }
         }
         return ASSET_TOKEN.balanceOf(address(this));
     }
 
     function maxDeposit(address) public view returns (uint256) {
-        if (eventSettled || block.timestamp >= registrationDeadline) return 0;
+        if (registrationClosed || depositedToYield || eventSettled || block.timestamp >= registrationDeadline) return 0;
         return stakeAmount;
     }
 
     function maxWithdraw(address _owner) public view returns (uint256) {
         Participant storage user = participants[_owner];
-        if (!eventSettled || !user.hasClaimed) return 0;
+        if (!eventSettled || user.hasClaimed) return 0;
         return user.claimableRewards;
     }
 

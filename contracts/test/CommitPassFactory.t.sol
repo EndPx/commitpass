@@ -5,6 +5,8 @@ import {Test, console} from "forge-std/Test.sol";
 import {CommitPassFactory} from "../src/CommitPassFactory.sol";
 import {CommitPassVault} from "../src/CommitPassVault.sol";
 
+import {MockAUSD, MockYieldVault} from "../src/mocks/MockYieldVault.sol";
+
 contract CommitPassFactoryTest is Test {
     CommitPassFactory public factory;
     CommitPassVault public testVault;
@@ -27,7 +29,10 @@ contract CommitPassFactoryTest is Test {
 
     function setUp() public {
         // Deploy the factory contract
-        factory = new CommitPassFactory();
+        vm.chainId(31337);
+        MockAUSD asset = new MockAUSD();
+        MockYieldVault yieldVault = new MockYieldVault(asset);
+        factory = new CommitPassFactory(address(yieldVault), address(this));
     }
 
     function testFactoryDeployment() public {
