@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "db:migrate": "node scripts/dev.mjs migrate",
     "dev": "node scripts/dev.mjs",
     "build": "node scripts/go.mjs build -o dist/ ./cmd/server",
     "typecheck": "node scripts/go.mjs vet ./..."

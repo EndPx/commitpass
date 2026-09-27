@@ -6,7 +6,14 @@ import { fileURLToPath } from "node:url";
 const cwd = fileURLToPath(new URL("../", import.meta.url));
 const env = new URL("../.env", import.meta.url);
 if (existsSync(env)) loadEnvFile(fileURLToPath(env));
-const child = spawn("go", ["run", "./cmd/server"], { cwd, stdio: "inherit" });
+const target = process.argv[2] ?? "server";
+if (!["server", "migrate"].includes(target))
+  throw new Error("Unknown API command");
+const child = spawn("go", ["run", `./cmd/${target}`], {
+  cwd,
+  env: { ...process.env, CGO_ENABLED: "0" },
+  stdio: "inherit",
+});
 child.on("error", () => {
   console.error("Unable to start Go API");
   process.exitCode = 1;
