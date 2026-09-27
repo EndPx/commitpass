@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "node scripts/dev.mjs",
-    "build": "go build -o dist/ ./cmd/server",
-    "typecheck": "go vet ./..."
+    "build": "node scripts/go.mjs build -o dist/ ./cmd/server",
+    "typecheck": "node scripts/go.mjs vet ./..."
   },
   "dependencies": {
     "@commitpass/shared": "workspace:*"

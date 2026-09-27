@@ -31,7 +31,7 @@ The API and shared Go package are connected through `go.work`. Project identity 
 
 ## Local development
 
-Requirements: Node.js 22 or 24 (CI uses `.node-version`), pnpm 10.21.0, and Go 1.24 or newer. Foundry is needed when working on Solidity. Bun 1.3.8+ is also needed for CRE WASM compilation.
+Requirements: Node.js 22 or 24 (CI uses `.node-version`), pnpm 10.21.0, and Go 1.25 or newer. Foundry is needed when working on Solidity. Bun 1.3.8+ is also needed for CRE WASM compilation.
 
 ```sh
 pnpm install --frozen-lockfile
