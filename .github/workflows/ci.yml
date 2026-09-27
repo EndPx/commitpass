@@ -35,7 +35,7 @@ jobs:
           cache: pnpm
       - uses: actions/setup-go@v5
         with:
-          go-version-file: apps/api/go.mod
+          go-version-file: api/go.mod
           cache: false
       - run: pnpm install --frozen-lockfile
       - run: pnpm check

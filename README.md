@@ -15,9 +15,9 @@ CommitPass is being built for the Metropolis hackathon. The monorepo bootstrap i
 ```text
 apps/
   web/                  Next.js 15; ShowOrSow frontend adaptation will live here
-  api/                  Go API; metadata, attendance, and snapshot endpoints
-  indexer/              Reserved Envio HyperIndex workspace
-  cre/                  Reserved Chainlink CRE workflow workspace
+api/                  Go API; metadata, attendance, and snapshot endpoints
+indexer/              Reserved Envio HyperIndex workspace
+cre/                  Reserved Chainlink CRE workflow workspace
 contracts/              ATFI factory/vault port, scripts, and inherited Foundry tests
 packages/
   shared/               Public shared code and language-neutral project data
@@ -25,7 +25,7 @@ packages/
 scripts/                Cross-platform repository tooling
 ```
 
-`apps/*` may depend on `packages/*`. Shared packages must not import application code. Each app declares local package dependencies with `workspace:*`.
+`apps/web`, `api`, `cre`, and `indexer` may depend on `packages/*`. Shared packages must not import application code. Each app declares local package dependencies with `workspace:*`.
 
 The API and shared Go package are connected through `go.work`. Project identity is defined once in `packages/shared/src/project.json`, imported by TypeScript and embedded by Go. Both health endpoints consume this source. See [shared package boundaries](packages/shared/README.md).
 

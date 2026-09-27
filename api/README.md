@@ -7,7 +7,7 @@ Go workspace for metadata, verified organizer actions, check-ins, and frozen att
 pnpm dev:api
 ```
 
-The root `go.work` resolves `github.com/EndPx/commitpass/packages/shared` locally. Run Go commands from this checkout, including for CI; an isolated copy of `apps/api` does not include its shared module.
+The root `go.work` resolves `github.com/EndPx/commitpass/packages/shared` locally. Run Go commands from this checkout, including for CI; an isolated copy of `api` does not include its shared module.
 
 Health currently reports process liveness only. Neon, Privy verification, and event endpoints are not connected yet.
 

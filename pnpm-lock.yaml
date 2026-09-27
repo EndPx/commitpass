@@ -24,23 +24,23 @@ importers:
         specifier: 2.11.4
         version: 2.11.4
 
-  apps/api:
+  api:
     dependencies:
       '@commitpass/shared':
         specifier: workspace:*
-        version: link:../../packages/shared
+        version: link:../packages/shared
 
-  apps/cre:
+  cre:
     dependencies:
       '@commitpass/shared':
         specifier: workspace:*
-        version: link:../../packages/shared
+        version: link:../packages/shared
 
-  apps/indexer:
+  indexer:
     dependencies:
       '@commitpass/shared':
         specifier: workspace:*
-        version: link:../../packages/shared
+        version: link:../packages/shared
 
   apps/web:
     dependencies:

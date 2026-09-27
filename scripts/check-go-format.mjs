@@ -1,6 +1,6 @@
 import { spawnSync } from "node:child_process";
 
-const result = spawnSync("gofmt", ["-l", "apps/api", "packages/shared"], {
+const result = spawnSync("gofmt", ["-l", "api", "packages/shared"], {
   encoding: "utf8",
 });
 

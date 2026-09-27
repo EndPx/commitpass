@@ -1,4 +1,4 @@
-module github.com/EndPx/commitpass/apps/api
+module github.com/EndPx/commitpass/api
 
 go 1.24.0
 
