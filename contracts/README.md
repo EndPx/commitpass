@@ -27,6 +27,8 @@ Solidity 0.8.28, Cancun, optimizer and `via_ir`. Dependencies remain pinned to f
 
 `.env.example` lists deployment inputs. `script/DeployTestnet.s.sol` prepares mock assets, factory and receiver, rejecting chains other than Monad testnet. Compiling sends no transactions. Individual factory/vault scripts use `YIELD_VAULT`, `TREASURY`, and for standalone vaults `ORGANIZER`. A standalone vault cannot use the factory-validated automation registry.
 
+`DeployTestnet` uses `DEPLOYER_ADDRESS` with Foundry's encrypted keystore options (`--account`, `--password-file`, and the matching `--sender`). It does not read or export a raw private key. Supply the chosen treasury and verified deployed-workflow forwarder explicitly.
+
 See [CRE setup and snapshot API specification](../cre/README.md).
 
 ## Limits

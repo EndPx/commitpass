@@ -11,8 +11,10 @@ contract DeployTestnet is Script {
         require(block.chainid == 10143, "Monad testnet only");
         address forwarder = vm.envAddress("CRE_FORWARDER");
         address treasury = vm.envAddress("TREASURY");
-        uint256 deployerKey = vm.envUint("PRIVATE_KEY");
-        vm.startBroadcast(deployerKey);
+        address deployer = vm.envAddress("DEPLOYER_ADDRESS");
+        require(deployer != address(0), "Invalid deployer");
+        // Foundry resolves this sender through --account/--password-file.
+        vm.startBroadcast(deployer);
         MockAUSD asset = new MockAUSD();
         MockYieldVault yieldVault = new MockYieldVault(asset);
         CommitPassFactory factory = new CommitPassFactory(address(yieldVault), treasury);
