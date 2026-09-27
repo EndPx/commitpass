@@ -1,11 +1,25 @@
 import { spawnSync } from "node:child_process";
 import { loadEnvFile } from "node:process";
 import { fileURLToPath } from "node:url";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 const cwd = fileURLToPath(new URL("../", import.meta.url));
 const envFile = new URL("../.env", import.meta.url);
 if (existsSync(envFile)) loadEnvFile(fileURLToPath(envFile));
+const deployment = JSON.parse(
+  readFileSync(
+    new URL(
+      "../../packages/shared/src/deployments/monad-testnet.json",
+      import.meta.url,
+    ),
+    "utf8",
+  ),
+);
+process.env.ENVIO_FACTORY_ADDRESS ||=
+  deployment.contracts.CommitPassFactory.address;
+process.env.ENVIO_AUTOMATION_ADDRESS ||=
+  deployment.contracts.CommitPassAutomation.address;
+process.env.ENVIO_START_BLOCK ||= String(deployment.startBlock);
 const args = process.argv.slice(2);
 if (args[0] === "start") {
   for (const key of ["ENVIO_FACTORY_ADDRESS", "ENVIO_AUTOMATION_ADDRESS"]) {

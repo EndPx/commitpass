@@ -32,6 +32,9 @@ chains:
     rpc:
       - url: ${ENVIO_RPC_URL:-https://testnet-rpc.monad.xyz}
         for: sync
+        # The public Monad testnet RPC caps eth_getLogs ranges at 100 blocks.
+        initial_block_interval: 99
+        interval_ceiling: 99
     contracts:
       - name: CommitPassFactory
         address: "${ENVIO_FACTORY_ADDRESS:-0x0000000000000000000000000000000000000000}"
