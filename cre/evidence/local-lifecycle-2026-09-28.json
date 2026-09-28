@@ -1,0 +1,62 @@
+{
+  "environment": "local Anvil only; not Monad testnet or a DON deployment",
+  "chainId": 10143,
+  "rpc": "http://127.0.0.1:8547",
+  "steps": [
+    {
+      "name": "manual-start",
+      "exitCode": 0,
+      "expectedSuccess": true
+    },
+    {
+      "name": "manual-start-retry",
+      "exitCode": 0,
+      "expectedSuccess": true
+    },
+    {
+      "name": "attendance-unavailable",
+      "exitCode": 1,
+      "expectedSuccess": false
+    },
+    {
+      "name": "manual-settlement",
+      "exitCode": 0,
+      "expectedSuccess": true
+    },
+    {
+      "name": "settlement-retry",
+      "exitCode": 0,
+      "expectedSuccess": true
+    },
+    {
+      "name": "scheduled-start",
+      "exitCode": 0,
+      "expectedSuccess": true
+    },
+    {
+      "name": "scheduled-settlement",
+      "exitCode": 0,
+      "expectedSuccess": true
+    }
+  ],
+  "contracts": {
+    "asset": "0xF5bA92d0851C57ad68637C8141763C643Df715a1",
+    "yieldVault": "0x4601d33fdCbc89D9Ceaa05688af31B9AD970Dc7f",
+    "factory": "0xB69B338e570958E997155DBe0144062EBe307de7",
+    "receiver": "0x6751793542A0Ac57Cd388a6834DeEFC2785404b3",
+    "mockForwarder": "0xB9F79d863261869B234c481D1f9A7af84AeAd192"
+  },
+  "manual": {
+    "vault": "0x86F26114BCb4139534dD03Ea9755675b648d5526",
+    "snapshotHash": "0xcf5e37f9e2f9de46835cdfe56abbf97876042a4846284a0de70ea1576a31b0a8",
+    "claimedRaw": "21900000",
+    "claimTransactionHash": "0x4332c3ac05370aa2cc4b020732d80973d0821fadbc2fc14348d0e9ab70b75372"
+  },
+  "scheduled": {
+    "vault": "0xc1522fc9903c68b72D29583F404bcBc14Bc0260D",
+    "settled": true
+  },
+  "snapshotReads": 2,
+  "completedAt": "2026-09-28T13:24:23.059Z",
+  "status": "passed"
+}
