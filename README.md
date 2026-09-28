@@ -14,7 +14,7 @@ CommitPass is being built for the Metropolis Consumer Products & Payments track 
 
 ```text
 apps/
-  web/                  Next.js 15; ShowOrSow frontend adaptation will live here
+  web/                  Next.js 15 landing page and interactive RSVP preview
 api/                    Go API; metadata, attendance, and snapshot endpoints
 cre/                    Chainlink CRE start/settlement workflow
 indexer/                Envio HyperIndex, schema and event handlers
@@ -42,7 +42,9 @@ pnpm dev
 - Web liveness: `http://localhost:3000/health`
 - API liveness: `http://localhost:8080/health`
 - These endpoints prove the processes and shared imports work. They do not check a database or chain connection.
-- The event frontend has not been copied yet; `/` has no product page.
+- Landing page: `http://localhost:3000/`. Includes an animated event-poster hero,
+  interactive RSVP walkthrough, host section, and FAQ. The preview does not submit
+  bookings or payments; Privy account screens and connected event flows come next.
 
 | Command                | Purpose                                          |
 | ---------------------- | ------------------------------------------------ |
