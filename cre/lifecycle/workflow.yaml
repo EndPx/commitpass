@@ -12,3 +12,10 @@ local-settings:
     workflow-path: ./main.ts
     config-path: ../.local/config.json
     secrets-path: ../secrets.example.yaml
+interactive-settings:
+  user-workflow:
+    workflow-name: commitpass-interactive-local
+  workflow-artifacts:
+    workflow-path: ./main.ts
+    config-path: ../.interactive/config.json
+    secrets-path: ../secrets.example.yaml

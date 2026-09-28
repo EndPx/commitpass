@@ -1,5 +1,9 @@
 # Local CRE lifecycle
 
+For a persistent environment operated through the web app, use `pnpm local:app`
+and follow [INTERACTIVE.md](INTERACTIVE.md). This page describes the separate,
+disposable scripted runner.
+
 Run the real CRE CLI and WASM workflow against a disposable Anvil chain and an authenticated loopback attendance server:
 
 ```sh

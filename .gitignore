@@ -24,6 +24,7 @@ cre/secrets.yaml
 *.wasm
 indexer/.envio/
 cre/.local/
+cre/.interactive/
 
 # Local runtime files
 *.log

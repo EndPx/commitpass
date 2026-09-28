@@ -1,0 +1,95 @@
+{
+  "environment": "Local Anvil with real Privy browser signing, Go/Neon attendance, Envio, and CRE CLI simulation",
+  "publicDeployment": false,
+  "runId": "77ced8f0ce47aeb3",
+  "recordedAt": "2026-09-28T14:08:57.5451225Z",
+  "vault": "0xb83f56ebaea0d649607bda4f8cccc1d812e41481",
+  "status": "SETTLED",
+  "participantCount": 1,
+  "attendeeCount": 1,
+  "claimCount": 1,
+  "committedRaw": "5000000",
+  "yieldDepositedRaw": "5000000",
+  "totalClaimedRaw": "5000000",
+  "snapshotHash": "0xfef80c8cc2a0b5d18e13a0890c9fd71f3c30dc0c608b8c74b9df0b6c098311cf",
+  "activity": [
+    {
+      "kind": "CREATED",
+      "blockNumber": "437",
+      "transactionHash": "0x47b8140622e242862c7efce4f10452e3b5b9b6e27c64485a0b4004a57929facf",
+      "amount": null
+    },
+    {
+      "kind": "SCHEDULE_REGISTERED",
+      "blockNumber": "437",
+      "transactionHash": "0x47b8140622e242862c7efce4f10452e3b5b9b6e27c64485a0b4004a57929facf",
+      "amount": null
+    },
+    {
+      "kind": "AUTOMATION_CONFIGURED",
+      "blockNumber": "437",
+      "transactionHash": "0x47b8140622e242862c7efce4f10452e3b5b9b6e27c64485a0b4004a57929facf",
+      "amount": null
+    },
+    {
+      "kind": "DEPOSITED",
+      "blockNumber": "592",
+      "transactionHash": "0xf6312ceb7bdaf21655aa7afc6bcebb8a58408278859cebcb034b70dba5cf8a25",
+      "amount": "5000000"
+    },
+    {
+      "kind": "REGISTRATION_CLOSED",
+      "blockNumber": "724",
+      "transactionHash": "0x446b4c622764b10402f65ff50312bcc49ac9bd8d074c5400ad93663914aa4814",
+      "amount": null
+    },
+    {
+      "kind": "START_REQUESTED",
+      "blockNumber": "724",
+      "transactionHash": "0x446b4c622764b10402f65ff50312bcc49ac9bd8d074c5400ad93663914aa4814",
+      "amount": null
+    },
+    {
+      "kind": "STARTED",
+      "blockNumber": "779",
+      "transactionHash": "0xfdbb4206bd65dca3c02ba8234955e3adbc5d8e5f8d06fa277d390941839d08f1",
+      "amount": "5000000"
+    },
+    {
+      "kind": "CRE_EXECUTED",
+      "blockNumber": "779",
+      "transactionHash": "0xfdbb4206bd65dca3c02ba8234955e3adbc5d8e5f8d06fa277d390941839d08f1",
+      "amount": null
+    },
+    {
+      "kind": "SETTLEMENT_REQUESTED",
+      "blockNumber": "906",
+      "transactionHash": "0xd9057c9666a6728b6287d48b0b14e2c09a0113e4f6ed5a5d7483052a990478bb",
+      "amount": null
+    },
+    {
+      "kind": "ATTENDANCE_SETTLED",
+      "blockNumber": "916",
+      "transactionHash": "0x08b9430404c8e7087810157fc862ae898fd965f34ef14d35d01dc3a8344dbe09",
+      "amount": null
+    },
+    {
+      "kind": "SETTLED",
+      "blockNumber": "916",
+      "transactionHash": "0x08b9430404c8e7087810157fc862ae898fd965f34ef14d35d01dc3a8344dbe09",
+      "amount": "0"
+    },
+    {
+      "kind": "CRE_EXECUTED",
+      "blockNumber": "916",
+      "transactionHash": "0x08b9430404c8e7087810157fc862ae898fd965f34ef14d35d01dc3a8344dbe09",
+      "amount": null
+    },
+    {
+      "kind": "CLAIMED",
+      "blockNumber": "989",
+      "transactionHash": "0xa77e58f9b1ef6580988f88fe564d847f5e3a02e357bc95d118f1828fb1b37b16",
+      "amount": "5000000"
+    }
+  ]
+}

@@ -10,6 +10,11 @@ Participants reserve a place by depositing a fixed commitment into an event cont
 
 CommitPass is being built for the Metropolis Consumer Products & Payments track on Monad testnet (10143). MockAUSD, MockYieldVault, CommitPassFactory and the CRE receiver are deployed and verified on Monadscan through Etherscan API. Envio and the Go read API connect to Neon using the shared deployment manifest. The backend implements Privy token verification, owner-authorized check-ins and immutable attendance snapshots. The frontend includes Privy sign-in, the event editor, reservation/claim actions, participant QR passes and a host management workspace. The local CRE lifecycle passes start, settlement and claim scenarios; a real authenticated public end-to-end event run remains pending because CRE deployment access is not enabled and its workflow is not activated. See [local execution and activation evidence](cre/evidence/README.md), [deployment evidence](contracts/DEPLOYMENT.md), [contract boundaries](contracts/README.md) and [CRE setup](cre/README.md).
 
+The interactive local application has completed create → reserve → start →
+check-in → settlement → claim through Privy, Go/Neon, Envio and CRE CLI on Anvil.
+See [the recorded local application flow](cre/evidence/interactive-local-2026-09-28.json).
+Use `pnpm local:app` to run it; the public testnet deployment is unchanged.
+
 ## Repository layout
 
 ```text
@@ -44,10 +49,11 @@ pnpm cre:local
 This runs the real CRE CLI/WASM against a disposable Anvil chain and the local
 attendance fixture. It requires CLI login, not deployment access. See
 [local setup](cre/local/README.md) and [recorded evidence](cre/evidence/README.md).
-The runner is not yet an interactive frontend + Privy + Go/Neon integration.
-The application still targets the public Monad testnet contracts, whose automated
-publishing remains locked while their receiver is unconfigured. Running this
-command does not configure or submit transactions to the public receiver.
+For the interactive frontend + Privy + Go/Neon + Envio + CRE environment, use
+`pnpm local:app`. See [interactive local setup](cre/local/INTERACTIVE.md).
+The normal application commands still target public Monad testnet, whose automated
+publishing stays locked while that receiver is unconfigured. Neither local command
+configures or submits transactions to the public receiver.
 
 ### Application development
 

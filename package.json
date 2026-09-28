@@ -18,6 +18,7 @@
     "contracts:build": "pnpm --filter @commitpass/contracts compile",
     "contracts:abi": "node scripts/export-automation-abi.mjs",
     "cre:local": "pnpm --filter @commitpass/cre local",
+    "local:app": "node cre/local/serve.mjs",
     "indexer:codegen": "pnpm --filter @commitpass/indexer codegen",
     "indexer:start": "pnpm --filter @commitpass/indexer start",
     "contracts:test": "pnpm --filter @commitpass/contracts test"
