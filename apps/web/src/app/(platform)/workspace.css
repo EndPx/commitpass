@@ -3,45 +3,84 @@
   background: var(--canvas);
 }
 .workspace-header {
-  min-height: 80px;
-  display: flex;
+  min-height: 64px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   justify-content: space-between;
-  gap: 32px;
-  padding: 0 4%;
+  gap: 24px;
+  padding: 0 20px;
   position: sticky;
   top: 0;
   z-index: 40;
-  background: rgb(250 249 246 / 86%);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--line);
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    backdrop-filter 180ms ease;
+}
+.workspace-header.is-scrolled {
+  background: rgb(250 249 246 / 55%);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-bottom-color: rgb(37 38 34 / 9%);
+}
+.workspace-header > .brand {
+  justify-self: start;
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
+}
+.workspace-header .brand--mark-only > span {
+  display: none;
+}
+.workspace-header .brand--mark-only > .brand-mark {
+  width: 36px;
+  height: 36px;
+  margin: 0;
+}
+.workspace-clock {
+  font-size: 12px;
+  color: #93958b;
+  white-space: nowrap;
+}
+.workspace-header .account-menu summary > span {
+  width: 28px;
+  height: 28px;
+  font-size: 12px;
+}
+.workspace-header .workspace-create-link > svg {
+  display: none;
+}
+.workspace-header .account-popover {
+  top: 46px;
 }
 .workspace-header nav {
   display: flex;
   gap: 28px;
-  margin-right: auto;
-  margin-left: 40px;
+  margin: 0;
 }
 .workspace-header nav a {
   display: flex;
   align-items: center;
   gap: 8px;
-  min-height: 80px;
+  min-height: 44px;
   color: var(--muted);
   font-size: 14px;
-  border-bottom: 2px solid transparent;
 }
 .workspace-header nav a:hover,
 .workspace-header nav a.active {
   color: var(--ink);
 }
 .workspace-header nav a.active {
-  border-bottom-color: var(--ink);
+  font-weight: 550;
 }
 .workspace-header-actions {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 16px;
+  justify-self: end;
 }
 .workspace-create-link {
   display: flex;
@@ -749,7 +788,7 @@
 }
 .detail-aside {
   position: sticky;
-  top: 112px;
+  top: 88px;
   align-self: start;
 }
 .detail-main > .event-chips {
@@ -991,8 +1030,8 @@
 }
 @media (max-width: 899px) {
   .workspace-header {
-    gap: 20px;
-    padding-inline: 24px;
+    gap: 16px;
+    padding-inline: 16px;
   }
   .workspace-header .brand {
     font-size: 21px;
@@ -1003,6 +1042,9 @@
   }
   .workspace-header-actions {
     gap: 12px;
+  }
+  .workspace-clock {
+    display: none;
   }
   .create-grid,
   .detail-grid {
@@ -1024,26 +1066,28 @@
 }
 @media (max-width: 649px) {
   .workspace-header {
-    flex-wrap: wrap;
-    gap: 0;
-    padding: 12px 20px 0;
-    min-height: 104px;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    gap: 8px;
+    padding: 0 12px;
+    min-height: 56px;
   }
   .workspace-header > .brand {
     font-size: 20px;
   }
   .workspace-header nav {
-    order: 3;
-    flex-basis: 100%;
     justify-content: center;
-    gap: 36px;
+    gap: 16px;
   }
   .workspace-header nav a {
     min-height: 44px;
     font-size: 12px;
   }
   .workspace-header-actions {
-    margin-left: auto;
+    margin: 0;
+    gap: 4px;
+  }
+  .workspace-header .workspace-create-link > svg {
+    display: block;
   }
   .workspace-create-link {
     width: 44px;
@@ -1053,7 +1097,7 @@
     display: none;
   }
   .workspace-header-actions > .button {
-    padding-inline: 14px;
+    padding-inline: 12px;
     font-size: 12px;
   }
   .workspace-content {
@@ -1177,6 +1221,14 @@
   }
   .create-actions .button {
     padding-inline: 14px;
+  }
+}
+@media (max-width: 380px) {
+  .workspace-header nav a > svg {
+    display: none;
+  }
+  .workspace-header nav {
+    gap: 12px;
   }
 }
 

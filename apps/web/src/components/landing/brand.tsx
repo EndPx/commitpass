@@ -2,14 +2,16 @@ import Image from "next/image";
 
 export function Brand({
   compact = false,
+  markOnly = false,
   href = "#top",
 }: {
   compact?: boolean;
+  markOnly?: boolean;
   href?: string;
 }) {
   return (
     <a
-      className={`brand${compact ? " brand--compact" : ""}`}
+      className={`brand${compact ? " brand--compact" : ""}${markOnly ? " brand--mark-only" : ""}`}
       href={href}
       aria-label="CommitPass home"
     >

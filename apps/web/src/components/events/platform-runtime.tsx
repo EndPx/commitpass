@@ -1,5 +1,5 @@
 "use client";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { usePrivy } from "@privy-io/react-auth";
@@ -35,31 +35,63 @@ function Navigation() {
   const { ready, authenticated, user, logout } = usePrivy();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [clock, setClock] = useState<{
+    label: string;
+    datetime: string;
+  } | null>(null);
+  useEffect(() => {
+    const updateScroll = () => setScrolled(window.scrollY > 8);
+    const updateClock = () => {
+      const now = new Date();
+      setClock({
+        label: new Intl.DateTimeFormat("id-ID", {
+          hour: "2-digit",
+          minute: "2-digit",
+          timeZoneName: "short",
+        }).format(now),
+        datetime: now.toISOString(),
+      });
+    };
+    updateScroll();
+    updateClock();
+    window.addEventListener("scroll", updateScroll, { passive: true });
+    const timer = window.setInterval(updateClock, 30000);
+    return () => {
+      window.removeEventListener("scroll", updateScroll);
+      window.clearInterval(timer);
+    };
+  }, []);
   const name = user?.google?.name || user?.email?.address || "Your account";
   return (
     <>
       <a className="skip-link" href="#workspace-main">
         Skip to content
       </a>
-      <header className="workspace-header">
-        <Brand href="/" />
+      <header className={`workspace-header${scrolled ? " is-scrolled" : ""}`}>
+        <Brand href="/" markOnly />
         <nav aria-label="App navigation">
           <Link
             className={path.startsWith("/events") ? "active" : ""}
             href="/events"
           >
             <CalendarDays size={17} />
-            Events
+            <span>Events</span>
           </Link>
           <Link
             className={path === "/discover" ? "active" : ""}
             href="/discover"
           >
             <Compass size={17} />
-            Discover
+            <span>Discover</span>
           </Link>
         </nav>
         <div className="workspace-header-actions">
+          {clock && (
+            <time className="workspace-clock" dateTime={clock.datetime}>
+              {clock.label}
+            </time>
+          )}
           <Link
             className="workspace-create-link"
             href="/events/new"

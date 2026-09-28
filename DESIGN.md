@@ -141,6 +141,13 @@ Max-width 1040px workspace; 800px event timeline. Header: Events, Discover,
 Create event, account menu. No dashboard KPI cards. Empty states use an original
 oversized ticket illustration, useful next action, and honest copy.
 
+Workspace header follows the supplied Luma reference: 64px desktop / 56px phone,
+symbol-only home link at left, centered navigation, local clock and actions at
+right. At scrollY <= 8px it is transparent with no visible border or blur. After
+scrolling, use 55% ivory, 10px backdrop blur, and a subtle 1px divider. Keep the
+border space reserved to prevent layout jumps. Active links use text emphasis,
+not an underline. Do not add navigation for unimplemented calendars/notifications.
+
 Routes: `/events` personal upcoming/past with hosting/going filter; `/discover`
 public search/list; `/events/[vault]` poster and public event facts, guest commitment
 panel; `/events/new` poster preview beside title, date/time, location, description,
