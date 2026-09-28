@@ -24,6 +24,8 @@ pnpm --filter @commitpass/web start
 - Three-step interactive RSVP, attendance, and settlement preview.
 - Native FAQ disclosures and working section navigation.
 - Responsive layout; reduced-motion preferences disable pinning and movement.
+- Sticky translucent navigation with backdrop blur and header-aware scroll offsets.
+- GPT Image watercolor backgrounds frame the hero and closing sections.
 - DM Sans and DM Serif Display self-hosted through `next/font`.
 - GPT Image-generated C/check brand mark and panoramic workshop illustration.
   Original PNGs and generation prompts are in `public/brand/`; the community

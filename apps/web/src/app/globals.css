@@ -93,8 +93,12 @@ svg {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  position: relative;
-  z-index: 10;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgb(250 249 246 / 58%);
+  -webkit-backdrop-filter: blur(16px) saturate(115%);
+  backdrop-filter: blur(16px) saturate(115%);
   border-bottom: 1px solid #e5e5de80;
 }
 .brand {
@@ -200,6 +204,22 @@ svg {
   inset: 0;
   background: radial-gradient(ellipse at 50% 52%, #fae6db65, transparent 57%);
   z-index: -1;
+}
+.section-backdrop {
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+  user-select: none;
+}
+.hero-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgb(250 249 246 / 36%),
+    transparent 72%
+  );
 }
 .hero-copy {
   position: relative;
@@ -1121,6 +1141,10 @@ svg {
   background: var(--accent-soft);
   position: relative;
   overflow: hidden;
+  isolation: isolate;
+}
+.closing > .section-backdrop {
+  z-index: -1;
 }
 .closing-star {
   display: block;
@@ -1378,7 +1402,7 @@ svg {
     font-size: 10px;
   }
   html {
-    scroll-padding-top: 24px;
+    scroll-padding-top: 92px;
   }
   .site-header {
     padding-inline: 20px;

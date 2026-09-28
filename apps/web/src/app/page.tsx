@@ -205,6 +205,13 @@ export default function Home() {
           </div>
         </section>
         <section className="closing">
+          <Image
+            className="section-backdrop"
+            src="/brand/closing-evening.png"
+            alt=""
+            fill
+            sizes="100vw"
+          />
           <Reveal>
             <span className="closing-star" aria-hidden="true">
               ✳

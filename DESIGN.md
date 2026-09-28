@@ -41,7 +41,10 @@ Body 16–18px, line-height 1.65. Eyebrows 12px with 0.12em tracking.
 
 4px base; 8/12/16/24/32/48/64/96/128px rhythm. Max content width 1160px.
 Native document scrolling owns the page; no smooth-scroll replacement. Header
-height 80px desktop, 68px mobile. Section spacing 112px desktop, 72px mobile.
+height 80px desktop, 68px mobile. Sticky at top:0, z-index 50, ivory at 58%
+opacity with 16px backdrop blur. Anchor offsets clear the header: 104px desktop,
+92px mobile. Hero pin begins 80px below the viewport top so it stays beneath
+the navigation. Section spacing 112px desktop, 72px mobile.
 Breakpoints: 600px, 900px, 1200px. Pin only at >=900px and height >=700px.
 Mobile receives a static poster arrangement and normal document flow.
 
@@ -95,3 +98,9 @@ the caption and alt text identify it as generated. Use Next Image lazy loading,
 responsive sizes, and a fixed aspect-ratio container. Keep the complete desktop
 composition; use a centered 4:3 crop on phones. Logo and workshop source prompts
 are recorded in `apps/web/public/brand/README.md`.
+
+Hero and closing backgrounds are generated editorial watercolor landscapes:
+peach morning and apricot evening, sage foliage at the edges, broad ivory centers
+reserved for readable typography. Both are decorative Next Image assets. The hero
+image is prioritized; the closing image loads lazily. Keep the existing poster
+choreography and visible text above the backgrounds.

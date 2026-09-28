@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -26,7 +27,7 @@ export function Hero() {
             defaults: { ease: "power2.inOut" },
             scrollTrigger: {
               trigger: stage,
-              start: "top top",
+              start: "top 80px",
               end: "+=110%",
               pin: true,
               scrub: 0.8,
@@ -79,7 +80,16 @@ export function Hero() {
 
   return (
     <section className="hero" ref={root} aria-labelledby="hero-title">
-      <div className="hero-glow" />
+      <div className="hero-glow" aria-hidden="true">
+        <Image
+          className="section-backdrop"
+          src="/brand/hero-morning.png"
+          alt=""
+          fill
+          sizes="100vw"
+          priority
+        />
+      </div>
       <div className="poster-constellation" aria-hidden="true">
         {posters.map((poster, index) => (
           <div
