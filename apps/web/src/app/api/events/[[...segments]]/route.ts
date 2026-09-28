@@ -72,6 +72,17 @@ export async function GET(request: Request, context: Context) {
       );
     }
     if (
+      resource === "attendance" &&
+      wallet &&
+      address.test(wallet) &&
+      segments.length === 3
+    ) {
+      const result = await apiRead(`/v1/events/${vault}/attendance/${wallet}`, {
+        token: bearer(request),
+      });
+      return NextResponse.json(result, { headers });
+    }
+    if (
       wallet ||
       !["metadata", "participants", "activity", "check-ins"].includes(
         resource ?? "",

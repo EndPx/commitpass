@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { PlatformShell } from "@/components/events/platform-shell";
 import "./workspace.css";
 import "./editor.css";
+import "./lifecycle.css";
 export default function PlatformLayout({ children }: { children: ReactNode }) {
   return (
     <div className="platform">

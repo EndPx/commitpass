@@ -210,3 +210,19 @@ and IANA timezone in metadata and drafts; use the appearance on event detail.
 Convert wall times using Temporal with rejected DST ambiguity before constructing
 contract timestamps. Changing timezone preserves instants. Keep commitment >0
 and capacity 1–500; do not offer unsupported Free/Unlimited/Approval modes.
+
+## Participant pass and host workspace
+
+Event detail keeps the cover/host column and editorial title, dates, venue/map,
+reservation panel and description. Read current contract state before offering
+financial actions. Indexed data supplies discovery/history; failed refreshes have
+explicit feedback. A confirmed depositor sees a ticket with reservation QR, check-in
+status, downloadable pass and calendar action. The QR contains only event/wallet
+references, never an authentication credential or attendance proof.
+
+The /manage route is the host workspace: compact guest/commitment/status summary,
+registration/start/settled progress, explicit Start/End confirmation, guest search,
+check-in and metadata editing. Reuse warm canvas, accent, typography and themes.
+Mobile stacks ticket QR and summary columns. Owner authorization comes from fresh
+chain state and Privy; the API independently authorizes every check-in/metadata write.
+Lifecycle requests remain pending until CRE execution changes contract state.

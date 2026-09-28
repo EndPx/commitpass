@@ -12,9 +12,7 @@ import {
   eventVaultAbi,
   factoryAbi,
   MONAD_TESTNET,
-  type EventMetadata,
   type EventSummary,
-  type IndexedParticipant,
 } from "@commitpass/shared";
 import {
   ArrowLeft,
@@ -45,18 +43,45 @@ import {
 import { useAccount } from "./account-context";
 import { EventCover } from "./event-cover";
 import { EventLocation } from "./event-location";
-import { CoverUpload } from "./cover-upload";
 import { usePageAppearance } from "./page-theme";
 import { LoadError } from "./event-list";
+import { EventPass } from "./event-pass";
+import { HostManagement } from "./host-management";
+import { useEventState, type LiveEventState } from "./use-event-state";
 
-export function EventDetail({ vault }: { vault: string }) {
-  const [event, setEvent] = useState<EventSummary | null>(null);
+export function EventDetail({
+  vault,
+  manage = false,
+}: {
+  vault: string;
+  manage?: boolean;
+}) {
+  const [indexedEvent, setEvent] = useState<EventSummary | null>(null);
+  const live = useEventState(vault as Address);
+  const event =
+    indexedEvent && live.value
+      ? {
+          ...indexedEvent,
+          owner: live.value.owner,
+          status: live.value.status,
+          registrationClosed: live.value.closed,
+          participantCount: Number(live.value.count),
+          stakeAmount: live.value.stake.toString(),
+          maxParticipant: live.value.capacity.toString(),
+          registrationDeadline: live.value.deadline.toString(),
+          startAt: live.value.start.toString(),
+          settleAt: live.value.settleAt.toString(),
+        }
+      : indexedEvent;
   usePageAppearance(event?.metadata?.appearance);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [attempt, setAttempt] = useState(0);
   const [copied, setCopied] = useState(false);
-  const refresh = useCallback(() => setAttempt((value) => value + 1), []);
+  const refresh = useCallback(() => {
+    setAttempt((value) => value + 1);
+    live.refresh();
+  }, [live.refresh]);
   const { session } = useAccount();
   useEffect(() => {
     const controller = new AbortController();
@@ -74,7 +99,11 @@ export function EventDetail({ vault }: { vault: string }) {
       .finally(() => {
         if (!controller.signal.aborted) setLoading(false);
       });
-    return () => controller.abort();
+    const timer = setTimeout(() => setAttempt((value) => value + 1), 20000);
+    return () => {
+      controller.abort();
+      clearTimeout(timer);
+    };
   }, [vault, attempt]);
   if (loading && !event)
     return (
@@ -82,7 +111,7 @@ export function EventDetail({ vault }: { vault: string }) {
         <div className="detail-skeleton" aria-label="Loading event" />
       </main>
     );
-  if (error || !event)
+  if (!event)
     return (
       <main className="workspace-content" id="workspace-main">
         <Link className="back-link" href="/discover">
@@ -95,9 +124,12 @@ export function EventDetail({ vault }: { vault: string }) {
         />
       </main>
     );
-  const owner = session?.wallets.some(
-    (wallet) => wallet.toLowerCase() === event.owner.toLowerCase(),
-  );
+  const owner =
+    !live.error &&
+    !!live.value &&
+    session?.wallets.some(
+      (wallet) => wallet.toLowerCase() === live.value?.owner.toLowerCase(),
+    );
   return (
     <main className="workspace-content detail-workspace" id="workspace-main">
       <Link className="back-link" href="/events">
@@ -190,7 +222,39 @@ export function EventDetail({ vault }: { vault: string }) {
               </span>
             </div>
           </div>
-          <ReservationPanel event={event} refresh={refresh} />
+          {(error || live.error) && (
+            <p className="form-error" role="alert">
+              {live.error ||
+                "Event details could not refresh. Showing the last available details."}{" "}
+              <button className="auth-text-button" onClick={refresh}>
+                Reconnect
+              </button>
+            </p>
+          )}
+          {manage ? (
+            <HostManagement
+              event={event}
+              live={live.error ? null : live.value}
+              owner={!!owner}
+              refresh={refresh}
+            />
+          ) : (
+            <>
+              {owner && (
+                <Link
+                  className="manage-event-link"
+                  href={`/events/${event.vault}/manage`}
+                >
+                  Manage your event <ArrowUpRight size={16} />
+                </Link>
+              )}
+              <ReservationPanel
+                event={event}
+                refresh={refresh}
+                live={live.error ? null : live.value}
+              />
+            </>
+          )}
           <section className="event-description">
             <h2>About this event</h2>
             {event.metadataUnavailable ? (
@@ -220,7 +284,6 @@ export function EventDetail({ vault }: { vault: string }) {
               </small>
             </div>
           </section>
-          {owner && <HostPanel event={event} refresh={refresh} />}
         </div>
       </div>
     </main>
@@ -230,34 +293,46 @@ export function EventDetail({ vault }: { vault: string }) {
 function ReservationPanel({
   event,
   refresh,
+  live,
 }: {
   event: EventSummary;
   refresh: () => void;
+  live: LiveEventState | null;
 }) {
   const { authenticated } = usePrivy();
-  const { session, refresh: refreshSession } = useAccount();
+  const {
+    session,
+    error: sessionError,
+    refresh: refreshSession,
+  } = useAccount();
   const { wallets } = useWallets();
   const wallet = wallets.find((wallet) => wallet.walletClientType === "privy");
   const { createWallet } = useCreateWallet();
   const { sendTransaction } = useSendTransaction();
-  const [participation, setParticipation] = useState<
-    readonly [boolean, boolean, boolean, bigint] | null
-  >(null);
+  const [person, setPerson] = useState<{
+    key: string;
+    value: readonly [boolean, boolean, boolean, bigint];
+  } | null>(null);
+  const [readError, setReadError] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [pending, setPending] = useState<Hash | null>(null);
   const [reload, setReload] = useState(0);
   const key = `commitpass:reservation:${event.vault}:${wallet?.address ?? "guest"}`;
+  const participation = person?.key === key ? person.value : null;
   useEffect(() => {
-    setParticipation(null);
     setPending(null);
+    setError("");
+    setMessage("");
     try {
       const saved = localStorage.getItem(key);
       if (saved && /^0x[0-9a-fA-F]{64}$/.test(saved)) setPending(saved as Hash);
     } catch {
       /* No persisted transaction is available. */
     }
+  }, [key]);
+  useEffect(() => {
     if (!wallet) return;
     let active = true;
     void chainClient
@@ -268,18 +343,21 @@ function ReservationPanel({
         args: [wallet.address as Address],
       })
       .then((result) => {
-        if (active) setParticipation(result);
+        if (active) {
+          setPerson({ key, value: result });
+          setReadError("");
+        }
       })
       .catch(() => {
         if (active)
-          setError(
+          setReadError(
             "Could not read your reservation. Refresh before trying again.",
           );
       });
     return () => {
       active = false;
     };
-  }, [event.vault, wallet?.address, key, reload]);
+  }, [event.vault, wallet?.address, key, reload, live?.blockNumber]);
   async function confirm(hash: Hash) {
     setPending(hash);
     localStorage.setItem(key, hash);
@@ -294,7 +372,7 @@ function ReservationPanel({
       throw new Error("The transaction did not complete. Please try again.");
   }
   async function act() {
-    if (!wallet || busy) return;
+    if (!wallet || busy || !live) return;
     setBusy(true);
     setError("");
     setMessage("");
@@ -475,319 +553,147 @@ function ReservationPanel({
   const deposited = participation?.[0];
   const claimable =
     participation?.[1] && !participation[2] && participation[3] > 0n;
-  const open = statusLabel(event) === "Registration open";
+  const open =
+    !!live &&
+    !live.closed &&
+    !live.started &&
+    !live.settled &&
+    live.timestamp < live.deadline &&
+    live.count < live.capacity;
   return (
-    <section className="reservation-panel">
-      <div className="reservation-panel-heading">
-        <strong>{deposited ? "Your reservation" : "Reserve your spot"}</strong>
-        <span>
-          {amount(event.stakeAmount)} <small>mockAUSD</small>
-        </span>
-      </div>
-      <p>
-        {participation?.[2]
-          ? "Your return has been claimed."
-          : claimable
-            ? `${amount(participation![3].toString())} mockAUSD is available to claim.`
-            : deposited
-              ? "You’re on the list. Your host will confirm your attendance at the event."
-              : "A refundable commitment. Show up, check in, and claim it back after settlement."}
-      </p>
-      {!authenticated ? (
-        <Link
-          className="button button--dark"
-          href={`/signin?next=${encodeURIComponent(`/events/${event.vault}`)}`}
-        >
-          Sign in to join
-          <ArrowUpRight size={16} />
-        </Link>
-      ) : !wallet ? (
-        <button
-          className="button button--dark"
-          disabled={busy || !session}
-          onClick={async () => {
-            setBusy(true);
-            try {
-              await createWallet();
-              refreshSession();
-            } catch {
-              setError("Could not set up your wallet.");
-            } finally {
-              setBusy(false);
-            }
-          }}
-        >
-          Set up your wallet
-        </button>
-      ) : (
-        <button
-          className="button button--dark"
-          onClick={act}
-          disabled={
-            busy ||
-            (!pending &&
-              (!participation || (!claimable && (deposited || !open))))
-          }
-        >
-          {busy
-            ? "Please wait…"
-            : pending
-              ? "Check transaction"
-              : claimable
-                ? "Claim your return"
-                : deposited
-                  ? "You’re going"
-                  : open
-                    ? "Commit & reserve"
-                    : "Registration closed"}
-          {deposited && !claimable && <Check size={16} />}
-        </button>
+    <>
+      {deposited && wallet && (
+        <EventPass
+          event={event}
+          wallet={wallet.address}
+          claimed={!!participation?.[2]}
+          attended={!!participation?.[1]}
+          settled={!!live?.settled}
+        />
       )}
-      {error && (
-        <p className="form-error" role="alert">
-          {error}
+      <section className="reservation-panel">
+        <div className="reservation-panel-heading">
+          <strong>
+            {deposited ? "Your reservation" : "Reserve your spot"}
+          </strong>
+          <span>
+            {amount(event.stakeAmount)} <small>mockAUSD</small>
+          </span>
+        </div>
+        <p>
+          {participation?.[2]
+            ? "Your return has been claimed."
+            : claimable
+              ? `${amount(participation![3].toString())} mockAUSD is available to claim.`
+              : deposited
+                ? "You’re on the list. Your host will confirm your attendance at the event."
+                : "A refundable commitment. Show up, check in, and claim it back after settlement."}
         </p>
-      )}
-      {message && (
-        <p className="form-message" role="status">
-          {message}
-        </p>
-      )}
-      {pending && (
-        <a
-          className="receipt-link"
-          href={`${explorer}/tx/${pending}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          View transaction ↗
-        </a>
-      )}
-      <small>
-        <Clock3 size={13} />
-        Registration closes{" "}
-        {dateLabel(event.registrationDeadline, {
-          month: "short",
-          day: "numeric",
-          hour: "numeric",
-          minute: "2-digit",
-        })}
-      </small>
-    </section>
-  );
-}
-
-function HostPanel({
-  event,
-  refresh,
-}: {
-  event: EventSummary;
-  refresh: () => void;
-}) {
-  const { getAccessToken } = usePrivy();
-  const [metadata, setMetadata] = useState<EventMetadata>(
-    event.metadata ?? {
-      title: "",
-      description: "",
-      location: "",
-      posterUrl: "",
-    },
-  );
-  const [participants, setParticipants] = useState<IndexedParticipant[]>([]);
-  const [checked, setChecked] = useState<string[]>([]);
-  const [cursor, setCursor] = useState<string | null>(null);
-  const [loaded, setLoaded] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [coverUploading, setCoverUploading] = useState(false);
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
-  async function loadGuests(after = "") {
-    setBusy(true);
-    setError("");
-    try {
-      const token = await getAccessToken();
-      const [people, checkIns] = await Promise.all([
-        jsonRequest<{ data: IndexedParticipant[]; nextCursor: string | null }>(
-          `/api/events/${event.vault}/participants?after=${encodeURIComponent(after)}`,
-        ),
-        jsonRequest<{ checkIns: { wallet: string }[] }>(
-          `/api/events/${event.vault}/check-ins`,
-          { headers: { Authorization: `Bearer ${token}` } },
-        ),
-      ]);
-      setParticipants((current) =>
-        after ? [...current, ...people.data] : people.data,
-      );
-      setCursor(people.nextCursor);
-      setChecked(
-        checkIns.checkIns.map((record) => record.wallet.toLowerCase()),
-      );
-      setLoaded(true);
-    } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Could not load guests.",
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
-  return (
-    <section className="host-tools">
-      <h2>Host tools</h2>
-      <details>
-        <summary>Edit event details</summary>
-        <form
-          onSubmit={async (form) => {
-            form.preventDefault();
-            if (busy || coverUploading) return;
-            setBusy(true);
-            setError("");
-            setMessage("");
-            try {
-              const token = await getAccessToken();
-              await jsonRequest(`/api/events/${event.vault}/metadata`, {
-                method: "PUT",
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(metadata),
-              });
-              setMessage("Event details saved.");
-              refresh();
-            } catch (error) {
-              setError(
-                error instanceof Error
-                  ? error.message
-                  : "Could not save details.",
-              );
-            } finally {
-              setBusy(false);
-            }
-          }}
-        >
-          <label>
-            Title
-            <input
-              value={metadata.title}
-              maxLength={120}
-              required
-              onChange={(e) =>
-                setMetadata({ ...metadata, title: e.target.value })
-              }
-            />
-          </label>
-          <label>
-            Location
-            <input
-              value={metadata.location}
-              maxLength={300}
-              onChange={(e) =>
-                setMetadata({ ...metadata, location: e.target.value })
-              }
-            />
-          </label>
-          <label>
-            Description
-            <textarea
-              rows={5}
-              value={metadata.description}
-              maxLength={5000}
-              onChange={(e) =>
-                setMetadata({ ...metadata, description: e.target.value })
-              }
-            />
-          </label>
-          <CoverUpload
-            value={metadata.posterUrl}
-            onChange={(url) =>
-              setMetadata((current) => ({ ...current, posterUrl: url }))
-            }
-            disabled={busy}
-            onBusyChange={setCoverUploading}
-          />
-          <button className="button" disabled={busy || coverUploading}>
-            Save details
-          </button>
-        </form>
-      </details>
-      <details
-        onToggle={(e) => {
-          if (e.currentTarget.open && !loaded && !busy) void loadGuests();
-        }}
-      >
-        <summary>Guests & check-in</summary>
-        <p>Mark a guest present when you confirm they are at the event.</p>
-        {participants.map((person) => (
-          <div className="guest-checkin" key={person.id}>
-            <span>{shorten(person.wallet)}</span>
-            <button
-              disabled={
-                busy ||
-                checked.includes(person.wallet.toLowerCase()) ||
-                event.status !== "ACTIVE"
-              }
-              onClick={async () => {
-                setBusy(true);
-                setError("");
-                try {
-                  const token = await getAccessToken();
-                  await jsonRequest(
-                    `/api/events/${event.vault}/check-ins/${person.wallet}`,
-                    {
-                      method: "PUT",
-                      headers: { Authorization: `Bearer ${token}` },
-                    },
-                  );
-                  setChecked((current) => [
-                    ...current,
-                    person.wallet.toLowerCase(),
-                  ]);
-                } catch (error) {
-                  setError(
-                    error instanceof Error
-                      ? error.message
-                      : "Could not record attendance.",
-                  );
-                } finally {
-                  setBusy(false);
-                }
-              }}
-            >
-              {checked.includes(person.wallet.toLowerCase())
-                ? "Checked in"
-                : "Check in"}
-            </button>
-          </div>
-        ))}
-        {loaded && !participants.length && <p>No committed guests yet.</p>}
-        {cursor && (
-          <button
-            className="button"
-            disabled={busy}
-            onClick={() => loadGuests(cursor)}
+        {!authenticated ? (
+          <Link
+            className="button button--dark"
+            href={`/signin?next=${encodeURIComponent(`/events/${event.vault}`)}`}
           >
-            Load more guests
+            Sign in to join
+            <ArrowUpRight size={16} />
+          </Link>
+        ) : !wallet ? (
+          <button
+            className="button button--dark"
+            disabled={busy || !session}
+            onClick={async () => {
+              setBusy(true);
+              try {
+                await createWallet();
+                refreshSession();
+              } catch {
+                setError("Could not set up your wallet.");
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            Set up your wallet
+          </button>
+        ) : (
+          <button
+            className="button button--dark"
+            onClick={act}
+            disabled={
+              busy ||
+              !!readError ||
+              !live ||
+              !session ||
+              (!pending &&
+                (!participation || (!claimable && (deposited || !open))))
+            }
+          >
+            {busy
+              ? "Please wait…"
+              : pending
+                ? "Check transaction"
+                : claimable
+                  ? "Claim your return"
+                  : deposited
+                    ? "You’re going"
+                    : open
+                      ? "Commit & reserve"
+                      : "Registration closed"}
+            {deposited && !claimable && <Check size={16} />}
           </button>
         )}
-        <button
-          className="auth-text-button"
-          disabled={busy}
-          onClick={() => loadGuests()}
-        >
-          {busy ? "Loading…" : "Refresh guests"}
-        </button>
-      </details>
-      {error && (
-        <p className="form-error" role="alert">
-          {error}
-        </p>
-      )}
-      {message && (
-        <p className="form-message" role="status">
-          {message}
-        </p>
-      )}
-    </section>
+        {readError && (
+          <p className="form-error" role="alert">
+            {readError}{" "}
+            <button
+              className="auth-text-button"
+              onClick={() => setReload((n) => n + 1)}
+            >
+              Retry
+            </button>
+          </p>
+        )}
+        {sessionError && (
+          <p className="form-error">
+            {sessionError}{" "}
+            <button onClick={refreshSession}>Reconnect account</button>
+          </p>
+        )}
+        {!live && (
+          <p className="field-note">Connecting to live event status…</p>
+        )}
+        {error && (
+          <p className="form-error" role="alert">
+            {error}
+          </p>
+        )}
+        {message && (
+          <p className="form-message" role="status">
+            {message}
+          </p>
+        )}
+        {pending && (
+          <a
+            className="receipt-link"
+            href={`${explorer}/tx/${pending}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            View transaction ↗
+          </a>
+        )}
+        <small>
+          <Clock3 size={13} />
+          Registration closes{" "}
+          {dateLabel(event.registrationDeadline, {
+            month: "short",
+            day: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+            timeZone: event.metadata?.timezone,
+          })}
+        </small>
+      </section>
+    </>
   );
 }

@@ -129,6 +129,30 @@ saving available. Do not bypass it with the non-automated factory function or
 invent a workflow ID. No real event transaction was executed while building these
 screens; live create/reserve/check-in/settle/claim acceptance remains pending.
 
+## Participant and host lifecycle
+
+`/events/{vault}` combines Envio discovery/metadata with pinned-block live contract
+reads every 15 seconds. The API event read refreshes every 20 seconds. Contract
+read failure pauses financial actions, and transaction receipts precede success
+messages. Existing submitted hashes remain recoverable across page reloads.
+
+A deposited participant gets an event pass with QR, download and calendar actions.
+The QR opens `/events/{vault}/manage?guest={wallet}`; it is a public reservation
+reference, not an authentication credential or proof of physical attendance.
+The participant's private check-in status is fetched through the authenticated
+attendance endpoint. Settlement/claim status comes from the contract.
+
+`/events/{vault}/manage` checks fresh onchain ownership and the current Privy
+session. It shows guest count, committed amount, lifecycle, editable metadata and
+the guest/check-in list. Hosts can search a wallet or paste a pass URL and mark
+attendance. Start/End actions simulate and send receiver requests from the owner
+wallet; request confirmation does not mark CRE execution completed. End checks
+that at least one attendee exists because the current settlement policy rejects
+empty attendance. Scheduled zero-attendee settlement remains pending by design.
+
+Publishing remains blocked until a real CRE workflow is registered and its ID is
+configured on the deployed receiver. The local Anvil fixture does not unlock it.
+
 ## Registration closes shortcut
 
 The Registration closes popup includes **Same as start time**, which copies the
