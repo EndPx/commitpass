@@ -18,6 +18,10 @@ project, err := shared.Project()
 
 Compiled contract ABIs live in `abi/` and are consumed by Envio. `src/automation.ts` defines the CRE wire formats. Run `pnpm contracts:abi` after compiling Solidity to refresh the canonical ABI files.
 
+`src/network.ts` exports minimal Monad testnet chain metadata for frontend wallet
+providers, reusing the chain ID from `src/automation.ts`. It has no runtime SDK
+dependency, so web consumers do not need to import unrelated chain definitions.
+
 - Keep browser-safe constants, pure types, and public contract data here. Secrets, database clients, and signing keys belong in the relevant service.
 - Consumers declare `workspace:*`; do not import another app's source through relative paths.
 - Go cannot import TypeScript types. Use language-neutral files or an explicit API schema when cross-language contracts are introduced.
