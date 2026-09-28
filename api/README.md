@@ -1,5 +1,12 @@
 # API
 
+Interactive local mode is launched by `pnpm local:app`. `COMMITPASS_LOCAL=1`
+selects a validated local manifest and requires loopback Anvil. Each run uses
+`app_local_<runId>` and `envio_local_<runId>` schemas, with explicit SQL
+qualification. Default mode continues to use `app` and `envio`; migration file
+checksums remain unchanged. Privy verification and attendance authorization are
+identical in both modes. See [local setup](../cre/local/INTERACTIVE.md).
+
 Go API for Privy identity, event metadata, organizer check-in and frozen attendance snapshots, alongside read access to Envio's Neon database. Requires Go 1.25+. Port 8080 by default; override with `PORT`. The development command loads `api/.env`. Build/dev commands select the portable Go implementation with CGO disabled.
 
 ```sh

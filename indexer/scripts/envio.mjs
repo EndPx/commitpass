@@ -39,9 +39,14 @@ if (args[0] === "start") {
   }
 }
 if (args[0] === "start" || args.includes("db-migrate")) {
+  const localSchema =
+    process.env.COMMITPASS_LOCAL === "1" &&
+    /^envio_local_[a-z0-9]{12,32}$/.test(process.env.ENVIO_PG_SCHEMA ?? "") &&
+    process.env.ENVIO_RPC_URL === "http://127.0.0.1:8547";
   if (
     process.env.ENVIO_PG_DATABASE !== "commitpass_indexer" ||
-    process.env.ENVIO_PG_SCHEMA !== "envio"
+    (process.env.ENVIO_PG_SCHEMA !== "envio" && !localSchema) ||
+    (process.env.COMMITPASS_LOCAL === "1" && !localSchema)
   ) {
     throw new Error(
       "Use the dedicated commitpass_indexer database and envio schema",

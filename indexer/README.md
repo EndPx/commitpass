@@ -1,5 +1,10 @@
 # CommitPass Envio indexer
 
+For the interactive local app, use `pnpm local:app` from the root. It supplies the
+Anvil addresses/RPC and a new `envio_local_<runId>` schema without resetting the
+public `envio` schema. The Go reader selects the matching namespace. Run public
+codegen again before returning to the normal testnet indexer command.
+
 HyperIndex **3.12.1**, targeting **Monad testnet (10143)**. This service discovers event vaults from the factory and materializes their chain state in Neon. The Go API consumes those tables for event pages, capacity, participant eligibility, rewards and transaction history.
 
 ## Data model

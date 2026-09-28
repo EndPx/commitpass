@@ -17,11 +17,10 @@ import (
 	"github.com/EndPx/commitpass/api/internal/chain"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type service struct {
-	db             *pgxpool.Pool
+	db             *database
 	privy          *auth.Privy
 	chain          *chain.Client
 	snapshotSecret [32]byte
@@ -58,7 +57,12 @@ func Register(mux *http.ServeMux) (func(), error) {
 		db.Close()
 		return nil, errors.New("ATTENDANCE_API_TOKEN must contain at least 32 characters")
 	}
-	s := &service{db: db, privy: privy, chain: blockchain, snapshotSecret: sha256.Sum256([]byte(secret))}
+	scoped, err := scopedDatabase(db)
+	if err != nil {
+		db.Close()
+		return nil, err
+	}
+	s := &service{db: scoped, privy: privy, chain: blockchain, snapshotSecret: sha256.Sum256([]byte(secret))}
 	mux.Handle("GET /v1/events/{vault}/attendance/{wallet}", s.authenticated(http.HandlerFunc(s.ownAttendance)))
 	mux.Handle("POST /v1/session", s.authenticated(http.HandlerFunc(s.me)))
 	mux.Handle("GET /v1/me", s.authenticated(http.HandlerFunc(s.me)))

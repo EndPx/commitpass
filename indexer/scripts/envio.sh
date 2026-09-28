@@ -10,4 +10,5 @@ if [[ ! -x "$NODE_BIN" ]]; then
   exit 1
 fi
 export PATH="$(dirname "$NODE_BIN"):$PATH"
+if [[ -n "${ENVIO_LOCAL_PID_FILE:-}" ]]; then echo $$ > "$ENVIO_LOCAL_PID_FILE"; fi
 exec "$NODE_BIN" node_modules/envio/bin.mjs "$@"

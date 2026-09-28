@@ -11,6 +11,7 @@ import (
 	"math/big"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -61,11 +62,20 @@ func New(endpoint string) (*Client, error) {
 	if err != nil || (u.Scheme != "https" && !(u.Scheme == "http" && (u.Hostname() == "127.0.0.1" || u.Hostname() == "localhost"))) {
 		return nil, fmt.Errorf("invalid Monad RPC URL")
 	}
-	deployment, err := shared.MonadTestnetDeployment()
+	deployment, err := shared.ActiveDeployment()
 	if err != nil {
 		return nil, err
 	}
 	c := &Client{url: endpoint, ChainID: deployment.ChainID, Factory: common.HexToAddress(deployment.Contracts["CommitPassFactory"].Address), Automation: common.HexToAddress(deployment.Contracts["CommitPassAutomation"].Address), http: &http.Client{Timeout: 8 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}}
+	if os.Getenv("COMMITPASS_LOCAL") == "1" {
+		if u.Hostname() != "127.0.0.1" && u.Hostname() != "localhost" {
+			return nil, fmt.Errorf("local mode requires loopback RPC")
+		}
+		var version string
+		if err := c.rpc(context.Background(), "web3_clientVersion", []any{}, &version); err != nil || !strings.Contains(strings.ToLower(version), "anvil") {
+			return nil, fmt.Errorf("local mode requires Anvil")
+		}
+	}
 	for name, target := range map[string]*abi.ABI{"CommitPassFactory": &c.factoryABI, "CommitPassVault": &c.vaultABI, "CommitPassAutomation": &c.automationABI} {
 		data, err := shared.ContractABI(name)
 		if err != nil {

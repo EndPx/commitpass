@@ -30,7 +30,7 @@ func OpenDatabase(ctx context.Context) (*pgxpool.Pool, error) {
 	return pgxpool.NewWithConfig(ctx, config)
 }
 
-func syncIdentity(ctx context.Context, pool *pgxpool.Pool, user auth.Principal) error {
+func syncIdentity(ctx context.Context, pool *database, user auth.Principal) error {
 	tx, err := pool.Begin(ctx)
 	if err != nil {
 		return err

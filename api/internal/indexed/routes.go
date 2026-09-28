@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/EndPx/commitpass/packages/shared"
 	"net/http"
 	"os"
 	"regexp"
@@ -41,7 +42,12 @@ func Register(mux *http.ServeMux) (func(), error) {
 	if err != nil {
 		return nil, fmt.Errorf("cannot initialize indexer database pool")
 	}
-	routes := &reader{pool: pool}
+	_, schema, err := shared.LocalSchemas()
+	if err != nil {
+		pool.Close()
+		return nil, err
+	}
+	routes := &reader{pool: pool, schema: pgx.Identifier{schema}.Sanitize()}
 	mux.HandleFunc("GET /v1/events", routes.events)
 	mux.HandleFunc("GET /v1/events/{vault}", routes.event)
 	mux.HandleFunc("GET /v1/events/{vault}/participants", routes.participants)
@@ -49,7 +55,10 @@ func Register(mux *http.ServeMux) (func(), error) {
 	return pool.Close, nil
 }
 
-type reader struct{ pool *pgxpool.Pool }
+type reader struct {
+	pool   *pgxpool.Pool
+	schema string
+}
 
 func unavailable(w http.ResponseWriter, _ *http.Request) {
 	http.Error(w, "Indexed chain data is not available yet", http.StatusServiceUnavailable)
@@ -120,7 +129,7 @@ func (s *reader) event(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 	var data json.RawMessage
-	err := s.pool.QueryRow(ctx, `SELECT `+eventJSON+` FROM envio."CommitmentEvent" e WHERE e.id = $1`, id).Scan(&data)
+	err := s.pool.QueryRow(ctx, `SELECT `+eventJSON+` FROM `+s.schema+`."CommitmentEvent" e WHERE e.id = $1`, id).Scan(&data)
 	if err == pgx.ErrNoRows {
 		http.Error(w, "Event not indexed", http.StatusNotFound)
 		return
@@ -156,6 +165,7 @@ func (s *reader) activity(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *reader) list(w http.ResponseWriter, r *http.Request, query string, args ...any) {
+	query = strings.ReplaceAll(query, "envio.", s.schema+".")
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 	rows, err := s.pool.Query(ctx, query, args...)
