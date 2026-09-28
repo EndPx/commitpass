@@ -31,6 +31,26 @@ The API and shared Go package are connected through `go.work`. Project identity 
 
 ## Local development
 
+### Current CRE execution choice
+
+CRE runs locally for the current development/demo scope. DON deployment and its
+MNDA/access process are deferred at the project owner's request. Start the existing
+local lifecycle runner from the repository root:
+
+```sh
+pnpm cre:local
+```
+
+This runs the real CRE CLI/WASM against a disposable Anvil chain and the local
+attendance fixture. It requires CLI login, not deployment access. See
+[local setup](cre/local/README.md) and [recorded evidence](cre/evidence/README.md).
+The runner is not yet an interactive frontend + Privy + Go/Neon integration.
+The application still targets the public Monad testnet contracts, whose automated
+publishing remains locked while their receiver is unconfigured. Running this
+command does not configure or submit transactions to the public receiver.
+
+### Application development
+
 Requirements: Node.js 22 or 24 (CI uses `.node-version`), pnpm 10.21.0, and Go 1.25 or newer. Foundry is needed when working on Solidity. Bun 1.3.8+ is also needed for CRE WASM compilation.
 
 ```sh

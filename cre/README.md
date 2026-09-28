@@ -2,6 +2,11 @@
 
 Target: **Monad testnet (10143)**. SDK 1.22.0. Shared receiver ABI and wire formats live in `@commitpass/shared`.
 
+**Current execution choice:** local CRE simulation. DON deployment and its access
+process are deferred. Use `pnpm cre:local` at the repository root. The Anvil runner
+is described in [local/README.md](local/README.md); public activation instructions
+below are retained for a later deployment and are not required for the local run.
+
 ## Flow
 
 1. Create an event through `factory.createAutomatedEvent(stakeAmount, registrationDeadline, eventDate, maxParticipant, receiver, settleAt)`. Creation and automation registration happen atomically, before any deposit can occur. Start time is `eventDate`.

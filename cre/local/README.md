@@ -4,7 +4,7 @@ Run the real CRE CLI and WASM workflow against a disposable Anvil chain and an a
 
 ```sh
 # Repository root
-pnpm --filter @commitpass/cre local
+pnpm cre:local
 ```
 
 Prerequisites: pnpm dependencies, Bun, a logged-in CRE CLI, and Foundry. Windows uses Ubuntu WSL with Foundry in its standard home directory. Ports **8547** and **8091** must be free. The command builds the shared package, WASM and Solidity, runs the scenarios, then stops its Anvil and HTTP processes.
