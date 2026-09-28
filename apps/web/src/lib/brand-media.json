@@ -4,5 +4,34 @@
     "publicId": "commitpass/brand/community-workshop",
     "width": 1942,
     "height": 809
-  }
+  },
+  "templates": [
+    {
+      "id": "together",
+      "name": "Together",
+      "category": "Community",
+      "url": "https://res.cloudinary.com/dnzjmihyx/image/upload/v1790590557/commitpass/templates/together.png",
+      "publicId": "commitpass/templates/together",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "id": "good-plans",
+      "name": "Good plans",
+      "category": "Creative",
+      "url": "https://res.cloudinary.com/dnzjmihyx/image/upload/v1790590560/commitpass/templates/good-plans.png",
+      "publicId": "commitpass/templates/good-plans",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "id": "workshop",
+      "name": "Workshop",
+      "category": "Workshops",
+      "url": "https://res.cloudinary.com/dnzjmihyx/image/upload/v1790587558/commitpass/brand/community-workshop.png",
+      "publicId": "commitpass/brand/community-workshop",
+      "width": 1942,
+      "height": 809
+    }
+  ]
 }
