@@ -1,4 +1,5 @@
-import Image from "next/image";
+import brandMedia from "@/lib/brand-media.json";
+import { coverImageUrl } from "@/lib/media";
 import { ArrowUpRight, Check, Plus } from "lucide-react";
 import { project } from "@commitpass/shared";
 import { Brand } from "@/components/landing/brand";
@@ -165,10 +166,18 @@ export default function Home() {
             </div>
             <figure className="community-figure">
               <div className="community-photo">
-                <Image
-                  src="/brand/community-workshop.png"
+                <img
+                  src={coverImageUrl(brandMedia.workshop.url, 1600)}
+                  srcSet={[640, 1200, 1600, 1942]
+                    .map(
+                      (width) =>
+                        `${coverImageUrl(brandMedia.workshop.url, width)} ${width}w`,
+                    )
+                    .join(", ")}
                   alt="AI-generated illustration of participants collaborating with a facilitator at a hands-on community workshop."
-                  fill
+                  width={brandMedia.workshop.width}
+                  height={brandMedia.workshop.height}
+                  loading="lazy"
                   sizes="(max-width: 599px) calc(100vw - 48px), (max-width: 1160px) calc(100vw - 64px), 1096px"
                 />
               </div>

@@ -102,8 +102,8 @@ do not claim measured scores. Development tooling stays development-only.
 The community section includes a panoramic GPT Image-generated workshop scene,
 with warm daylight, a facilitator, laptops, and people collaborating. It is an
 illustration of the intended experience, not evidence of a real CommitPass event;
-the caption and alt text identify it as generated. Use Next Image lazy loading,
-responsive sizes, and a fixed aspect-ratio container. Keep the complete desktop
+the caption and alt text identify it as generated. It is hosted on Cloudinary with
+lazy loading, responsive sizes, and a fixed aspect-ratio container. Keep the complete desktop
 composition; use a centered 4:3 crop on phones. Logo and workshop source prompts
 are recorded in `apps/web/public/brand/README.md`.
 
@@ -159,3 +159,13 @@ Transaction receipts, not SDK hashes alone, establish completion. Persist a pend
 creation hash with the draft so reload/retry does not deploy duplicate events.
 Recover metadata saving after confirmation separately from event creation.
 No automatic transactions on page load. This task does not activate the CRE DON.
+
+## Cover uploads
+
+Create/edit event screens use a native file picker styled as Upload cover photo /
+Change photo, with pending/error/success states. JPG, PNG, WebP up to 4 MB. Signed-in
+users upload through `/api/media`; the server verifies Privy identity through Go,
+bounds and checks the file, then signs a Cloudinary upload into an app-specific
+user folder. API secrets never enter the browser. Event metadata keeps the HTTPS
+delivery URL. Removing a cover detaches it from the draft, not from cloud storage.
+Cloudinary cover delivery uses width-specific URLs with automatic quality/format.

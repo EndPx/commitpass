@@ -31,7 +31,7 @@ pnpm --filter @commitpass/web start
 - DM Sans and DM Serif Display self-hosted through `next/font`.
 - GPT Image-generated C/check brand mark and panoramic workshop illustration.
   Original PNGs and generation prompts are in `public/brand/`; the community
-  image is labeled as illustrative and loads lazily through Next Image.
+  image is labeled as illustrative and loads lazily from Cloudinary's CDN.
 
 The landing walkthrough is illustrative and submits no payment or booking.
 The `/signin` route uses real Privy authentication; successful backend verification
@@ -78,7 +78,7 @@ part of the sign-in screen. Wallet setup is available on event action screens.
 - `/discover`: public event timeline, search across loaded results, cursor pagination.
 - `/events/[vault]`: indexed event facts plus API metadata, reservation/claim
   controls, and owner-only metadata editing and guest check-in.
-- `/events/new`: title, HTTPS poster URL, description, venue, local-time schedule,
+- `/events/new`: title, photo upload, description, venue, local-time schedule,
   registration deadline, commitment and capacity. Drafts are explicitly saved in
   this browser, scoped to the Privy user; they do not create a public event.
 
@@ -108,6 +108,34 @@ completed. The form reads this state and blocks publishing while leaving draft
 saving available. Do not bypass it with the non-automated factory function or
 invent a workflow ID. No real event transaction was executed while building these
 screens; live create/reserve/check-in/settle/claim acceptance remains pending.
+
+## Photo storage and delivery
+
+Cloudinary cloud: `dnzjmihyx`. Configure `CLOUDINARY_CLOUD_NAME`,
+`CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` in the server environment. Only
+the cloud name is public configuration; key and secret stay in the ignored local
+environment or deployment secret store, never `NEXT_PUBLIC_*` variables.
+
+Create/edit event screens accept JPG, PNG, and WebP files up to 4 MB. `/api/media`
+verifies the bearer token through the Go API before reading the bounded multipart
+body, checks image signatures, and signs the Cloudinary request server-side using
+SHA-256. Cloudinary validates/decodes the image and limits dimensions to 2400px.
+Public IDs use `commitpass/event-covers/<hashed-user-id>/<uuid>` with overwrite
+disabled. No unsigned upload preset or browser-visible secret is needed.
+
+The returned HTTPS delivery URL is saved in the event's existing `posterUrl`
+metadata when the user saves/publishes the event. Uploading alone does not publish
+an event. Removing/replacing a cover detaches its URL; it does not delete an asset
+that could still be referenced elsewhere. Cover images are public.
+
+Images use Cloudinary `f_auto,q_auto,c_limit,w_...` delivery variants and `srcset`.
+The landing workshop illustration is hosted as
+`commitpass/brand/community-workshop`; its versioned URL is recorded in
+`src/lib/brand-media.json`. `node scripts/upload-brand-media.mjs` uploads that
+project asset without overwriting an existing image and refreshes the manifest.
+
+Reference: [Cloudinary uploads](https://cloudinary.com/documentation/upload_images)
+and [request signatures](https://cloudinary.com/documentation/authentication_signatures).
 
 Build note: Privy 3.45.0 imports x402, whose viem/ox Tempo dependency emits a
 Webpack dynamic-dependency warning. The production build succeeds; no Tempo
