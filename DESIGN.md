@@ -126,7 +126,8 @@ Email -> verification code -> authenticated account state. Use Privy headless
 email OTP, cooldown for resending, explicit pending/error states, editable email,
 and a real backend session verification before reporting a connected account.
 Google/passkey buttons are conditional on public feature flags that match the
-dashboard; both were disabled when inspected on 28 September 2026. Do not show
+dashboard; Google was enabled with Privy's default credentials on 28 September
+2026, while passkeys remain disabled. Do not show
 nonfunctional authentication choices or imply a booking was created by signing in.
 Keep Privy in the sign-in route, leaving the public landing bundle independent.
 Secrets remain server-side; the browser only receives Privy's public app ID and

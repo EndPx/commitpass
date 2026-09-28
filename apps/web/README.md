@@ -64,7 +64,11 @@ into application storage.
 Google OAuth and existing-passkey login hooks are present behind
 `NEXT_PUBLIC_PRIVY_GOOGLE_ENABLED` and `NEXT_PUBLIC_PRIVY_PASSKEY_ENABLED`.
 Enable a flag only after enabling that method and its required origin/redirect
-configuration in Privy. Both were off in the dashboard at implementation time.
+configuration in Privy. Google was enabled on 28 September 2026 using Privy's
+default OAuth credentials (basic openid/email/profile scopes). Passkeys remain
+disabled. No custom Google Cloud client or Google client secret is required for
+this setup. The consent screen may show Privy's branding; custom CommitPass
+Google OAuth branding can be configured later with its own client.
 Passkey enrollment, phone login, wallet creation and event transactions are not
 part of this sign-in screen. The account confirmation currently links home.
 
