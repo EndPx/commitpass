@@ -36,14 +36,19 @@ App ID: `cmuk1cl9b01lk0cjp0tqxg4g8`. Configure `PRIVY_APP_SECRET` locally; the s
 
 The backend validates ES256 signatures against the app-specific Privy JWKS, issuer `privy.io`, app audience, expiration, issued-at and session ID. Identity tokens are not accepted as access tokens. Keys are cached for an hour; unknown-key refreshes are bounded. After validation, the backend retrieves the current user through Privy's server API and derives linked Ethereum wallets from that response. Body/header wallet claims and stale DB wallet links never authorize actions.
 
-| Method and path                             | Permission / purpose                                                     |
-| ------------------------------------------- | ------------------------------------------------------------------------ |
-| `POST /v1/session`                          | Privy token; synchronize the authenticated user and current wallet links |
-| `GET /v1/me`                                | Privy token; return that user's ID and current wallets                   |
-| `GET /v1/events/{vault}/metadata`           | Public event description                                                 |
-| `PUT /v1/events/{vault}/metadata`           | Privy token plus the current onchain owner wallet                        |
-| `GET /v1/events/{vault}/check-ins`          | Current event owner                                                      |
-| `PUT /v1/events/{vault}/check-ins/{wallet}` | Current event owner; record an eligible deposited participant            |
+| Method and path                              | Permission / purpose                                                     |
+| -------------------------------------------- | ------------------------------------------------------------------------ |
+| `POST /v1/session`                           | Privy token; synchronize the authenticated user and current wallet links |
+| `GET /v1/me`                                 | Privy token; return that user's ID and current wallets                   |
+| `GET /v1/events/{vault}/metadata`            | Public event description                                                 |
+| `PUT /v1/events/{vault}/metadata`            | Privy token plus the current onchain owner wallet                        |
+| `GET /v1/events/{vault}/check-ins`           | Current event owner                                                      |
+| `PUT /v1/events/{vault}/check-ins/{wallet}`  | Current event owner; record an eligible deposited participant            |
+| `GET /v1/events/{vault}/attendance/{wallet}` | Current participant wallet owner; read their own check-in status         |
+
+The attendance read derives wallet ownership from the fresh Privy user response.
+It returns `checkedIn` and `checkedInAt`, without revealing the host identity or
+other participants. Missing attendance is distinct from a database failure.
 
 Metadata accepts `title`, `description`, `location`, `posterUrl`, `timezone`, and
 `appearance`; poster URLs must use HTTPS. Migration `002_event_appearance.sql`

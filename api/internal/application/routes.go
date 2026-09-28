@@ -30,7 +30,7 @@ type principalKey struct{}
 
 func Register(mux *http.ServeMux) (func(), error) {
 	if os.Getenv("DATABASE_URL") == "" {
-		for _, pattern := range []string{"POST /v1/session", "GET /v1/me", "GET /v1/events/{vault}/metadata", "PUT /v1/events/{vault}/metadata", "GET /v1/events/{vault}/check-ins", "PUT /v1/events/{vault}/check-ins/{wallet}", "GET /v1/attendance-snapshots/{chainId}/{vault}/{eventId}/{cutoff}", "POST /v1/attendance-snapshots/{chainId}/{vault}/{eventId}/{cutoff}"} {
+		for _, pattern := range []string{"POST /v1/session", "GET /v1/me", "GET /v1/events/{vault}/attendance/{wallet}", "GET /v1/events/{vault}/metadata", "PUT /v1/events/{vault}/metadata", "GET /v1/events/{vault}/check-ins", "PUT /v1/events/{vault}/check-ins/{wallet}", "GET /v1/attendance-snapshots/{chainId}/{vault}/{eventId}/{cutoff}", "POST /v1/attendance-snapshots/{chainId}/{vault}/{eventId}/{cutoff}"} {
 			mux.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) { problem(w, 503, "Application backend is not configured") })
 		}
 		return func() {}, nil
@@ -59,6 +59,7 @@ func Register(mux *http.ServeMux) (func(), error) {
 		return nil, errors.New("ATTENDANCE_API_TOKEN must contain at least 32 characters")
 	}
 	s := &service{db: db, privy: privy, chain: blockchain, snapshotSecret: sha256.Sum256([]byte(secret))}
+	mux.Handle("GET /v1/events/{vault}/attendance/{wallet}", s.authenticated(http.HandlerFunc(s.ownAttendance)))
 	mux.Handle("POST /v1/session", s.authenticated(http.HandlerFunc(s.me)))
 	mux.Handle("GET /v1/me", s.authenticated(http.HandlerFunc(s.me)))
 	mux.HandleFunc("GET /v1/events/{vault}/metadata", s.metadata)
