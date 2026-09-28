@@ -194,7 +194,7 @@ export default function Home() {
           </div>
           <div className="faq-list">
             {faqs.map((faq) => (
-              <details key={faq.question}>
+              <details key={faq.question} name="commitpass-faq">
                 <summary>
                   {faq.question}
                   <Plus size={20} aria-hidden="true" />

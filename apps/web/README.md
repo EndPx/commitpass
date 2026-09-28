@@ -21,8 +21,9 @@ pnpm --filter @commitpass/web start
 
 - Luma-inspired event poster composition with original CSS/SVG illustrations.
 - Crafts-inspired GSAP ScrollTrigger choreography: posters gather into a reservation.
-- Three-step interactive RSVP, attendance, and settlement preview.
-- Native FAQ disclosures and working section navigation.
+- Three-step RSVP, attendance, and settlement preview; advances every 5 seconds
+  while visible, with manual step selection and pause/resume.
+- Exclusive native FAQ accordion (one answer open at a time) and section navigation.
 - Responsive layout; reduced-motion preferences disable pinning and movement.
 - Sticky translucent navigation with backdrop blur and header-aware scroll offsets.
 - Clean ivory hero and closing backgrounds with a faint warm tint.

@@ -688,6 +688,20 @@ svg {
 .step-list {
   margin-top: 40px;
 }
+.walkthrough-playback {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+}
+.walkthrough-playback:hover {
+  color: var(--accent);
+}
 .step-button {
   width: 100%;
   display: flex;

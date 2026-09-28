@@ -60,8 +60,13 @@ Mobile receives a static poster arrangement and normal document flow.
 - Eyebrow: uppercase small section identifier; never the sole explanation.
 - Reservation: poster thumbnail, event label, amount, check-in state, refund state.
   Mock preview is explicitly labeled; no wallet call or fake transaction receipt.
-- Walkthrough: three native buttons with aria-pressed and one live preview.
-- FAQ: native details/summary, generous tap target, plus/minus affordance.
+- Walkthrough: three native buttons with aria-pressed and one preview. Automatically
+  advances every 5 seconds while the section is visible, looping from step 3 to 1.
+  Changing steps manually resets the timer. Pause/resume control is available;
+  automatic changes are not announced by the live region. Timers and the visibility
+  observer are cleaned up on unmount.
+- FAQ: native details/summary sharing `name="commitpass-faq"` so only one answer
+  can be open. Generous tap targets and plus/minus affordance.
 
 ## 6. Motion and interaction
 

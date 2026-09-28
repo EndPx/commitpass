@@ -1,7 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowRight, Check, MapPin, Ticket, Wallet } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import {
+  ArrowRight,
+  Check,
+  MapPin,
+  Pause,
+  Play,
+  Ticket,
+  Wallet,
+} from "lucide-react";
 import { Poster } from "./poster";
 
 const steps = [
@@ -21,8 +29,30 @@ const steps = [
 
 export function Walkthrough() {
   const [step, setStep] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
+  const section = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry?.isIntersecting ?? false),
+      { threshold: 0.2 },
+    );
+    if (section.current) observer.observe(section.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!isPlaying || !isVisible) return;
+    const timer = window.setTimeout(() => {
+      setStep((current) => (current + 1) % steps.length);
+    }, 5000);
+    return () => window.clearTimeout(timer);
+  }, [step, isPlaying, isVisible]);
+
   return (
     <section
+      ref={section}
       className="section walkthrough"
       id="how-it-works"
       aria-labelledby="how-title"
@@ -53,6 +83,19 @@ export function Walkthrough() {
             </button>
           ))}
         </div>
+        <button
+          className="walkthrough-playback"
+          type="button"
+          onClick={() => setIsPlaying((playing) => !playing)}
+          aria-label={
+            isPlaying
+              ? "Pause automatic walkthrough"
+              : "Resume automatic walkthrough"
+          }
+        >
+          {isPlaying ? <Pause size={14} /> : <Play size={14} />}
+          {isPlaying ? "Pause preview" : "Resume preview"}
+        </button>
       </div>
       <div className="walkthrough-art">
         <div className="preview-orbit orbit-one" />
@@ -79,7 +122,7 @@ export function Walkthrough() {
             </p>
             <div
               className="reservation-state"
-              aria-live="polite"
+              aria-live={isPlaying ? "off" : "polite"}
               aria-atomic="true"
               key={step}
             >
