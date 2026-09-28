@@ -45,7 +45,12 @@ The backend validates ES256 signatures against the app-specific Privy JWKS, issu
 | `GET /v1/events/{vault}/check-ins`          | Current event owner                                                      |
 | `PUT /v1/events/{vault}/check-ins/{wallet}` | Current event owner; record an eligible deposited participant            |
 
-Metadata accepts only `title`, `description`, `location` and `posterUrl`; poster URLs must use HTTPS. Financial event creation and lifecycle transactions remain wallet/contract operations. The backend does not sign them.
+Metadata accepts `title`, `description`, `location`, `posterUrl`, `timezone`, and
+`appearance`; poster URLs must use HTTPS. Migration `002_event_appearance.sql`
+adds the IANA timezone and a validated JSON appearance (style, six-digit hex
+color, title font, light/dark mode), with defaults for existing rows. Financial
+event creation and lifecycle transactions remain wallet/contract operations.
+The backend does not sign them.
 
 Check-in is idempotent per event/wallet. The event must have started, its automation must match the deployed receiver, and the participant's deposit must exist in finalized state. Both chain time and database time must precede the onchain cutoff. The server supplies timestamps and actor identity. Check-in records are append-only in this version; there is no correction/delete endpoint. An existing check-in can be read back on retry after the window closes.
 

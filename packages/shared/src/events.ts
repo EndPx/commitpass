@@ -1,8 +1,24 @@
+export interface EventAppearance {
+  style: "minimal" | "aurora" | "confetti" | "grid";
+  color: string;
+  font: "sans" | "serif" | "mono";
+  mode: "light" | "dark";
+}
+
+export const DEFAULT_EVENT_APPEARANCE: EventAppearance = {
+  style: "minimal",
+  color: "#b9462d",
+  font: "sans",
+  mode: "light",
+};
+
 export interface EventMetadata {
   title: string;
   description: string;
   location: string;
   posterUrl: string;
+  timezone?: string;
+  appearance?: EventAppearance;
 }
 
 export interface IndexedEvent {

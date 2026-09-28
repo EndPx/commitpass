@@ -141,10 +141,12 @@ func (s *service) ownedEvent(w http.ResponseWriter, r *http.Request) (chain.Even
 }
 
 type metadata struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Location    string `json:"location"`
-	PosterURL   string `json:"posterUrl"`
+	Title       string          `json:"title"`
+	Description string          `json:"description"`
+	Location    string          `json:"location"`
+	PosterURL   string          `json:"posterUrl"`
+	Timezone    string          `json:"timezone"`
+	Appearance  eventAppearance `json:"appearance"`
 }
 
 func (s *service) metadata(w http.ResponseWriter, r *http.Request) {
@@ -155,7 +157,7 @@ func (s *service) metadata(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 	var value metadata
-	err := s.db.QueryRow(ctx, `SELECT title,description,location,poster_url FROM app.events WHERE chain_id=$1 AND vault=$2`, int64(s.chain.ChainID), strings.ToLower(vault.Hex())).Scan(&value.Title, &value.Description, &value.Location, &value.PosterURL)
+	err := s.db.QueryRow(ctx, `SELECT title,description,location,poster_url,timezone,appearance FROM app.events WHERE chain_id=$1 AND vault=$2`, int64(s.chain.ChainID), strings.ToLower(vault.Hex())).Scan(&value.Title, &value.Description, &value.Location, &value.PosterURL, &value.Timezone, &value.Appearance)
 	if err == pgx.ErrNoRows {
 		problem(w, 404, "Event metadata not found")
 		return
@@ -180,6 +182,10 @@ func (s *service) saveMetadata(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	value.Title = strings.TrimSpace(value.Title)
+	if !normalizeAppearance(&value) {
+		problem(w, 400, "Invalid event appearance or timezone")
+		return
+	}
 	if value.Title == "" || utf8.RuneCountInString(value.Title) > 120 || utf8.RuneCountInString(value.Description) > 5000 || utf8.RuneCountInString(value.Location) > 300 || len(value.PosterURL) > 2048 {
 		problem(w, 400, "Metadata exceeds allowed length")
 		return
@@ -201,7 +207,7 @@ func (s *service) saveMetadata(w http.ResponseWriter, r *http.Request) {
 		fail(w, err)
 		return
 	}
-	_, err = tx.Exec(r.Context(), `UPDATE app.events SET title=$3,description=$4,location=$5,poster_url=$6,updated_by=$7,updated_at=clock_timestamp() WHERE chain_id=$1 AND vault=$2`, int64(s.chain.ChainID), strings.ToLower(event.Vault.Hex()), value.Title, value.Description, value.Location, value.PosterURL, principal(r).ID)
+	_, err = tx.Exec(r.Context(), `UPDATE app.events SET title=$3,description=$4,location=$5,poster_url=$6,updated_by=$7,timezone=$8,appearance=$9,updated_at=clock_timestamp() WHERE chain_id=$1 AND vault=$2`, int64(s.chain.ChainID), strings.ToLower(event.Vault.Hex()), value.Title, value.Description, value.Location, value.PosterURL, principal(r).ID, value.Timezone, value.Appearance)
 	if err != nil {
 		fail(w, err)
 		return
