@@ -48,7 +48,17 @@ export async function POST(request: Request) {
       typeof principal.id !== "string"
     )
       throw new Error("Invalid account response");
-    return NextResponse.json({ id: principal.id }, { headers: noStore });
+    const wallets =
+      "wallets" in principal && Array.isArray(principal.wallets)
+        ? principal.wallets.filter(
+            (wallet: unknown): wallet is string =>
+              typeof wallet === "string" && /^0x[0-9a-fA-F]{40}$/.test(wallet),
+          )
+        : [];
+    return NextResponse.json(
+      { id: principal.id, wallets },
+      { headers: noStore },
+    );
   } catch {
     return NextResponse.json(
       { error: "Could not connect your account. Please try again." },

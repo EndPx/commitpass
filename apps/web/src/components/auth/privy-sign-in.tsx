@@ -2,15 +2,15 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Captcha,
-  PrivyProvider,
   useLoginWithEmail,
   useLoginWithOAuth,
   useLoginWithPasskey,
   usePrivy,
 } from "@privy-io/react-auth";
-import { monadTestnetChain } from "@commitpass/shared";
+import { AuthProvider } from "./provider";
 import {
   ArrowLeft,
   ArrowRight,
@@ -47,26 +47,14 @@ export default function PrivySignIn() {
   }
 
   return (
-    <PrivyProvider
-      appId={appId}
-      config={{
-        appearance: {
-          theme: "light",
-          accentColor: "#b9462d",
-          logo: "/brand/commitpass-mark.png",
-          walletChainType: "ethereum-only",
-        },
-        loginMethods: googleEnabled ? ["email", "google"] : ["email"],
-        defaultChain: monadTestnetChain,
-        supportedChains: [monadTestnetChain],
-      }}
-    >
+    <AuthProvider>
       <SignInForm />
-    </PrivyProvider>
+    </AuthProvider>
   );
 }
 
 function SignInForm() {
+  const router = useRouter();
   const { ready, authenticated, user, getAccessToken, logout } = usePrivy();
   const [email, setEmail] = useState("");
   const [sentTo, setSentTo] = useState("");
@@ -89,6 +77,18 @@ function SignInForm() {
       ),
   });
   const { loginWithPasskey } = useLoginWithPasskey();
+
+  useEffect(() => {
+    if (sessionStatus !== "connected" || !authenticated) return;
+    const next =
+      new URLSearchParams(window.location.search).get("next") ?? "/events";
+    const safeNext = /^\/(events(?:\/new|\/0x[0-9a-fA-F]{40})?|discover)$/.test(
+      next,
+    )
+      ? next
+      : "/events";
+    router.replace(safeNext);
+  }, [sessionStatus, authenticated, router]);
 
   useEffect(() => {
     setCanUsePasskey(
@@ -262,8 +262,8 @@ function SignInForm() {
                     "Signed in securely"}
                 </span>
               </div>
-              <Link href="/" className="auth-submit">
-                Back to CommitPass <ArrowRight size={16} />
+              <Link href="/events" className="auth-submit">
+                Go to events <ArrowRight size={16} />
               </Link>
             </>
           )}
