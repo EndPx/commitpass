@@ -146,6 +146,7 @@ function LocationEditor({ value, anchor, onConfirm, onClose }: Props) {
 function ValueEditor({
   field,
   value,
+  start,
   onConfirm,
   onClose,
   error: parentError,
@@ -279,6 +280,26 @@ function ValueEditor({
             />
             {field === "commitment" && <span>mockAUSD</span>}
           </div>
+        )}
+        {field === "deadline" && (
+          <>
+            <button
+              type="button"
+              className="editor-match-start"
+              onClick={() => {
+                setCandidate(start);
+                setError("");
+              }}
+            >
+              <Clock3 size={15} /> Same as start time
+              <span>{timeText(start)}</span>
+            </button>
+            {candidate === start && (
+              <p className="editor-help">
+                Registration closes 1 second before the event starts.
+              </p>
+            )}
+          </>
         )}
         {field === "description" && (
           <p className="editor-count">{candidate.length} / 5,000</p>

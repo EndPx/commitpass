@@ -57,6 +57,7 @@ import {
   dateText,
   defaultCover,
   eventTimestamp,
+  registrationCutoff,
   freshDraft,
   restoreDraft,
   timeText,
@@ -247,7 +248,11 @@ export function CreateEvent() {
         throw new Error("Please check the event name and description lengths.");
       const start = eventTimestamp(draft.start, draft.timezone);
       const end = eventTimestamp(draft.end, draft.timezone);
-      const deadline = eventTimestamp(draft.deadline, draft.timezone);
+      const deadline = registrationCutoff(
+        draft.deadline,
+        draft.start,
+        draft.timezone,
+      );
       const block = await chainClient.getBlock();
       if (
         ![start, end, deadline].every(Number.isSafeInteger) ||
@@ -387,13 +392,17 @@ export function CreateEvent() {
         eventTimestamp(next, draft.timezone);
         update(key, next);
       } else if (field === "deadline") {
-        const timestamp = eventTimestamp(value, draft.timezone);
+        const timestamp = registrationCutoff(
+          value,
+          draft.start,
+          draft.timezone,
+        );
         if (
           timestamp <= Math.floor(Date.now() / 1000) ||
           timestamp >= eventTimestamp(draft.start, draft.timezone)
         )
           throw new Error(
-            "Registration must close in the future and before the event starts.",
+            "Choose a future registration deadline no later than the start time.",
           );
         update("deadline", value);
       } else update(field, value);

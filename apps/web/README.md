@@ -129,6 +129,16 @@ saving available. Do not bypass it with the non-automated factory function or
 invent a workflow ID. No real event transaction was executed while building these
 screens; live create/reserve/check-in/settle/claim acceptance remains pending.
 
+## Registration closes shortcut
+
+The Registration closes popup includes **Same as start time**, which copies the
+current start date/time into the pending popup value. Confirm applies it; Cancel
+leaves the draft unchanged. The deployed factory requires a strictly earlier
+deadline, so an equal displayed time is converted to `startAt - 1` second when
+constructing the transaction. The popup explains this cutoff. Times after start
+are rejected. Changing the event start later does not silently change a previously
+confirmed registration deadline.
+
 ## Event location maps
 
 Confirmed venue names/addresses show a Google Maps iframe in the create editor

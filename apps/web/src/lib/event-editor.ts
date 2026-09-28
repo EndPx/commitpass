@@ -59,6 +59,12 @@ export function wallTime(value: string, zone: string) {
 }
 export const eventTimestamp = (value: string, zone: string) =>
   Math.floor(wallTime(value, zone).epochMilliseconds / 1000);
+export function registrationCutoff(value: string, start: string, zone: string) {
+  const deadline = eventTimestamp(value, zone);
+  const startAt = eventTimestamp(start, zone);
+  // The deployed factory requires registrationDeadline < eventDate.
+  return deadline === startAt ? startAt - 1 : deadline;
+}
 export function convertZone(value: string, from: string, to: string) {
   return wallTime(value, from)
     .withTimeZone(to)
