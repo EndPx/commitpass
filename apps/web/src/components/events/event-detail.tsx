@@ -44,6 +44,7 @@ import {
 } from "@/lib/chain";
 import { useAccount } from "./account-context";
 import { EventCover } from "./event-cover";
+import { CoverUpload } from "./cover-upload";
 import { LoadError } from "./event-list";
 
 export function EventDetail({ vault }: { vault: string }) {
@@ -580,6 +581,7 @@ function HostPanel({
   const [cursor, setCursor] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [coverUploading, setCoverUploading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   async function loadGuests(after = "") {
@@ -620,6 +622,7 @@ function HostPanel({
         <form
           onSubmit={async (form) => {
             form.preventDefault();
+            if (busy || coverUploading) return;
             setBusy(true);
             setError("");
             setMessage("");
@@ -678,18 +681,15 @@ function HostPanel({
               }
             />
           </label>
-          <label>
-            Cover URL
-            <input
-              type="url"
-              value={metadata.posterUrl}
-              maxLength={2048}
-              onChange={(e) =>
-                setMetadata({ ...metadata, posterUrl: e.target.value })
-              }
-            />
-          </label>
-          <button className="button" disabled={busy}>
+          <CoverUpload
+            value={metadata.posterUrl}
+            onChange={(url) =>
+              setMetadata((current) => ({ ...current, posterUrl: url }))
+            }
+            disabled={busy}
+            onBusyChange={setCoverUploading}
+          />
+          <button className="button" disabled={busy || coverUploading}>
             Save details
           </button>
         </form>

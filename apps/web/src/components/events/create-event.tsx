@@ -26,7 +26,6 @@ import {
   ArrowRight,
   CalendarDays,
   Check,
-  ImagePlus,
   MapPin,
   Save,
   Ticket,
@@ -41,6 +40,7 @@ import {
 import { jsonRequest } from "@/lib/events";
 import { useAccount } from "./account-context";
 import { EventCover } from "./event-cover";
+import { CoverUpload } from "./cover-upload";
 
 type Draft = EventMetadata & {
   start: string;
@@ -75,6 +75,7 @@ export function CreateEvent() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [coverUploading, setCoverUploading] = useState(false);
   const [checking, setChecking] = useState(true);
   const [publishReady, setPublishReady] = useState(false);
   const [checkAttempt, setCheckAttempt] = useState(0);
@@ -216,7 +217,7 @@ export function CreateEvent() {
 
   async function publish(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (busy) return;
+    if (busy || coverUploading) return;
     setError("");
     setMessage("");
     setBusy(true);
@@ -359,20 +360,12 @@ export function CreateEvent() {
       <form onSubmit={publish} className="create-grid">
         <aside>
           <EventCover title={draft.title} posterUrl={draft.posterUrl} />
-          <label className="poster-url-label">
-            <ImagePlus size={16} /> Cover image URL
-            <input
-              type="url"
-              placeholder="https://… (optional)"
-              value={draft.posterUrl}
-              onChange={(event) => update("posterUrl", event.target.value)}
-              maxLength={2048}
-              disabled={busy || Boolean(pending) || Boolean(created)}
-            />
-          </label>
-          <p className="field-note">
-            Use a public HTTPS image, or keep the illustrated cover.
-          </p>
+          <CoverUpload
+            value={draft.posterUrl}
+            onChange={(url) => update("posterUrl", url)}
+            disabled={busy || Boolean(pending) || Boolean(created)}
+            onBusyChange={setCoverUploading}
+          />
           <div className="create-summary">
             <Ticket size={20} />
             <p>
@@ -388,7 +381,13 @@ export function CreateEvent() {
         </aside>
         <div className="create-fields">
           <fieldset
-            disabled={busy || Boolean(pending) || Boolean(created) || !hydrated}
+            disabled={
+              busy ||
+              coverUploading ||
+              Boolean(pending) ||
+              Boolean(created) ||
+              !hydrated
+            }
           >
             <label className="sr-only" htmlFor="event-title">
               Event name
@@ -552,7 +551,7 @@ export function CreateEvent() {
                 className="button"
                 type="button"
                 onClick={saveDraft}
-                disabled={!hydrated || busy}
+                disabled={!hydrated || busy || coverUploading}
               >
                 <Save size={16} />
                 Save draft
@@ -576,7 +575,7 @@ export function CreateEvent() {
                 className="button button--dark"
                 type="button"
                 onClick={setupWallet}
-                disabled={busy || !session}
+                disabled={busy || coverUploading || !session}
               >
                 Set up your wallet
               </button>
@@ -585,7 +584,10 @@ export function CreateEvent() {
                 className="button button--dark"
                 type="submit"
                 disabled={
-                  busy || !session || (!pending && (!publishReady || checking))
+                  busy ||
+                  coverUploading ||
+                  !session ||
+                  (!pending && (!publishReady || checking))
                 }
               >
                 {busy

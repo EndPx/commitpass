@@ -1,3 +1,5 @@
+import { coverImageUrl } from "@/lib/media";
+
 export function EventCover({
   title,
   posterUrl,
@@ -12,7 +14,13 @@ export function EventCover({
     <div className={`event-cover${small ? " event-cover--small" : ""}`}>
       {safeImage ? (
         <img
-          src={posterUrl}
+          src={coverImageUrl(posterUrl!, small ? 320 : 1200)}
+          srcSet={[320, 640, 1200]
+            .map((width) => `${coverImageUrl(posterUrl!, width)} ${width}w`)
+            .join(", ")}
+          sizes={
+            small ? "132px" : "(max-width: 649px) calc(100vw - 40px), 340px"
+          }
           alt="Event cover"
           loading="lazy"
           referrerPolicy="no-referrer"
