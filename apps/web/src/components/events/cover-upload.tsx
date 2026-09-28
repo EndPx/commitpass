@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState, type ChangeEvent } from "react";
+import { useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { usePrivy } from "@privy-io/react-auth";
@@ -12,11 +12,13 @@ export function CoverUpload({
   onChange,
   disabled = false,
   onBusyChange,
+  children,
 }: {
   value: string;
   onChange: (url: string) => void;
   disabled?: boolean;
   onBusyChange?: (busy: boolean) => void;
+  children?: ReactNode;
 }) {
   const input = useRef<HTMLInputElement>(null);
   const { authenticated, getAccessToken } = usePrivy();
@@ -76,7 +78,9 @@ export function CoverUpload({
   }
 
   return (
-    <div className="cover-uploader">
+    <div
+      className={`cover-uploader${children ? " cover-uploader--preview" : ""}`}
+    >
       <input
         ref={input}
         className="sr-only"
@@ -87,49 +91,57 @@ export function CoverUpload({
         disabled={disabled || uploading || !session}
         tabIndex={-1}
       />
-      <div className="cover-upload-actions">
-        {authenticated ? (
-          <button
-            type="button"
-            className="cover-upload-button"
-            onClick={() => input.current?.click()}
-            disabled={disabled || uploading || !session}
-          >
-            {uploading ? (
-              <LoaderCircle size={16} className="upload-spinner" />
-            ) : (
+      <div className={children ? "cover-upload-preview" : undefined}>
+        {children}
+        <div className="cover-upload-actions">
+          {authenticated ? (
+            <button
+              type="button"
+              className="cover-upload-button"
+              onClick={() => input.current?.click()}
+              disabled={disabled || uploading || !session}
+              title={value ? "Change cover photo" : "Upload cover photo"}
+            >
+              {uploading ? (
+                <LoaderCircle size={16} className="upload-spinner" />
+              ) : (
+                <ImagePlus size={16} />
+              )}
+              <span className={children ? "sr-only" : undefined}>
+                {uploading
+                  ? "Uploading photo…"
+                  : value
+                    ? "Change photo"
+                    : "Upload cover photo"}
+              </span>
+            </button>
+          ) : (
+            <Link
+              className="cover-upload-button"
+              href={`/signin?next=${encodeURIComponent(path)}`}
+            >
               <ImagePlus size={16} />
-            )}
-            {uploading
-              ? "Uploading photo…"
-              : value
-                ? "Change photo"
-                : "Upload cover photo"}
-          </button>
-        ) : (
-          <Link
-            className="cover-upload-button"
-            href={`/signin?next=${encodeURIComponent(path)}`}
-          >
-            <ImagePlus size={16} />
-            Sign in to upload
-          </Link>
-        )}
-        {value && (
-          <button
-            type="button"
-            className="cover-remove-button"
-            aria-label="Remove cover from this event"
-            disabled={disabled || uploading}
-            onClick={() => {
-              onChange("");
-              setUploaded(false);
-              setError("");
-            }}
-          >
-            <X size={16} />
-          </button>
-        )}
+              <span className={children ? "sr-only" : undefined}>
+                Sign in to upload
+              </span>
+            </Link>
+          )}
+          {value && (
+            <button
+              type="button"
+              className="cover-remove-button"
+              aria-label="Remove cover from this event"
+              disabled={disabled || uploading}
+              onClick={() => {
+                onChange("");
+                setUploaded(false);
+                setError("");
+              }}
+            >
+              <X size={16} />
+            </button>
+          )}
+        </div>
       </div>
       <p className="field-note">
         JPG, PNG, or WebP · up to 4 MB. Event covers are public.

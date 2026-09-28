@@ -82,6 +82,12 @@ part of the sign-in screen. Wallet setup is available on event action screens.
   registration deadline, commitment and capacity. Drafts are explicitly saved in
   this browser, scoped to the Privy user; they do not create a public event.
 
+The create editor starts directly with the cover and event name. Its photo picker
+sits on the cover; start/end use separate date/time controls, the description is
+an optional disclosure, and registration/commitment/capacity use compact option
+rows. Fresh drafts start about an hour ahead with a one-hour duration and a
+registration deadline 15 minutes before the start. Saved draft dates are preserved.
+
 The same-origin event API proxies only allowlisted Go API paths. Personal event
 queries derive wallets from a fresh verified `/v1/me` response, then query Envio.
 Metadata failures are separate from missing metadata; service failures are not

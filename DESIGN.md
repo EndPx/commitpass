@@ -150,6 +150,14 @@ Poster selection colors are local presentation choices; persisted poster URLs mu
 be HTTPS. Desktop detail/create: 340px cover column + flexible main. Mobile stacks.
 All buttons minimum 44px. Empty, loading, unavailable, and not-found are distinct.
 
+Create-page refinement: begin directly with the two-column editor, without visible
+breadcrumb, page title, subtitle or testnet badge. Preserve a screen-reader heading.
+Cover upload is an icon overlay on the image. Right column: host/public context,
+large event-name input, compact start/end date and time rows next to the timezone,
+location row, collapsed optional description, and compact event-option rows.
+Registration deadline remains an event option because the contract requires it.
+The testnet funding note stays next to the financial action. Keep existing drafts.
+
 Reuse a route-scoped Privy provider for event pages; verified backend session before
 personal data or organizer writes. Public indexer data can lag; failed reads never
 become empty successes. Financial amounts stay bigint/decimal strings. Use compiled

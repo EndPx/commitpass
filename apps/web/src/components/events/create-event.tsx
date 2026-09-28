@@ -22,9 +22,12 @@ import {
   type EventMetadata,
 } from "@commitpass/shared";
 import {
-  ArrowLeft,
   ArrowRight,
   CalendarDays,
+  AlignLeft,
+  Clock3,
+  Globe2,
+  Pencil,
   Check,
   MapPin,
   Save,
@@ -62,6 +65,64 @@ const blank: Draft = {
   capacity: "30",
 };
 
+function localDateTime(date: Date) {
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 16);
+}
+
+function newDraft(): Draft {
+  const start = new Date(Math.ceil((Date.now() + 3600000) / 900000) * 900000);
+  return {
+    ...blank,
+    start: localDateTime(start),
+    end: localDateTime(new Date(start.getTime() + 3600000)),
+    deadline: localDateTime(new Date(start.getTime() - 900000)),
+  };
+}
+
+function ScheduleRow({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const [date = "", time = ""] = value.split("T");
+  return (
+    <div className="create-date-row">
+      <span className="schedule-dot" aria-hidden="true" />
+      <span>{label}</span>
+      <input
+        aria-label={`${label} date`}
+        type="date"
+        value={date}
+        onChange={(event) =>
+          onChange(
+            event.target.value
+              ? `${event.target.value}T${time || "18:00"}`
+              : "",
+          )
+        }
+        required
+      />
+      <input
+        aria-label={`${label} time`}
+        type="time"
+        value={time}
+        onChange={(event) =>
+          onChange(
+            `${date || localDateTime(new Date()).slice(0, 10)}T${event.target.value || "00:00"}`,
+          )
+        }
+        required
+      />
+    </div>
+  );
+}
+
 export function CreateEvent() {
   const { authenticated, user, getAccessToken } = usePrivy();
   const { session, refresh } = useAccount();
@@ -89,7 +150,7 @@ export function CreateEvent() {
     setHydrated(false);
     setCreated(null);
     setPending(null);
-    setDraft(blank);
+    setDraft(newDraft());
     try {
       const saved =
         localStorage.getItem(draftKey) ||
@@ -346,40 +407,29 @@ export function CreateEvent() {
 
   return (
     <main id="workspace-main" className="workspace-content create-workspace">
-      <Link className="back-link" href="/events">
-        <ArrowLeft size={16} />
-        Events
-      </Link>
-      <div className="workspace-title">
-        <div>
-          <h1>Create an event</h1>
-          <p>Bring your people together.</p>
-        </div>
-        <span className="network-label">Testnet preview</span>
-      </div>
+      <h1 className="sr-only">Create an event</h1>
       <form onSubmit={publish} className="create-grid">
         <aside>
-          <EventCover title={draft.title} posterUrl={draft.posterUrl} />
           <CoverUpload
             value={draft.posterUrl}
             onChange={(url) => update("posterUrl", url)}
             disabled={busy || Boolean(pending) || Boolean(created)}
             onBusyChange={setCoverUploading}
-          />
-          <div className="create-summary">
-            <Ticket size={20} />
-            <p>
-              A little commitment,
-              <br />
-              <strong>a better turnout.</strong>
-            </p>
-            <span>
-              Guests get their commitment back after confirmed attendance and
-              settlement.
-            </span>
-          </div>
+          >
+            <EventCover title={draft.title} posterUrl={draft.posterUrl} />
+          </CoverUpload>
         </aside>
         <div className="create-fields">
+          <div className="create-context">
+            <span>
+              <CalendarDays size={15} />
+              {authenticated ? "Your event" : "New event"}
+            </span>
+            <span title="Published events appear in Discover">
+              <Globe2 size={14} />
+              Public
+            </span>
+          </div>
           <fieldset
             disabled={
               busy ||
@@ -401,75 +451,73 @@ export function CreateEvent() {
               maxLength={120}
               required
             />
-            <div className="form-panel">
-              <div className="panel-icon">
-                <CalendarDays size={20} />
+            <div className="create-schedule">
+              <div className="create-date-rows">
+                <ScheduleRow
+                  label="Start"
+                  value={draft.start}
+                  onChange={(value) => update("start", value)}
+                />
+                <ScheduleRow
+                  label="End"
+                  value={draft.end}
+                  onChange={(value) => update("end", value)}
+                />
               </div>
-              <div className="schedule-fields">
-                <label>
-                  Start
-                  <input
-                    type="datetime-local"
-                    value={draft.start}
-                    onChange={(event) => update("start", event.target.value)}
-                    required
-                  />
-                </label>
-                <label>
-                  End
-                  <input
-                    type="datetime-local"
-                    value={draft.end}
-                    onChange={(event) => update("end", event.target.value)}
-                    required
-                  />
-                </label>
-                <label>
-                  Registration closes
-                  <input
-                    type="datetime-local"
-                    value={draft.deadline}
-                    onChange={(event) => update("deadline", event.target.value)}
-                    required
-                  />
-                </label>
-                <p className="field-note">
-                  Times are in {zone || "your local timezone"}.
-                </p>
+              <div className="create-timezone">
+                <Globe2 size={16} />
+                <strong>
+                  {zone
+                    ? new Intl.DateTimeFormat("en", {
+                        timeZoneName: "shortOffset",
+                      })
+                        .formatToParts(new Date(draft.start || Date.now()))
+                        .find((part) => part.type === "timeZoneName")?.value
+                    : "Local time"}
+                </strong>
+                <span>
+                  {zone.split("/").pop()?.replaceAll("_", " ") ||
+                    "Your timezone"}
+                </span>
               </div>
             </div>
-            <label className="form-panel location-field">
+            <label className="create-location">
               <MapPin size={20} />
               <span>
-                Location
+                <span className="sr-only">Location</span>
                 <input
-                  placeholder="Add a venue or meeting link"
+                  placeholder="Add event location"
                   value={draft.location}
                   onChange={(event) => update("location", event.target.value)}
                   maxLength={300}
                   required
                 />
+                <small>Offline location or virtual link</small>
               </span>
             </label>
-            <label className="description-field">
-              About your event
+            <details className="create-description">
+              <summary>
+                <AlignLeft size={17} />
+                {draft.description ? "Event description" : "Add description"}
+                <Pencil size={13} />
+              </summary>
+              <label className="sr-only" htmlFor="event-description">
+                About your event
+              </label>
               <textarea
+                id="event-description"
                 placeholder="What’s the plan? Tell people what to expect, what to bring, and how check-in works."
                 rows={6}
                 value={draft.description}
                 onChange={(event) => update("description", event.target.value)}
                 maxLength={5000}
-                required
               />
-            </label>
+            </details>
             <h2>Event options</h2>
-            <div className="option-fields">
+            <div className="option-fields create-options">
               <label>
                 <Ticket size={18} />
-                <span>
-                  Commitment
-                  <small>Returned after attendance & settlement</small>
-                </span>
+                <span>Commitment</span>
                 <div>
                   <input
                     aria-label="Commitment amount"
@@ -484,12 +532,23 @@ export function CreateEvent() {
                   />
                   <small>mockAUSD</small>
                 </div>
+                <Pencil size={13} aria-hidden="true" />
+              </label>
+              <label>
+                <Clock3 size={17} />
+                <span>Registration closes</span>
+                <input
+                  className="deadline-input"
+                  aria-label="Registration closes"
+                  type="datetime-local"
+                  value={draft.deadline}
+                  onChange={(event) => update("deadline", event.target.value)}
+                  required
+                />
               </label>
               <label>
                 <Users size={18} />
-                <span>
-                  Capacity<small>Make room for the right crowd</small>
-                </span>
+                <span>Capacity</span>
                 <input
                   aria-label="Guest capacity"
                   type="number"
@@ -500,6 +559,7 @@ export function CreateEvent() {
                   onChange={(event) => update("capacity", event.target.value)}
                   required
                 />
+                <Pencil size={13} aria-hidden="true" />
               </label>
             </div>
           </fieldset>
