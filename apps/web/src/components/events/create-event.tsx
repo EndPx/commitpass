@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import {
   useCreateWallet,
@@ -20,6 +20,7 @@ import {
   factoryAbi,
   MONAD_TESTNET,
   type EventMetadata,
+  type EventAppearance,
 } from "@commitpass/shared";
 import {
   ArrowRight,
@@ -33,6 +34,9 @@ import {
   Save,
   Ticket,
   Users,
+  ImagePlus,
+  Palette,
+  Shuffle,
 } from "lucide-react";
 import {
   chainClient,
@@ -43,85 +47,25 @@ import {
 import { jsonRequest } from "@/lib/events";
 import { useAccount } from "./account-context";
 import { EventCover } from "./event-cover";
-import { CoverUpload } from "./cover-upload";
+import { EventLocation } from "./event-location";
+import { FieldEditorDialog, type FieldEditor } from "./field-editors";
+import { CoverEditor, ThemeEditor } from "./appearance-editors";
+import { usePageAppearance } from "./page-theme";
+import {
+  coverTemplates,
+  convertZone,
+  dateText,
+  defaultCover,
+  eventTimestamp,
+  freshDraft,
+  restoreDraft,
+  timeText,
+  zoneOffset,
+  type EventDraft,
+} from "@/lib/event-editor";
 
-type Draft = EventMetadata & {
-  start: string;
-  end: string;
-  deadline: string;
-  commitment: string;
-  capacity: string;
-};
+type Draft = EventDraft;
 type Pending = { hash: Hash; owner: Address; metadata: EventMetadata };
-const blank: Draft = {
-  title: "",
-  description: "",
-  location: "",
-  posterUrl: "",
-  start: "",
-  end: "",
-  deadline: "",
-  commitment: "5",
-  capacity: "30",
-};
-
-function localDateTime(date: Date) {
-  return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-    .toISOString()
-    .slice(0, 16);
-}
-
-function newDraft(): Draft {
-  const start = new Date(Math.ceil((Date.now() + 3600000) / 900000) * 900000);
-  return {
-    ...blank,
-    start: localDateTime(start),
-    end: localDateTime(new Date(start.getTime() + 3600000)),
-    deadline: localDateTime(new Date(start.getTime() - 900000)),
-  };
-}
-
-function ScheduleRow({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  const [date = "", time = ""] = value.split("T");
-  return (
-    <div className="create-date-row">
-      <span className="schedule-dot" aria-hidden="true" />
-      <span>{label}</span>
-      <input
-        aria-label={`${label} date`}
-        type="date"
-        value={date}
-        onChange={(event) =>
-          onChange(
-            event.target.value
-              ? `${event.target.value}T${time || "18:00"}`
-              : "",
-          )
-        }
-        required
-      />
-      <input
-        aria-label={`${label} time`}
-        type="time"
-        value={time}
-        onChange={(event) =>
-          onChange(
-            `${date || localDateTime(new Date()).slice(0, 10)}T${event.target.value || "00:00"}`,
-          )
-        }
-        required
-      />
-    </div>
-  );
-}
 
 export function CreateEvent() {
   const { authenticated, user, getAccessToken } = usePrivy();
@@ -130,36 +74,40 @@ export function CreateEvent() {
   const wallet = wallets.find((wallet) => wallet.walletClientType === "privy");
   const { createWallet } = useCreateWallet();
   const { sendTransaction } = useSendTransaction();
-  const [draft, setDraft] = useState<Draft>(blank);
+  const [draft, setDraft] = useState<Draft>(freshDraft);
   const [pending, setPending] = useState<Pending | null>(null);
   const [created, setCreated] = useState<Address | null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [coverUploading, setCoverUploading] = useState(false);
   const [checking, setChecking] = useState(true);
   const [publishReady, setPublishReady] = useState(false);
   const [checkAttempt, setCheckAttempt] = useState(0);
   const [hydrated, setHydrated] = useState(false);
-  const [zone, setZone] = useState("");
+  const [editor, setEditor] = useState<FieldEditor | "cover" | "theme" | null>(
+    null,
+  );
+  const [editorError, setEditorError] = useState("");
+  const [themePreview, setThemePreview] = useState<EventAppearance | null>(
+    null,
+  );
+  const locationAnchor = useRef<HTMLButtonElement>(null);
+  usePageAppearance(
+    editor === "theme" && themePreview ? themePreview : draft.appearance,
+  );
   const draftKey = `commitpass:event-draft:${user?.id ?? "guest"}`;
   const pendingKey = `commitpass:pending-event:${user?.id ?? "guest"}`;
 
   useEffect(() => {
-    setZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
     setHydrated(false);
     setCreated(null);
     setPending(null);
-    setDraft(newDraft());
+    setDraft(freshDraft());
     try {
       const saved =
         localStorage.getItem(draftKey) ||
         localStorage.getItem("commitpass:event-draft:guest");
-      if (saved) {
-        const value = JSON.parse(saved);
-        if (Object.keys(blank).every((key) => typeof value[key] === "string"))
-          setDraft(value);
-      }
+      if (saved) setDraft(restoreDraft(JSON.parse(saved)));
       const savedPending = localStorage.getItem(pendingKey);
       if (savedPending) {
         const value = JSON.parse(savedPending);
@@ -204,7 +152,7 @@ export function CreateEvent() {
     };
   }, [checkAttempt]);
 
-  function update(key: keyof Draft, value: string) {
+  function update(key: keyof Draft, value: Draft[keyof Draft]) {
     setDraft((current) => ({ ...current, [key]: value }));
     setMessage("");
     setError("");
@@ -278,7 +226,7 @@ export function CreateEvent() {
 
   async function publish(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (busy || coverUploading) return;
+    if (busy || editor) return;
     setError("");
     setMessage("");
     setBusy(true);
@@ -297,9 +245,9 @@ export function CreateEvent() {
         draft.posterUrl.length > 2048
       )
         throw new Error("Please check the event name and description lengths.");
-      const start = Math.floor(new Date(draft.start).getTime() / 1000);
-      const end = Math.floor(new Date(draft.end).getTime() / 1000);
-      const deadline = Math.floor(new Date(draft.deadline).getTime() / 1000);
+      const start = eventTimestamp(draft.start, draft.timezone);
+      const end = eventTimestamp(draft.end, draft.timezone);
+      const deadline = eventTimestamp(draft.deadline, draft.timezone);
       const block = await chainClient.getBlock();
       if (
         ![start, end, deadline].every(Number.isSafeInteger) ||
@@ -371,7 +319,9 @@ export function CreateEvent() {
           title: draft.title.trim(),
           description: draft.description,
           location: draft.location,
-          posterUrl: draft.posterUrl,
+          posterUrl: draft.posterUrl || defaultCover,
+          timezone: draft.timezone,
+          appearance: draft.appearance,
         },
       };
       setPending(transaction);
@@ -405,19 +355,128 @@ export function CreateEvent() {
     }
   }
 
+  const locked = busy || Boolean(pending) || Boolean(created) || !hydrated;
+  function openEditor(field: FieldEditor | "cover" | "theme") {
+    if (locked) return;
+    setEditorError("");
+    if (field === "theme") setThemePreview({ ...draft.appearance });
+    setEditor(field);
+  }
+  function applyField(field: FieldEditor, value: string) {
+    setEditorError("");
+    try {
+      if (field === "timezone") {
+        setDraft({
+          ...draft,
+          start: convertZone(draft.start, draft.timezone, value),
+          end: convertZone(draft.end, draft.timezone, value),
+          deadline: convertZone(draft.deadline, draft.timezone, value),
+          timezone: value,
+        });
+      } else if (
+        field === "start-date" ||
+        field === "start-time" ||
+        field === "end-date" ||
+        field === "end-time"
+      ) {
+        const key = field.startsWith("start") ? "start" : "end";
+        const [date, time] = draft[key].split("T");
+        const next = field.endsWith("-date")
+          ? value + "T" + (time || "18:00")
+          : date + "T" + value;
+        eventTimestamp(next, draft.timezone);
+        update(key, next);
+      } else if (field === "deadline") {
+        const timestamp = eventTimestamp(value, draft.timezone);
+        if (
+          timestamp <= Math.floor(Date.now() / 1000) ||
+          timestamp >= eventTimestamp(draft.start, draft.timezone)
+        )
+          throw new Error(
+            "Registration must close in the future and before the event starts.",
+          );
+        update("deadline", value);
+      } else update(field, value);
+      setEditor(null);
+      setMessage("");
+      setError("");
+    } catch (error) {
+      setEditorError(
+        error instanceof Error ? error.message : "Please check this value.",
+      );
+    }
+  }
+  function fieldValue(field: FieldEditor) {
+    if (field.startsWith("start-")) return draft.start;
+    if (field.startsWith("end-")) return draft.end;
+    return draft[
+      field as
+        | "description"
+        | "location"
+        | "capacity"
+        | "commitment"
+        | "deadline"
+        | "timezone"
+    ];
+  }
+
   return (
     <main id="workspace-main" className="workspace-content create-workspace">
       <h1 className="sr-only">Create an event</h1>
       <form onSubmit={publish} className="create-grid">
         <aside>
-          <CoverUpload
-            value={draft.posterUrl}
-            onChange={(url) => update("posterUrl", url)}
-            disabled={busy || Boolean(pending) || Boolean(created)}
-            onBusyChange={setCoverUploading}
+          <button
+            className="cover-choice-trigger"
+            type="button"
+            aria-label="Choose event cover"
+            disabled={locked}
+            onClick={() => openEditor("cover")}
           >
-            <EventCover title={draft.title} posterUrl={draft.posterUrl} />
-          </CoverUpload>
+            <EventCover
+              title={draft.title}
+              posterUrl={draft.posterUrl || defaultCover}
+            />
+            <span className="cover-choice-icon">
+              <ImagePlus size={18} />
+            </span>
+          </button>
+          <div className="theme-picker-row">
+            <button
+              type="button"
+              className="theme-picker-trigger"
+              disabled={locked}
+              onClick={() => openEditor("theme")}
+            >
+              <span
+                className="theme-picker-swatch"
+                style={{ background: draft.appearance.color }}
+              >
+                <Palette size={20} />
+              </span>
+              <span>
+                <small>Theme</small>
+                <strong>{draft.appearance.style}</strong>
+              </span>
+              <Pencil size={14} />
+            </button>
+            <button
+              type="button"
+              className="cover-shuffle"
+              aria-label="Choose another default cover"
+              title="Shuffle cover"
+              disabled={locked}
+              onClick={() => {
+                const options = coverTemplates.filter(
+                  (cover) => cover.url !== draft.posterUrl,
+                );
+                const next =
+                  options[Math.floor(Math.random() * options.length)];
+                if (next) update("posterUrl", next.url);
+              }}
+            >
+              <Shuffle size={18} />
+            </button>
+          </div>
         </aside>
         <div className="create-fields">
           <div className="create-context">
@@ -430,15 +489,7 @@ export function CreateEvent() {
               Public
             </span>
           </div>
-          <fieldset
-            disabled={
-              busy ||
-              coverUploading ||
-              Boolean(pending) ||
-              Boolean(created) ||
-              !hydrated
-            }
-          >
+          <fieldset disabled={locked}>
             <label className="sr-only" htmlFor="event-title">
               Event name
             </label>
@@ -453,114 +504,98 @@ export function CreateEvent() {
             />
             <div className="create-schedule">
               <div className="create-date-rows">
-                <ScheduleRow
-                  label="Start"
-                  value={draft.start}
-                  onChange={(value) => update("start", value)}
-                />
-                <ScheduleRow
-                  label="End"
-                  value={draft.end}
-                  onChange={(value) => update("end", value)}
-                />
+                {(["start", "end"] as const).map((key) => (
+                  <div className="create-date-row" key={key}>
+                    <span className="schedule-dot" aria-hidden="true" />
+                    <span>{key === "start" ? "Start" : "End"}</span>
+                    <button
+                      type="button"
+                      aria-label={"Edit " + key + " date"}
+                      onClick={() =>
+                        openEditor(key === "start" ? "start-date" : "end-date")
+                      }
+                    >
+                      {dateText(draft[key])}
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={"Edit " + key + " time"}
+                      onClick={() =>
+                        openEditor(key === "start" ? "start-time" : "end-time")
+                      }
+                    >
+                      {timeText(draft[key])}
+                    </button>
+                  </div>
+                ))}
               </div>
-              <div className="create-timezone">
+              <button
+                type="button"
+                className="create-timezone"
+                aria-label="Change event timezone"
+                onClick={() => openEditor("timezone")}
+              >
                 <Globe2 size={16} />
-                <strong>
-                  {zone
-                    ? new Intl.DateTimeFormat("en", {
-                        timeZoneName: "shortOffset",
-                      })
-                        .formatToParts(new Date(draft.start || Date.now()))
-                        .find((part) => part.type === "timeZoneName")?.value
-                    : "Local time"}
-                </strong>
+                <strong>{zoneOffset(draft.timezone, draft.start)}</strong>
                 <span>
-                  {zone.split("/").pop()?.replaceAll("_", " ") ||
-                    "Your timezone"}
+                  {draft.timezone.split("/").pop()?.replaceAll("_", " ")}
                 </span>
-              </div>
+              </button>
             </div>
-            <label className="create-location">
-              <MapPin size={20} />
+            <button
+              ref={locationAnchor}
+              type="button"
+              className="create-location editor-row-trigger"
+              onClick={() => openEditor("location")}
+            >
+              <MapPin size={18} />
               <span>
-                <span className="sr-only">Location</span>
-                <input
-                  placeholder="Add event location"
-                  value={draft.location}
-                  onChange={(event) => update("location", event.target.value)}
-                  maxLength={300}
-                  required
-                />
+                <strong>{draft.location || "Add event location"}</strong>
                 <small>Offline location or virtual link</small>
               </span>
-            </label>
-            <details className="create-description">
-              <summary>
-                <AlignLeft size={17} />
-                {draft.description ? "Event description" : "Add description"}
-                <Pencil size={13} />
-              </summary>
-              <label className="sr-only" htmlFor="event-description">
-                About your event
-              </label>
-              <textarea
-                id="event-description"
-                placeholder="What’s the plan? Tell people what to expect, what to bring, and how check-in works."
-                rows={6}
-                value={draft.description}
-                onChange={(event) => update("description", event.target.value)}
-                maxLength={5000}
-              />
-            </details>
+              {draft.location && <Pencil size={13} />}
+            </button>
+            <EventLocation location={draft.location} compact />
+            <button
+              type="button"
+              className="create-description-trigger editor-row-trigger"
+              onClick={() => openEditor("description")}
+            >
+              <AlignLeft size={17} />
+              <span>
+                {draft.description ? "Edit description" : "Add description"}
+                {draft.description && (
+                  <small>
+                    {draft.description.replace(/\s+/g, " ").slice(0, 80)}
+                  </small>
+                )}
+              </span>
+              <Pencil size={13} />
+            </button>
             <h2>Event options</h2>
-            <div className="option-fields create-options">
-              <label>
+            <div className="create-options popup-options">
+              <button type="button" onClick={() => openEditor("commitment")}>
                 <Ticket size={18} />
                 <span>Commitment</span>
-                <div>
-                  <input
-                    aria-label="Commitment amount"
-                    type="number"
-                    min="0.000001"
-                    step="0.000001"
-                    value={draft.commitment}
-                    onChange={(event) =>
-                      update("commitment", event.target.value)
-                    }
-                    required
-                  />
-                  <small>mockAUSD</small>
-                </div>
-                <Pencil size={13} aria-hidden="true" />
-              </label>
-              <label>
+                <strong>
+                  {draft.commitment} <small>mockAUSD</small>
+                </strong>
+                <Pencil size={13} />
+              </button>
+              <button type="button" onClick={() => openEditor("deadline")}>
                 <Clock3 size={17} />
                 <span>Registration closes</span>
-                <input
-                  className="deadline-input"
-                  aria-label="Registration closes"
-                  type="datetime-local"
-                  value={draft.deadline}
-                  onChange={(event) => update("deadline", event.target.value)}
-                  required
-                />
-              </label>
-              <label>
+                <strong>
+                  {dateText(draft.deadline)} · {timeText(draft.deadline)}
+                </strong>
+                <Pencil size={13} />
+              </button>
+              <button type="button" onClick={() => openEditor("capacity")}>
                 <Users size={18} />
                 <span>Capacity</span>
-                <input
-                  aria-label="Guest capacity"
-                  type="number"
-                  min="1"
-                  max="500"
-                  step="1"
-                  value={draft.capacity}
-                  onChange={(event) => update("capacity", event.target.value)}
-                  required
-                />
-                <Pencil size={13} aria-hidden="true" />
-              </label>
+                <strong>{draft.capacity} guests</strong>
+                <Pencil size={13} />
+              </button>
             </div>
           </fieldset>
           {!publishReady && !created && (
@@ -598,7 +633,7 @@ export function CreateEvent() {
           {pending && (
             <a
               className="receipt-link"
-              href={`${explorer}/tx/${pending.hash}`}
+              href={explorer + "/tx/" + pending.hash}
               target="_blank"
               rel="noreferrer"
             >
@@ -611,14 +646,14 @@ export function CreateEvent() {
                 className="button"
                 type="button"
                 onClick={saveDraft}
-                disabled={!hydrated || busy || coverUploading}
+                disabled={!hydrated || busy}
               >
                 <Save size={16} />
                 Save draft
               </button>
             )}
             {created && !pending ? (
-              <Link className="button button--dark" href={`/events/${created}`}>
+              <Link className="button button--dark" href={"/events/" + created}>
                 <Check size={16} />
                 View event
               </Link>
@@ -635,7 +670,7 @@ export function CreateEvent() {
                 className="button button--dark"
                 type="button"
                 onClick={setupWallet}
-                disabled={busy || coverUploading || !session}
+                disabled={busy || !session}
               >
                 Set up your wallet
               </button>
@@ -644,10 +679,7 @@ export function CreateEvent() {
                 className="button button--dark"
                 type="submit"
                 disabled={
-                  busy ||
-                  coverUploading ||
-                  !session ||
-                  (!pending && (!publishReady || checking))
+                  busy || !session || (!pending && (!publishReady || checking))
                 }
               >
                 {busy
@@ -665,6 +697,40 @@ export function CreateEvent() {
           </p>
         </div>
       </form>
+      {editor && editor !== "cover" && editor !== "theme" && (
+        <FieldEditorDialog
+          key={editor}
+          field={editor}
+          value={fieldValue(editor)}
+          timezone={draft.timezone}
+          start={draft.start}
+          anchor={editor === "location" ? locationAnchor.current : undefined}
+          error={editorError}
+          onConfirm={(value) => applyField(editor, value)}
+          onClose={() => setEditor(null)}
+        />
+      )}
+      {editor === "cover" && (
+        <CoverEditor
+          value={draft.posterUrl}
+          onConfirm={(url) => {
+            update("posterUrl", url);
+            setEditor(null);
+          }}
+          onClose={() => setEditor(null)}
+        />
+      )}
+      {editor === "theme" && themePreview && (
+        <ThemeEditor
+          value={themePreview}
+          onChange={setThemePreview}
+          onConfirm={() => {
+            update("appearance", themePreview);
+            setEditor(null);
+          }}
+          onClose={() => setEditor(null)}
+        />
+      )}
     </main>
   );
 }

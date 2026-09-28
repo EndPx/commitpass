@@ -25,10 +25,11 @@ export function dateLabel(
     ? date.toLocaleDateString("en-US", options)
     : "Date unavailable";
 }
-export const timeLabel = (seconds: string) =>
+export const timeLabel = (seconds: string, timezone?: string) =>
   new Date(Number(seconds) * 1000).toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
+    ...(timezone ? { timeZone: timezone } : {}),
   });
 export function statusLabel(event: EventSummary) {
   if (event.status === "SETTLED") return "Settled";

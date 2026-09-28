@@ -1,4 +1,5 @@
 import { coverImageUrl } from "@/lib/media";
+import brandMedia from "@/lib/brand-media.json";
 
 export function EventCover({
   title,
@@ -9,7 +10,8 @@ export function EventCover({
   posterUrl?: string;
   small?: boolean;
 }) {
-  const safeImage = posterUrl && /^https:\/\//i.test(posterUrl);
+  posterUrl ||= brandMedia.templates[0]?.url ?? brandMedia.workshop.url;
+  const safeImage = /^https:\/\//i.test(posterUrl);
   return (
     <div className={`event-cover${small ? " event-cover--small" : ""}`}>
       {safeImage ? (

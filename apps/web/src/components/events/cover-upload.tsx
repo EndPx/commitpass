@@ -31,7 +31,10 @@ export function CoverUpload({
   async function upload(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     event.target.value = "";
-    if (!file || uploading || disabled) return;
+    if (file) await uploadFile(file);
+  }
+  async function uploadFile(file: File) {
+    if (uploading || disabled || !session) return;
     setError("");
     setUploaded(false);
     if (!COVER_MIME_TYPES.includes(file.type)) {
@@ -80,6 +83,14 @@ export function CoverUpload({
   return (
     <div
       className={`cover-uploader${children ? " cover-uploader--preview" : ""}`}
+      onDragOver={(event) => {
+        if (!disabled && session) event.preventDefault();
+      }}
+      onDrop={(event) => {
+        event.preventDefault();
+        const file = event.dataTransfer.files[0];
+        if (file) void uploadFile(file);
+      }}
     >
       <input
         ref={input}

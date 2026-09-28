@@ -161,7 +161,7 @@ Create-page refinement: begin directly with the two-column editor, without visib
 breadcrumb, page title, subtitle or testnet badge. Preserve a screen-reader heading.
 Cover upload is an icon overlay on the image. Right column: host/public context,
 large event-name input, compact start/end date and time rows next to the timezone,
-location row, collapsed optional description, and compact event-option rows.
+location row, popup description editor, and compact event-option rows.
 Registration deadline remains an event option because the contract requires it.
 The testnet funding note stays next to the financial action. Keep existing drafts.
 
@@ -184,3 +184,21 @@ bounds and checks the file, then signs a Cloudinary upload into an app-specific
 user folder. API secrets never enter the browser. Event metadata keeps the HTTPS
 delivery URL. Removing a cover detaches it from the draft, not from cloud storage.
 Cloudinary cover delivery uses width-specific URLs with automatic quality/format.
+
+## Popup event editor
+
+Keep only the event title directly editable. Description, location, commitment,
+capacity, registration deadline, dates/times, timezone and cover choice open a
+dialog with local working values. Confirm commits; Cancel/Escape/backdrop leaves
+the draft unchanged. Native dialog supplies modal focus containment and focus
+restoration; lock document scroll while open. Inputs remain 44px, dialogs fit the
+viewport and scroll internally. Reduced motion removes entrance transitions.
+
+Cover gallery offers original generated templates plus Cloudinary upload. A real
+hosted cover is selected by default and saved in posterUrl. Do not copy Luma art.
+Theme sheet offers Minimal/Aurora/Confetti/Grid, custom accent, Sans/Editorial/Mono,
+and Light/Dark. Preview while editing, commit only on Confirm. Store appearance
+and IANA timezone in metadata and drafts; use the appearance on event detail.
+Convert wall times using Temporal with rejected DST ambiguity before constructing
+contract timestamps. Changing timezone preserves instants. Keep commitment >0
+and capacity 1–500; do not offer unsupported Free/Unlimited/Approval modes.

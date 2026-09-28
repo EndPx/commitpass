@@ -82,11 +82,25 @@ part of the sign-in screen. Wallet setup is available on event action screens.
   registration deadline, commitment and capacity. Drafts are explicitly saved in
   this browser, scoped to the Privy user; they do not create a public event.
 
-The create editor starts directly with the cover and event name. Its photo picker
-sits on the cover; start/end use separate date/time controls, the description is
-an optional disclosure, and registration/commitment/capacity use compact option
-rows. Fresh drafts start about an hour ahead with a one-hour duration and a
-registration deadline 15 minutes before the start. Saved draft dates are preserved.
+The create editor starts directly with the cover and event name. All other editing
+happens in Confirm/Cancel dialogs: description, commitment, capacity, registration
+deadline, calendar date, time, timezone and cover. Location opens an anchored
+dropdown with recent locations scoped to the user and links to Zoom/Google Meet;
+meeting creation itself stays on the provider's website. No geocoding or automatic
+meeting provisioning is implied. The file picker also accepts drag/drop.
+
+The cover gallery contains Together, Good plans and Workshop templates, hosted
+in Cloudinary. Together is the default when no photo is chosen. Shuffle chooses
+another template. Theme customization includes Minimal/Aurora/Confetti/Grid,
+custom accent, three title fonts, and light/dark mode. It previews before Confirm
+and restores the previous theme on Cancel. Appearance is reused on event detail.
+
+Fresh drafts start about an hour ahead with a one-hour duration and a registration
+deadline 15 minutes before the start. Drafts keep the selected IANA timezone;
+changing zones preserves all three instants. Temporal handles conversion before
+contract encoding and rejects times skipped/repeated by DST. Existing draft
+strings are upgraded in place on read. Run API migration 002 before saving the new
+timezone/appearance metadata. No contract schema or lifecycle rule changes.
 
 The same-origin event API proxies only allowlisted Go API paths. Personal event
 queries derive wallets from a fresh verified `/v1/me` response, then query Envio.
@@ -114,6 +128,26 @@ completed. The form reads this state and blocks publishing while leaving draft
 saving available. Do not bypass it with the non-automated factory function or
 invent a workflow ID. No real event transaction was executed while building these
 screens; live create/reserve/check-in/settle/claim acceptance remains pending.
+
+## Event location maps
+
+Confirmed venue names/addresses show a Google Maps iframe in the create editor
+and the public event's Location section, with an external Maps link as a fallback.
+The saved value remains the existing offchain `location` string. Maps search
+chooses the result: this is not a verified place ID, geocoding service, or address
+autocomplete. Hosts should enter the city/full address and inspect the preview.
+HTTPS meeting links become a join link. Google Maps links with a query/place path
+can produce a preview; short Maps links remain external links until a full address
+is provided. No arbitrary user URL is loaded into the iframe.
+
+By default the preview uses Google's public search embed (`maps.google.com/maps`,
+`q`, `output=embed`). For the documented Maps Embed API, set
+`NEXT_PUBLIC_GOOGLE_MAPS_EMBED_API_KEY`, enable Maps Embed API, and restrict the
+browser key to the app's HTTP referrers and that API. See
+[Google's setup guide](https://developers.google.com/maps/documentation/embed/quickstart).
+The iframe sends the confirmed address to Google and loads lazily. No browser
+geolocation permission is requested. Map availability depends on Google and the
+visitor's network; the external link remains available.
 
 ## Photo storage and delivery
 

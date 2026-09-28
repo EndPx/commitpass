@@ -7,6 +7,7 @@ import { CalendarDays, Compass, LogOut, Plus, UserRound } from "lucide-react";
 import { AuthProvider, authConfigured } from "@/components/auth/provider";
 import { Brand } from "@/components/landing/brand";
 import { AccountProvider } from "./account-context";
+import { PageThemeProvider } from "./page-theme";
 
 export default function PlatformRuntime({ children }: { children: ReactNode }) {
   if (!authConfigured)
@@ -20,12 +21,14 @@ export default function PlatformRuntime({ children }: { children: ReactNode }) {
   return (
     <AuthProvider>
       <AccountProvider>
-        <Navigation />
-        {children}
-        <footer className="workspace-footer">
-          <Brand compact href="/" />
-          <span>Monad testnet · Test funds only</span>
-        </footer>
+        <PageThemeProvider>
+          <Navigation />
+          {children}
+          <footer className="workspace-footer">
+            <Brand compact href="/" />
+            <span>Monad testnet · Test funds only</span>
+          </footer>
+        </PageThemeProvider>
       </AccountProvider>
     </AuthProvider>
   );

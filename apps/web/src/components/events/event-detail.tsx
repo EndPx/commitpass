@@ -44,11 +44,14 @@ import {
 } from "@/lib/chain";
 import { useAccount } from "./account-context";
 import { EventCover } from "./event-cover";
+import { EventLocation } from "./event-location";
 import { CoverUpload } from "./cover-upload";
+import { usePageAppearance } from "./page-theme";
 import { LoadError } from "./event-list";
 
 export function EventDetail({ vault }: { vault: string }) {
   const [event, setEvent] = useState<EventSummary | null>(null);
+  usePageAppearance(event?.metadata?.appearance);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [attempt, setAttempt] = useState(0);
@@ -147,11 +150,24 @@ export function EventDetail({ vault }: { vault: string }) {
             <div>
               <CalendarDays size={22} />
               <span>
-                <strong>{dateLabel(event.startAt)}</strong>
+                <strong>
+                  {dateLabel(event.startAt, {
+                    weekday: "long",
+                    month: "long",
+                    day: "numeric",
+                    ...(event.metadata?.timezone
+                      ? { timeZone: event.metadata.timezone }
+                      : {}),
+                  })}
+                </strong>
                 <small>
-                  {timeLabel(event.startAt)}
-                  {event.settleAt ? ` – ${timeLabel(event.settleAt)}` : ""} ·
-                  Local time
+                  {timeLabel(event.startAt, event.metadata?.timezone)}
+                  {event.settleAt
+                    ? ` – ${timeLabel(event.settleAt, event.metadata?.timezone)}`
+                    : ""}{" "}
+                  ·
+                  {event.metadata?.timezone?.replaceAll("_", " ") ||
+                    "Local time"}
                 </small>
               </span>
             </div>
@@ -189,6 +205,7 @@ export function EventDetail({ vault }: { vault: string }) {
               </p>
             )}
           </section>
+          <EventLocation location={event.metadata?.location || ""} />
           <section className="commitment-explainer">
             <Ticket size={22} />
             <div>
