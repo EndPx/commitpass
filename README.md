@@ -8,7 +8,7 @@ Participants reserve a place by depositing a fixed commitment into an event cont
 
 ## Status
 
-CommitPass is being built for the Metropolis Consumer Products & Payments track on Monad testnet (10143). MockAUSD, MockYieldVault, CommitPassFactory and the CRE receiver are deployed and verified on Monadscan through Etherscan API. Envio and the Go read API connect to Neon using the shared deployment manifest. The backend implements Privy token verification, owner-authorized check-ins and immutable attendance snapshots. Frontend onboarding and a real authenticated end-to-end event run remain pending; the CRE workflow is not activated. See [deployment evidence](contracts/DEPLOYMENT.md), [contract boundaries](contracts/README.md) and [CRE setup](cre/README.md).
+CommitPass is being built for the Metropolis Consumer Products & Payments track on Monad testnet (10143). MockAUSD, MockYieldVault, CommitPassFactory and the CRE receiver are deployed and verified on Monadscan through Etherscan API. Envio and the Go read API connect to Neon using the shared deployment manifest. The backend implements Privy token verification, owner-authorized check-ins and immutable attendance snapshots. The frontend includes a custom Privy email sign-in screen and backend session connection; a real authenticated end-to-end event run remains pending, and the CRE workflow is not activated. See [deployment evidence](contracts/DEPLOYMENT.md), [contract boundaries](contracts/README.md) and [CRE setup](cre/README.md).
 
 ## Repository layout
 
@@ -44,7 +44,8 @@ pnpm dev
 - These endpoints prove the processes and shared imports work. They do not check a database or chain connection.
 - Landing page: `http://localhost:3000/`. Includes an animated event-poster hero,
   interactive RSVP walkthrough, host section, and FAQ. The preview does not submit
-  bookings or payments; Privy account screens and connected event flows come next.
+  bookings or payments. Real Privy email sign-in is at `/signin`; connected event
+  flows come next. See [web setup](apps/web/README.md).
 
 | Command                | Purpose                                          |
 | ---------------------- | ------------------------------------------------ |

@@ -112,3 +112,22 @@ previous watercolor assets remain saved as unused design explorations and are
 not requested by the page. The logo and workshop photograph remain in use.
 The closing CTA and footer share one `closing-area` background extending to the
 page's bottom edge, without a separate solid-color footer strip.
+
+## Sign-in
+
+`/signin` follows the supplied Luma screenshot: a compact centered 380px card,
+24px radius, 24px padding, thin border, almost-white surface, and a faint peach
+and lavender atmospheric wash behind the lower half of the page. Keep CommitPass
+branding and English product copy. Use the same DM Sans family: 24px title,
+14px explanation and labels, 16px inputs. Controls are at least 44px tall.
+Header links home and back to the landing page's explanation.
+
+Email -> verification code -> authenticated account state. Use Privy headless
+email OTP, cooldown for resending, explicit pending/error states, editable email,
+and a real backend session verification before reporting a connected account.
+Google/passkey buttons are conditional on public feature flags that match the
+dashboard; both were disabled when inspected on 28 September 2026. Do not show
+nonfunctional authentication choices or imply a booking was created by signing in.
+Keep Privy in the sign-in route, leaving the public landing bundle independent.
+Secrets remain server-side; the browser only receives Privy's public app ID and
+sends an SDK-issued bearer token to a same-origin session endpoint.

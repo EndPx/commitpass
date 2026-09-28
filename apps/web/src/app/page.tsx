@@ -26,7 +26,7 @@ const faqs = [
   {
     question: "Do I need to know anything about crypto?",
     answer:
-      "CommitPass is being built around familiar sign-in and an embedded wallet powered by Privy. The goal is a simple event experience, with clear amounts and actions. This preview introduces the journey; account and payment screens are coming next.",
+      "Start with your email and a verification code. CommitPass is being built around familiar sign-in and an embedded wallet powered by Privy, with clear amounts and actions. Sign-in is available now; booking and payment screens are coming next.",
   },
   {
     question: "Can I book an event here yet?",
@@ -48,8 +48,8 @@ export default function Home() {
           <a href="#for-hosts">For hosts</a>
           <a href="#questions">Questions</a>
         </nav>
-        <a className="button button--small" href="#how-it-works">
-          Take a look <ArrowUpRight size={16} />
+        <a className="button button--small" href="/signin">
+          Sign in <ArrowUpRight size={16} />
         </a>
       </header>
       <main id="main">
