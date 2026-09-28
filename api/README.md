@@ -20,6 +20,12 @@ The root `go.work` resolves `github.com/EndPx/commitpass/packages/shared` locall
 
 Lists return up to 100 records. Pass `nextCursor` as `?after=` for another page. Onchain integers and timestamps are decimal strings. Results carry `source: envio` and chain ID 10143.
 
+`GET /v1/events` also accepts `wallets` (up to 20 comma-separated EVM addresses)
+and `role=all|hosting|going`. These filter public chain facts using the current
+indexed owner or participant deposits. The web personal-events proxy derives the
+wallet filter from a fresh authenticated `/v1/me` response. These filters grant
+no authorization to write event metadata or attendance.
+
 `INDEXER_DATABASE_URL` must target `commitpass_indexer`. Connections default to read-only transactions, with two connections and bounded query timeouts. Connection and SQL errors are not exposed to callers. Missing configuration or schema yields 503; an unindexed event detail yields 404.
 
 These routes report Envio's indexed state, which may be delayed and can roll back after a reorg. They do not independently prove finality.

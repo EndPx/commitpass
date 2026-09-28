@@ -81,6 +81,34 @@ func key(w http.ResponseWriter, r *http.Request) (string, bool) {
 }
 
 func (s *reader) events(w http.ResponseWriter, r *http.Request) {
+	if raw := r.URL.Query().Get("wallets"); raw != "" {
+		wallets := strings.Split(strings.ToLower(raw), ",")
+		if len(wallets) > 20 {
+			http.Error(w, "Too many wallet filters", http.StatusBadRequest)
+			return
+		}
+		for _, wallet := range wallets {
+			if !walletAddress.MatchString(wallet) {
+				http.Error(w, "Invalid wallet filter", http.StatusBadRequest)
+				return
+			}
+		}
+		hosting := `lower(e.owner) = ANY($2::text[])`
+		going := `EXISTS (SELECT 1 FROM envio."Participant" p WHERE p.event_id=e.id AND lower(p.wallet)=ANY($2::text[]))`
+		filter := "(" + hosting + " OR " + going + ")"
+		switch r.URL.Query().Get("role") {
+		case "hosting":
+			filter = hosting
+		case "going":
+			filter = going
+		case "", "all":
+		default:
+			http.Error(w, "Invalid event role", http.StatusBadRequest)
+			return
+		}
+		s.list(w, r, `SELECT `+eventJSON+` FROM envio."CommitmentEvent" e WHERE e."chainId"=10143 AND e.id>$1 AND `+filter+` ORDER BY e.id LIMIT 101`, r.URL.Query().Get("after"), wallets)
+		return
+	}
 	s.list(w, r, `SELECT `+eventJSON+` FROM envio."CommitmentEvent" e WHERE e."chainId" = 10143 AND e.id > $1 ORDER BY e.id LIMIT 101`, r.URL.Query().Get("after"))
 }
 
