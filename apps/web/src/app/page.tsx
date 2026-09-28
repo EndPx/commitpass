@@ -204,14 +204,16 @@ export default function Home() {
             ))}
           </div>
         </section>
+      </main>
+      <footer className="closing-area">
+        <Image
+          className="section-backdrop"
+          src="/brand/closing-evening.png"
+          alt=""
+          fill
+          sizes="100vw"
+        />
         <section className="closing">
-          <Image
-            className="section-backdrop"
-            src="/brand/closing-evening.png"
-            alt=""
-            fill
-            sizes="100vw"
-          />
           <Reveal>
             <span className="closing-star" aria-hidden="true">
               ✳
@@ -228,21 +230,21 @@ export default function Home() {
             <p className="closing-note">{project.tagline}</p>
           </Reveal>
         </section>
-      </main>
-      <footer className="site-footer">
-        <Brand compact />
-        <span>Made for showing up.</span>
-        <div>
-          <span className="footer-status">
-            <span className="status-dot" /> Built on Monad · Testnet preview
-          </span>
-          <a
-            href="https://github.com/EndPx/commitpass"
-            target="_blank"
-            rel="noreferrer"
-          >
-            GitHub <ArrowUpRight size={14} />
-          </a>
+        <div className="site-footer">
+          <Brand compact />
+          <span>Made for showing up.</span>
+          <div>
+            <span className="footer-status">
+              <span className="status-dot" /> Built on Monad · Testnet preview
+            </span>
+            <a
+              href="https://github.com/EndPx/commitpass"
+              target="_blank"
+              rel="noreferrer"
+            >
+              GitHub <ArrowUpRight size={14} />
+            </a>
+          </div>
         </div>
       </footer>
     </div>

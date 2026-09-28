@@ -104,3 +104,6 @@ peach morning and apricot evening, sage foliage at the edges, broad ivory center
 reserved for readable typography. Both are decorative Next Image assets. The hero
 image is prioritized; the closing image loads lazily. Keep the existing poster
 choreography and visible text above the backgrounds.
+The closing CTA and footer share one `closing-area` background extending to the
+page's bottom edge. A gradual transparent ivory wash improves footer contrast
+without a separate solid-color footer strip.

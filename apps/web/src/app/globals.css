@@ -1135,16 +1135,26 @@ svg {
   line-height: 1.8;
   color: var(--muted);
 }
-.closing {
-  text-align: center;
-  padding: 88px 24px 96px;
+.closing-area {
   background: var(--accent-soft);
   position: relative;
   overflow: hidden;
   isolation: isolate;
 }
-.closing > .section-backdrop {
+.closing-area > .section-backdrop {
   z-index: -1;
+}
+.closing-area::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(to top, rgb(250 249 246 / 65%), transparent 28%);
+}
+.closing {
+  text-align: center;
+  padding: 88px 24px 96px;
 }
 .closing-star {
   display: block;
