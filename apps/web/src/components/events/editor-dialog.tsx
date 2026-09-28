@@ -1,12 +1,5 @@
 "use client";
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type CSSProperties,
-  type ReactNode,
-} from "react";
+import { useLayoutEffect, useId, useRef, type ReactNode } from "react";
 import { X } from "lucide-react";
 
 export function EditorDialog({
@@ -33,46 +26,55 @@ export function EditorDialog({
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const descriptionId = useId();
-  const [position, setPosition] = useState<CSSProperties>();
-  useEffect(() => {
+  useLayoutEffect(() => {
     const dialog = ref.current!;
     const previous = document.body.style.overflow;
     dialog.showModal();
     document.body.style.overflow = "hidden";
     const place = () => {
       if (!anchor) return;
-      const box = anchor.getBoundingClientRect();
+      let box = anchor.getBoundingClientRect();
       const width = Math.min(box.width, window.innerWidth - 32);
-      const height = Math.min(dialog.scrollHeight, window.innerHeight - 32);
-      const top = Math.max(
-        16,
-        box.bottom + height + 8 < window.innerHeight
-          ? box.bottom + 8
-          : box.top - height - 8,
+      const viewportBottom = window.visualViewport
+        ? window.visualViewport.offsetTop + window.visualViewport.height
+        : window.innerHeight;
+      dialog.style.width = `${width}px`;
+      // Keep the field visible below the sticky header, and make room below it.
+      // Never flip the menu above the field where it covers the date controls.
+      const height = Math.min(
+        dialog.scrollHeight,
+        360,
+        Math.max(0, viewportBottom - 96 - box.height - 24),
       );
-      setPosition({
-        width,
-        left: Math.min(Math.max(16, box.left), window.innerWidth - width - 16),
-        top,
-        maxHeight: window.innerHeight - top - 16,
-        margin: 0,
-      });
+      const overflow = box.bottom + 8 + height + 16 - viewportBottom;
+      if (overflow > 0 && box.top > 96) {
+        window.scrollBy({
+          top: Math.min(overflow, box.top - 96),
+          behavior: "instant",
+        });
+        box = anchor.getBoundingClientRect();
+      }
+      dialog.style.left = `${Math.min(Math.max(16, box.left), window.innerWidth - width - 16)}px`;
+      dialog.style.top = `${box.bottom + 8}px`;
+      dialog.style.maxHeight = `${Math.max(0, viewportBottom - box.bottom - 24)}px`;
+      dialog.style.margin = "0";
     };
     place();
     const resize = new ResizeObserver(place);
     if (anchor) resize.observe(dialog);
     window.addEventListener("resize", place);
+    window.visualViewport?.addEventListener("resize", place);
     return () => {
       dialog.close();
       document.body.style.overflow = previous;
       window.removeEventListener("resize", place);
+      window.visualViewport?.removeEventListener("resize", place);
       resize.disconnect();
     };
   }, []);
   return (
     <dialog
       ref={ref}
-      style={position}
       aria-labelledby={titleId}
       aria-describedby={description ? descriptionId : undefined}
       className={`editor-dialog${wide ? " editor-dialog--wide" : ""}${sheet ? " editor-dialog--sheet" : ""}${anchor ? " editor-dialog--popover" : ""}`}

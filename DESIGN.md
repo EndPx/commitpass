@@ -198,6 +198,9 @@ dialog with local working values. Confirm commits; Cancel/Escape/backdrop leaves
 the draft unchanged. Native dialog supplies modal focus containment and focus
 restoration; lock document scroll while open. Inputs remain 44px, dialogs fit the
 viewport and scroll internally. Reduced motion removes entrance transitions.
+Location opens below its field. When vertical space is limited, scroll the field
+above the menu while keeping it below the sticky header, and constrain the menu
+to the remaining viewport with internal scrolling. Do not flip it over the form.
 
 Cover gallery offers original generated templates plus Cloudinary upload. A real
 hosted cover is selected by default and saved in posterUrl. Do not copy Luma art.
