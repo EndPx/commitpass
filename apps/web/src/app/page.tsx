@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { ArrowUpRight, Check, Plus } from "lucide-react";
 import { project } from "@commitpass/shared";
 import { Brand } from "@/components/landing/brand";
@@ -162,6 +163,20 @@ export default function Home() {
               <span>Meetups</span>
               <span>Your next good idea</span>
             </div>
+            <figure className="community-figure">
+              <div className="community-photo">
+                <Image
+                  src="/brand/community-workshop.png"
+                  alt="AI-generated illustration of participants collaborating with a facilitator at a hands-on community workshop."
+                  fill
+                  sizes="(max-width: 599px) calc(100vw - 48px), (max-width: 1160px) calc(100vw - 64px), 1096px"
+                />
+              </div>
+              <figcaption>
+                <span>A little time together. A lot to take away.</span>
+                <span>Illustrative workshop · AI-generated</span>
+              </figcaption>
+            </figure>
           </Reveal>
         </section>
         <section

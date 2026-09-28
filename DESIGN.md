@@ -47,7 +47,9 @@ Mobile receives a static poster arrangement and normal document flow.
 
 ## 5. Reusable components
 
-- Brand: original two-ticket/check symbol with wordmark. Home link, accessible name.
+- Brand: GPT Image-generated terracotta C and check symbol, paired with a live
+  text wordmark. Transparent PNG served through Next Image; also the favicon.
+  Home link has an accessible name.
 - Button/link: 48px minimum height, pill, dark solid or quiet outline. Hover lift
   2px; press returns to baseline; 3px visible focus ring. Real destination required.
 - Event poster: framed artwork, original typography and graphical motifs. Entirely
@@ -83,3 +85,13 @@ This is a landing page and illustrative walkthrough. Privy onboarding, event
 discovery and transactions are subsequent work. All calls to action have working
 section anchors. No automated tests or Lighthouse audit requested for this task;
 do not claim measured scores. Development tooling stays development-only.
+
+## Generated imagery
+
+The community section includes a panoramic GPT Image-generated workshop scene,
+with warm daylight, a facilitator, laptops, and people collaborating. It is an
+illustration of the intended experience, not evidence of a real CommitPass event;
+the caption and alt text identify it as generated. Use Next Image lazy loading,
+responsive sizes, and a fixed aspect-ratio container. Keep the complete desktop
+composition; use a centered 4:3 crop on phones. Logo and workshop source prompts
+are recorded in `apps/web/public/brand/README.md`.

@@ -25,6 +25,9 @@ pnpm --filter @commitpass/web start
 - Native FAQ disclosures and working section navigation.
 - Responsive layout; reduced-motion preferences disable pinning and movement.
 - DM Sans and DM Serif Display self-hosted through `next/font`.
+- GPT Image-generated C/check brand mark and panoramic workshop illustration.
+  Original PNGs and generation prompts are in `public/brand/`; the community
+  image is labeled as illustrative and loads lazily through Next Image.
 
 The interaction is illustrative. No payment, login, or booking is submitted.
 Privy onboarding and the connected guest/host application remain subsequent work.
