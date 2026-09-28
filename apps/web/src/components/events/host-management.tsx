@@ -15,6 +15,7 @@ import { EditorDialog, DialogActions } from "./editor-dialog";
 import { HostTools } from "./host-tools";
 import { readEventState, type LiveEventState } from "./use-event-state";
 import { useAccount } from "./account-context";
+import { runtimeStorageKey } from "@/lib/runtime-network";
 
 export function HostManagement({
   event,
@@ -41,7 +42,9 @@ export function HostManagement({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const key = `commitpass:lifecycle:${event.vault}:${wallet?.address ?? "none"}`;
+  const key = runtimeStorageKey(
+    `commitpass:lifecycle:${event.vault}:${wallet?.address ?? "none"}`,
+  );
   useEffect(() => {
     setPending(null);
     setError("");
@@ -124,6 +127,7 @@ export function HostManagement({
         args: [event.vault],
         account: wallet.address as `0x${string}`,
       });
+      setMessage("Confirm this request in your wallet.");
       const tx = await sendTransaction(
         {
           to: automationAddress,
@@ -321,7 +325,7 @@ export function HostManagement({
         )}
       </div>
       <HostTools event={event} refresh={refresh} />
-      {confirmation && (
+      {confirmation && !busy && (
         <EditorDialog
           title={
             confirmation === "start" ? "Start this event?" : "End this event?"

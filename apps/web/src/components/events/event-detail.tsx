@@ -48,6 +48,7 @@ import { LoadError } from "./event-list";
 import { EventPass } from "./event-pass";
 import { HostManagement } from "./host-management";
 import { useEventState, type LiveEventState } from "./use-event-state";
+import { isLocal, runtimeStorageKey } from "@/lib/runtime-network";
 
 export function EventDetail({
   vault,
@@ -169,13 +170,14 @@ export function EventDetail({
             target="_blank"
             rel="noreferrer"
           >
-            View event on Monadscan <ArrowUpRight size={13} />
+            {isLocal ? "View local contract" : "View event on Monadscan"}{" "}
+            <ArrowUpRight size={13} />
           </a>
         </aside>
         <div className="detail-main">
           <div className="event-chips">
             <span>{statusLabel(event)}</span>
-            <span>Testnet event</span>
+            <span>{isLocal ? "Local event" : "Testnet event"}</span>
           </div>
           <h1>{eventTitle(event)}</h1>
           <div className="detail-facts">
@@ -319,7 +321,9 @@ function ReservationPanel({
   const [busy, setBusy] = useState(false);
   const [pending, setPending] = useState<Hash | null>(null);
   const [reload, setReload] = useState(0);
-  const key = `commitpass:reservation:${event.vault}:${wallet?.address ?? "guest"}`;
+  const key = runtimeStorageKey(
+    `commitpass:reservation:${event.vault}:${wallet?.address ?? "guest"}`,
+  );
   const participation = person?.key === key ? person.value : null;
   useEffect(() => {
     setPending(null);
@@ -632,13 +636,15 @@ function ReservationPanel({
               ? "Please wait…"
               : pending
                 ? "Check transaction"
-                : claimable
-                  ? "Claim your return"
-                  : deposited
-                    ? "You’re going"
-                    : open
-                      ? "Commit & reserve"
-                      : "Registration closed"}
+                : participation?.[2]
+                  ? "Return claimed"
+                  : claimable
+                    ? "Claim your return"
+                    : deposited
+                      ? "You’re going"
+                      : open
+                        ? "Commit & reserve"
+                        : "Registration closed"}
             {deposited && !claimable && <Check size={16} />}
           </button>
         )}

@@ -130,7 +130,7 @@ export function EventPass({
         <Ticket size={20} />
         <strong>Your event pass</strong>
         <span>
-          <Check size={13} /> Reserved
+          <Check size={13} /> {settled ? "Completed" : "Reserved"}
         </span>
       </div>
       <div className="event-pass-body">
@@ -148,7 +148,11 @@ export function EventPass({
           <p className="event-pass-status" role="status">
             {status}
           </p>
-          <small>Show this pass to your host when you arrive.</small>
+          <small>
+            {settled
+              ? "Keep this pass as your reservation record."
+              : "Show this pass to your host when you arrive."}
+          </small>
           <span className="event-pass-wallet" title={wallet}>
             {shorten(wallet)}
           </span>

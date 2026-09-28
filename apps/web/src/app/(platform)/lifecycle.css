@@ -9,6 +9,44 @@
   font-size: 14px;
   color: var(--accent);
 }
+.local-runtime-notice {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  max-width: 1020px;
+  margin: 18px auto 0;
+  padding: 14px 20px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--ink);
+  font-size: 12px;
+}
+.local-runtime-notice > span {
+  flex: 1;
+  min-width: 220px;
+  line-height: 1.7;
+}
+.local-runtime-notice strong {
+  margin-right: 7px;
+}
+.local-runtime-notice small {
+  display: block;
+  color: var(--muted);
+}
+.local-runtime-notice button {
+  min-height: 44px;
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font: inherit;
+}
+.local-runtime-notice p {
+  width: 100%;
+}
 .event-pass {
   margin: 24px 0 18px;
   border: 1px solid var(--line);

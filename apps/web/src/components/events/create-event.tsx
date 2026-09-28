@@ -51,6 +51,7 @@ import { EventLocation } from "./event-location";
 import { FieldEditorDialog, type FieldEditor } from "./field-editors";
 import { CoverEditor, ThemeEditor } from "./appearance-editors";
 import { usePageAppearance } from "./page-theme";
+import { isLocal, runtimeStorageKey } from "@/lib/runtime-network";
 import {
   coverTemplates,
   convertZone,
@@ -97,7 +98,9 @@ export function CreateEvent() {
     editor === "theme" && themePreview ? themePreview : draft.appearance,
   );
   const draftKey = `commitpass:event-draft:${user?.id ?? "guest"}`;
-  const pendingKey = `commitpass:pending-event:${user?.id ?? "guest"}`;
+  const pendingKey = runtimeStorageKey(
+    `commitpass:pending-event:${user?.id ?? "guest"}`,
+  );
 
   useEffect(() => {
     setHydrated(false);
@@ -701,8 +704,8 @@ export function CreateEvent() {
             )}
           </div>
           <p className="field-note">
-            Monad testnet · mockAUSD has no monetary value. Publishing requires
-            testnet MON for gas.
+            {isLocal ? "Local Anvil" : "Monad testnet"} · mockAUSD has no
+            monetary value. Publishing requires testnet MON for gas.
           </p>
         </div>
       </form>

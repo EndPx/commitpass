@@ -8,6 +8,8 @@ import { AuthProvider, authConfigured } from "@/components/auth/provider";
 import { Brand } from "@/components/landing/brand";
 import { AccountProvider } from "./account-context";
 import { PageThemeProvider } from "./page-theme";
+import { LocalRuntimeNotice } from "./local-runtime";
+import { isLocal } from "@/lib/runtime-network";
 
 export default function PlatformRuntime({ children }: { children: ReactNode }) {
   if (!authConfigured)
@@ -23,10 +25,15 @@ export default function PlatformRuntime({ children }: { children: ReactNode }) {
       <AccountProvider>
         <PageThemeProvider>
           <Navigation />
+          <LocalRuntimeNotice />
           {children}
           <footer className="workspace-footer">
             <Brand compact href="/" />
-            <span>Monad testnet · Test funds only</span>
+            <span>
+              {isLocal
+                ? "Local Anvil · CRE simulation · Test funds only"
+                : "Monad testnet · Test funds only"}
+            </span>
           </footer>
         </PageThemeProvider>
       </AccountProvider>

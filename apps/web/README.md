@@ -131,6 +131,13 @@ screens; live create/reserve/check-in/settle/claim acceptance remains pending.
 
 ## Participant and host lifecycle
 
+`pnpm local:app` starts these flows against loopback Anvil, with Privy login and
+the actual Go/Neon/Envio services. The Local mode banner identifies the run and
+provides account-authorized local test funding. Network settings are injected by
+the launcher; public addresses remain the default for ordinary commands. Local
+receipts use `/local/tx/{hash}` instead of Monadscan, and pending transaction keys
+are scoped to the run. [Interactive instructions](../../cre/local/INTERACTIVE.md).
+
 `/events/{vault}` combines Envio discovery/metadata with pinned-block live contract
 reads every 15 seconds. The API event read refreshes every 20 seconds. Contract
 read failure pauses financial actions, and transaction receipts precede success
@@ -150,8 +157,9 @@ wallet; request confirmation does not mark CRE execution completed. End checks
 that at least one attendee exists because the current settlement policy rejects
 empty attendance. Scheduled zero-attendee settlement remains pending by design.
 
-Publishing remains blocked until a real CRE workflow is registered and its ID is
-configured on the deployed receiver. The local Anvil fixture does not unlock it.
+Public testnet publishing remains blocked until a real CRE workflow is registered
+and configured on that receiver. Local mode uses separate configured Anvil
+contracts and does not unlock or change the public receiver.
 
 ## Registration closes shortcut
 
