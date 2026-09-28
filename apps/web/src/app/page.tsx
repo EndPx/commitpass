@@ -206,13 +206,6 @@ export default function Home() {
         </section>
       </main>
       <footer className="closing-area">
-        <Image
-          className="section-backdrop"
-          src="/brand/closing-evening.png"
-          alt=""
-          fill
-          sizes="100vw"
-        />
         <section className="closing">
           <Reveal>
             <span className="closing-star" aria-hidden="true">

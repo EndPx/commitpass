@@ -67,9 +67,12 @@ Mobile receives a static poster arrangement and normal document flow.
 
 GSAP + ScrollTrigger + useGSAP scoped cleanup. One pinned timeline: headline
 fades/lifts, six posters move toward the center and shrink, reservation appears.
-Scroll distance ~110% viewport, scrub 0.8. No continuous floating animation.
+Scroll distance ~110% viewport, scrub 0.8. Each poster has a separate inner wrapper
+with a gentle 12px vertical idle float over 7–8.5 seconds. Different negative
+delays keep the motion out of phase. CSS animates the inner wrapper; GSAP owns
+the outer wrapper so idle and scroll transforms never overwrite each other.
 Below-fold reveals: y24px, opacity, 650ms power2.out, once per section.
-Button transitions 180ms. Reduced motion removes pinning, parallax and reveals;
+Button transitions 180ms. Reduced motion removes idle float, pinning, parallax and reveals;
 all essential text and walkthrough controls remain available. Rendered server
 content is visible before JavaScript. No loader or forced waiting screen.
 
@@ -99,11 +102,8 @@ responsive sizes, and a fixed aspect-ratio container. Keep the complete desktop
 composition; use a centered 4:3 crop on phones. Logo and workshop source prompts
 are recorded in `apps/web/public/brand/README.md`.
 
-Hero and closing backgrounds are generated editorial watercolor landscapes:
-peach morning and apricot evening, sage foliage at the edges, broad ivory centers
-reserved for readable typography. Both are decorative Next Image assets. The hero
-image is prioritized; the closing image loads lazily. Keep the existing poster
-choreography and visible text above the backgrounds.
+Hero and closing use clean ivory surfaces with a faint peach radial wash. The
+previous watercolor assets remain saved as unused design explorations and are
+not requested by the page. The logo and workshop photograph remain in use.
 The closing CTA and footer share one `closing-area` background extending to the
-page's bottom edge. A gradual transparent ivory wash improves footer contrast
-without a separate solid-color footer strip.
+page's bottom edge, without a separate solid-color footer strip.

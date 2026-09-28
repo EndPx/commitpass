@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef } from "react";
-import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -80,23 +79,16 @@ export function Hero() {
 
   return (
     <section className="hero" ref={root} aria-labelledby="hero-title">
-      <div className="hero-glow" aria-hidden="true">
-        <Image
-          className="section-backdrop"
-          src="/brand/hero-morning.png"
-          alt=""
-          fill
-          sizes="100vw"
-          priority
-        />
-      </div>
+      <div className="hero-glow" aria-hidden="true" />
       <div className="poster-constellation" aria-hidden="true">
         {posters.map((poster, index) => (
           <div
             className={`floating-poster floating-poster--${index + 1}`}
             key={poster.kind}
           >
-            <Poster kind={poster.kind} />
+            <div className="poster-idle">
+              <Poster kind={poster.kind} />
+            </div>
           </div>
         ))}
       </div>

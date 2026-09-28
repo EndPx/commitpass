@@ -202,24 +202,40 @@ svg {
 .hero-glow {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 52%, #fae6db65, transparent 57%);
+  background: radial-gradient(ellipse at 50% 52%, #fae6db40, transparent 65%);
   z-index: -1;
 }
-.section-backdrop {
-  object-fit: cover;
-  object-position: center;
-  pointer-events: none;
-  user-select: none;
+.poster-idle {
+  animation: poster-float 7s ease-in-out infinite;
 }
-.hero-glow::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    ellipse at center,
-    rgb(250 249 246 / 36%),
-    transparent 72%
-  );
+.floating-poster--2 .poster-idle {
+  animation-duration: 8s;
+  animation-delay: -2s;
+}
+.floating-poster--3 .poster-idle {
+  animation-duration: 7.5s;
+  animation-delay: -4s;
+}
+.floating-poster--4 .poster-idle {
+  animation-duration: 8.5s;
+  animation-delay: -1s;
+}
+.floating-poster--5 .poster-idle {
+  animation-duration: 7.8s;
+  animation-delay: -3s;
+}
+.floating-poster--6 .poster-idle {
+  animation-duration: 8.2s;
+  animation-delay: -5s;
+}
+@keyframes poster-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
 }
 .hero-copy {
   position: relative;
@@ -1136,21 +1152,12 @@ svg {
   color: var(--muted);
 }
 .closing-area {
-  background: var(--accent-soft);
+  background:
+    radial-gradient(ellipse at 50% 25%, #fae6db60, transparent 70%),
+    var(--canvas);
   position: relative;
   overflow: hidden;
   isolation: isolate;
-}
-.closing-area > .section-backdrop {
-  z-index: -1;
-}
-.closing-area::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: linear-gradient(to top, rgb(250 249 246 / 65%), transparent 28%);
 }
 .closing {
   text-align: center;
