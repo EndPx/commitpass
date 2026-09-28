@@ -163,6 +163,12 @@ SHA-256. Cloudinary validates/decodes the image and limits dimensions to 2400px.
 Public IDs use `commitpass/event-covers/<hashed-user-id>/<uuid>` with overwrite
 disabled. No unsigned upload preset or browser-visible secret is needed.
 
+The cover uploader shows preparation, real browser-to-API transfer percentage
+via XMLHttpRequest upload events, then an indeterminate processing bar while the
+API validates/stores the image with Cloudinary. A successful byte transfer alone
+does not show success. Network errors/timeouts allow retry; leaving the component
+aborts the browser request. Motion respects the reduced-motion preference.
+
 The returned HTTPS delivery URL is saved in the event's existing `posterUrl`
 metadata when the user saves/publishes the event. Uploading alone does not publish
 an event. Removing/replacing a cover detaches its URL; it does not delete an asset

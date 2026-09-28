@@ -184,6 +184,11 @@ bounds and checks the file, then signs a Cloudinary upload into an app-specific
 user folder. API secrets never enter the browser. Event metadata keeps the HTTPS
 delivery URL. Removing a cover detaches it from the draft, not from cloud storage.
 Cloudinary cover delivery uses width-specific URLs with automatic quality/format.
+Upload feedback uses actual browser-to-server byte progress with a visible bar and
+percentage. After transfer, show indeterminate Processing photo until the server
+confirms Cloudinary success. Never simulate storage progress or call byte transfer
+completion a successful upload. Preparing/processing status remains visible with
+reduced motion; failure clears progress and allows retry.
 
 ## Popup event editor
 
