@@ -21,12 +21,21 @@ const contracts = [
       "depositedToYield",
       "eventSettled",
       "ASSET_TOKEN",
+      "owner",
+      "automation",
+      "eventDate",
     ],
   ],
   [
     "CommitPassAutomation",
     "eventAutomationAbi",
-    ["workflowId", "requestStart", "requestSettlement"],
+    [
+      "workflowId",
+      "requestStart",
+      "requestSettlement",
+      "schedules",
+      "getState",
+    ],
   ],
 ];
 let source =

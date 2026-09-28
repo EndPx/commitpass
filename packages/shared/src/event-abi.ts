@@ -129,6 +129,19 @@ export const eventVaultAbi = [
   },
   {
     type: "function",
+    name: "automation",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     name: "claimReward",
     inputs: [],
     outputs: [],
@@ -150,6 +163,19 @@ export const eventVaultAbi = [
         name: "",
         type: "bool",
         internalType: "bool",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "eventDate",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "uint256",
+        internalType: "uint256",
       },
     ],
     stateMutability: "view",
@@ -189,6 +215,19 @@ export const eventVaultAbi = [
         name: "",
         type: "uint256",
         internalType: "uint256",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "owner",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "address",
+        internalType: "address",
       },
     ],
     stateMutability: "view",
@@ -270,6 +309,35 @@ export const eventVaultAbi = [
 export const eventAutomationAbi = [
   {
     type: "function",
+    name: "getState",
+    inputs: [
+      {
+        name: "vault",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    outputs: [
+      {
+        name: "eventId",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "action",
+        type: "uint8",
+        internalType: "uint8",
+      },
+      {
+        name: "cutoff",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     name: "requestSettlement",
     inputs: [
       {
@@ -293,6 +361,45 @@ export const eventAutomationAbi = [
     ],
     outputs: [],
     stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "schedules",
+    inputs: [
+      {
+        name: "",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    outputs: [
+      {
+        name: "startAt",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "settleAt",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "requestedCutoff",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "startRequested",
+        type: "bool",
+        internalType: "bool",
+      },
+      {
+        name: "settledSnapshot",
+        type: "bytes32",
+        internalType: "bytes32",
+      },
+    ],
+    stateMutability: "view",
   },
   {
     type: "function",
