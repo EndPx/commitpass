@@ -132,3 +132,30 @@ nonfunctional authentication choices or imply a booking was created by signing i
 Keep Privy in the sign-in route, leaving the public landing bundle independent.
 Secrets remain server-side; the browser only receives Privy's public app ID and
 sends an SDK-issued bearer token to a same-origin session endpoint.
+
+## Event application
+
+Follow Luma's quiet event workspace and ShowOrSow's date-rail timeline. White/ivory
+surfaces, charcoal headings, restrained terracotta selection and light dividers.
+Max-width 1040px workspace; 800px event timeline. Header: Events, Discover,
+Create event, account menu. No dashboard KPI cards. Empty states use an original
+oversized ticket illustration, useful next action, and honest copy.
+
+Routes: `/events` personal upcoming/past with hosting/going filter; `/discover`
+public search/list; `/events/[vault]` poster and public event facts, guest commitment
+panel; `/events/new` poster preview beside title, date/time, location, description,
+commitment and capacity controls. Native date inputs show the device timezone.
+Default cover is typographic artwork based on actual title, never a fake listing.
+Poster selection colors are local presentation choices; persisted poster URLs must
+be HTTPS. Desktop detail/create: 340px cover column + flexible main. Mobile stacks.
+All buttons minimum 44px. Empty, loading, unavailable, and not-found are distinct.
+
+Reuse a route-scoped Privy provider for event pages; verified backend session before
+personal data or organizer writes. Public indexer data can lag; failed reads never
+become empty successes. Financial amounts stay bigint/decimal strings. Use compiled
+shared ABIs and deployment metadata. Creation checks the automation workflow before
+prompting a wallet; zero workflow ID blocks publishing but permits local drafts.
+Transaction receipts, not SDK hashes alone, establish completion. Persist a pending
+creation hash with the draft so reload/retry does not deploy duplicate events.
+Recover metadata saving after confirmation separately from event creation.
+No automatic transactions on page load. This task does not activate the CRE DON.

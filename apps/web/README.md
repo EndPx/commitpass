@@ -34,8 +34,8 @@ pnpm --filter @commitpass/web start
   image is labeled as illustrative and loads lazily through Next Image.
 
 The landing walkthrough is illustrative and submits no payment or booking.
-The separate `/signin` route uses real Privy authentication. The connected
-guest/host event application remains subsequent work.
+The `/signin` route uses real Privy authentication; successful backend verification
+redirects to `/events` (or an allowlisted event destination).
 No photo assets or product claims are copied from the references. Design tokens,
 motion decisions, and scope are documented in the root `DESIGN.md`.
 
@@ -53,8 +53,8 @@ No Privy app secret belongs in the web environment or browser bundle.
 
 `/signin` contains a custom email -> OTP -> account flow using
 `useLoginWithEmail`, a 30-second resend cooldown, pending and failure states,
-Privy's headless CAPTCHA integration, and sign out. The Privy SDK loads only on
-this route. After authentication, an SDK-issued bearer token is sent to the
+Privy's headless CAPTCHA integration, and sign out. The Privy SDK loads on sign-in
+and event workspace routes, independently of the public landing page. After authentication, an SDK-issued bearer token is sent to the
 same-origin `POST /api/session` handler. It forwards to the fixed Go
 `POST /v1/session` endpoint, where existing JWT checks and identity sync run.
 The UI reports a connected account only after the verified ID matches the Privy
@@ -70,7 +70,44 @@ disabled. No custom Google Cloud client or Google client secret is required for
 this setup. The consent screen may show Privy's branding; custom CommitPass
 Google OAuth branding can be configured later with its own client.
 Passkey enrollment, phone login, wallet creation and event transactions are not
-part of this sign-in screen. The account confirmation currently links home.
+part of the sign-in screen. Wallet setup is available on event action screens.
+
+## Event workspace
+
+- `/events`: personal Upcoming/Past timeline with All/Hosting/Going filters.
+- `/discover`: public event timeline, search across loaded results, cursor pagination.
+- `/events/[vault]`: indexed event facts plus API metadata, reservation/claim
+  controls, and owner-only metadata editing and guest check-in.
+- `/events/new`: title, HTTPS poster URL, description, venue, local-time schedule,
+  registration deadline, commitment and capacity. Drafts are explicitly saved in
+  this browser, scoped to the Privy user; they do not create a public event.
+
+The same-origin event API proxies only allowlisted Go API paths. Personal event
+queries derive wallets from a fresh verified `/v1/me` response, then query Envio.
+Metadata failures are separate from missing metadata; service failures are not
+presented as empty lists. Go still authorizes every metadata and check-in write.
+
+Factory/vault/automation ABI subsets are generated from the shared compiled ABI
+snapshots by `node scripts/export-web-abi.mjs` (also called by `contracts:abi`).
+The client uses the shared deployment manifest and chain configuration. Wallet
+transactions require explicit user actions and Privy's confirmation UI. Reservation
+checks current contract state, balance and allowance; claims use current onchain
+eligibility. Confirmed receipts establish completion; Envio may take time to update.
+
+Creation records the submitted transaction hash and metadata with the local draft
+before waiting for confirmation. A reload can check that transaction and retry
+metadata saving without submitting another event. Keep the same browser storage
+until a pending creation finishes. Event action transaction hashes are also saved
+locally for confirmation recovery. No keys or tokens are put in draft storage.
+
+### Current deployment boundary
+
+On 28 September 2026, the deployed receiver's `workflowId` was read as zero.
+`createAutomatedEvent` cannot succeed until CRE registration/configuration is
+completed. The form reads this state and blocks publishing while leaving draft
+saving available. Do not bypass it with the non-automated factory function or
+invent a workflow ID. No real event transaction was executed while building these
+screens; live create/reserve/check-in/settle/claim acceptance remains pending.
 
 Build note: Privy 3.45.0 imports x402, whose viem/ox Tempo dependency emits a
 Webpack dynamic-dependency warning. The production build succeeds; no Tempo

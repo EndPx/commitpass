@@ -14,7 +14,7 @@ CommitPass is being built for the Metropolis Consumer Products & Payments track 
 
 ```text
 apps/
-  web/                  Next.js 15 landing page and interactive RSVP preview
+  web/                  Next.js 15 landing, Privy sign-in and event workspace
 api/                    Go API; metadata, attendance, and snapshot endpoints
 cre/                    Chainlink CRE start/settlement workflow
 indexer/                Envio HyperIndex, schema and event handlers
@@ -44,8 +44,10 @@ pnpm dev
 - These endpoints prove the processes and shared imports work. They do not check a database or chain connection.
 - Landing page: `http://localhost:3000/`. Includes an animated event-poster hero,
   interactive RSVP walkthrough, host section, and FAQ. The preview does not submit
-  bookings or payments. Real Privy email sign-in is at `/signin`; connected event
-  flows come next. See [web setup](apps/web/README.md).
+  bookings or payments. Privy sign-in is at `/signin`, with event pages at
+  `/events`, `/discover`, `/events/[vault]` and `/events/new`. Creation is blocked
+  while the deployed CRE workflow is unconfigured; local drafts work. See
+  [web setup and execution boundaries](apps/web/README.md).
 
 | Command                | Purpose                                          |
 | ---------------------- | ------------------------------------------------ |
