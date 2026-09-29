@@ -211,6 +211,22 @@ Convert wall times using Temporal with rejected DST ambiguity before constructin
 contract timestamps. Changing timezone preserves instants. Keep commitment >0
 and capacity 1–500; do not offer unsupported Free/Unlimited/Approval modes.
 
+## Mera private event kit
+
+Host tools include a compact Private Event Kit for Mera One Passkey, Many Keys.
+The kit stores door codes and host instructions as plaintext only in component
+memory. `createSecretVaultWithNewPasskey` creates the first passkey; subsequent
+event kits use `createSecretVaultWithExistingPasskey`. The server receives only
+the versioned vault JSON. On unlock, `parseSecretVault` validates untrusted JSON,
+then `decryptSecretVaultWithPasskey` performs one user-verified ceremony; returned
+bytes are decoded and zeroed in a `finally` block. The relying party is the current
+hostname, so this requires HTTPS or localhost. A fresh random 32-byte PRF salt per
+event gives each event an unrelated AES-256-GCM key. Credential metadata is
+linked once to the organizer's Privy identity in Neon, so a fresh browser can
+reuse the same passkey for later event kits. No PRF output, plaintext, or key is
+persisted. The UI explains
+PRF-unavailable/device support and keeps the wallet flow in Privy.
+
 ## Participant pass and host workspace
 
 Event detail keeps the cover/host column and editorial title, dates, venue/map,

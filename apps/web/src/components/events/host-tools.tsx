@@ -8,6 +8,7 @@ import type {
 } from "@commitpass/shared";
 import { jsonRequest, shorten } from "@/lib/events";
 import { CoverUpload } from "./cover-upload";
+import { MeraPrivateKit } from "./mera-private-kit";
 export function HostTools({
   event,
   refresh,
@@ -75,6 +76,10 @@ export function HostTools({
   return (
     <section className="host-tools">
       <h2>Guest list & event details</h2>
+      <MeraPrivateKit
+        eventVault={event.vault}
+        eventTitle={event.metadata?.title || "CommitPass event"}
+      />
       <details>
         <summary>Edit event details</summary>
         <form
@@ -210,9 +215,13 @@ export function HostTools({
               <small>
                 {person.claimed
                   ? "Return claimed"
-                  : person.attended
-                    ? "Attendance settled"
-                    : "Commitment confirmed"}
+                  : ["CANCELLED", "REFUNDED"].includes(event.status)
+                    ? "Refund available"
+                    : person.attended
+                      ? "Attendance settled"
+                      : event.status === "SETTLED"
+                        ? "No-show · no refund"
+                        : "Commitment confirmed"}
               </small>
               <button
                 className="guest-copy"

@@ -82,6 +82,12 @@ export async function GET(request: Request, context: Context) {
       });
       return NextResponse.json(result, { headers });
     }
+    if (resource === "private-kit" && segments.length === 2) {
+      const result = await apiRead(`/v1/events/${vault}/private-kit`, {
+        token: bearer(request),
+      });
+      return NextResponse.json(result, { headers });
+    }
     if (
       wallet ||
       !["metadata", "participants", "activity", "check-ins"].includes(
@@ -105,16 +111,17 @@ export async function PUT(request: Request, context: Context) {
     const [vault, resource, wallet] = segments;
     if (!vault || !address.test(vault)) throw new ApiError(404);
     const metadata = segments.length === 2 && resource === "metadata";
+    const privateKit = segments.length === 2 && resource === "private-kit";
     const checkIn =
       segments.length === 3 &&
       resource === "check-ins" &&
       wallet &&
       address.test(wallet);
-    if (!metadata && !checkIn) throw new ApiError(404);
+    if (!metadata && !privateKit && !checkIn) throw new ApiError(404);
     const token = bearer(request);
     let body: string | undefined;
-    if (metadata) {
-      if (Number(request.headers.get("content-length") ?? 0) > 32768)
+    if (metadata || privateKit) {
+      if (Number(request.headers.get("content-length") ?? 0) > (privateKit ? 65536 : 32768))
         throw new ApiError(413);
       const reader = request.body?.getReader();
       if (!reader) throw new ApiError(400);
@@ -124,7 +131,7 @@ export async function PUT(request: Request, context: Context) {
         const chunk = await reader.read();
         if (chunk.done) break;
         length += chunk.value.length;
-        if (length > 32768) {
+        if (length > (privateKit ? 65536 : 32768)) {
           await reader.cancel();
           throw new ApiError(413);
         }

@@ -47,15 +47,27 @@ The backend validates ES256 signatures against the app-specific Privy JWKS, issu
 | -------------------------------------------- | ------------------------------------------------------------------------ |
 | `POST /v1/session`                           | Privy token; synchronize the authenticated user and current wallet links |
 | `GET /v1/me`                                 | Privy token; return that user's ID and current wallets                   |
+| `GET /v1/me/mera-credential`                 | Privy token; read that user's Mera credential metadata                   |
+| `PUT /v1/me/mera-credential`                 | Privy token; link one Mera credential ID for reuse across events         |
 | `GET /v1/events/{vault}/metadata`            | Public event description                                                 |
 | `PUT /v1/events/{vault}/metadata`            | Privy token plus the current onchain owner wallet                        |
 | `GET /v1/events/{vault}/check-ins`           | Current event owner                                                      |
 | `PUT /v1/events/{vault}/check-ins/{wallet}`  | Current event owner; record an eligible deposited participant            |
 | `GET /v1/events/{vault}/attendance/{wallet}` | Current participant wallet owner; read their own check-in status         |
+| `GET /v1/events/{vault}/private-kit`         | Current event owner; return opaque Mera vault JSON                       |
+| `PUT /v1/events/{vault}/private-kit`         | Current event owner; store opaque Mera vault JSON                        |
 
 The attendance read derives wallet ownership from the fresh Privy user response.
 It returns `checkedIn` and `checkedInAt`, without revealing the host identity or
 other participants. Missing attendance is distinct from a database failure.
+
+Private kits contain only the Mera vault JSON. The API validates its v1 envelope
+and credential match but does not decrypt, index, log, or return private plaintext.
+The client validates untrusted vault JSON
+with Mera's `parseSecretVault` before one user-verified decrypt ceremony. The
+stored vault contains credential metadata, a random PRF salt, AES-GCM nonce and
+ciphertext; it never contains the PRF output or encryption key. The owner check is
+still enforced by the current onchain owner wallet.
 
 Metadata accepts `title`, `description`, `location`, `posterUrl`, `timezone`, and
 `appearance`; poster URLs must use HTTPS. Migration `002_event_appearance.sql`
@@ -90,12 +102,12 @@ POST freezes once and returns the immutable payload; retries return the same sav
 
 The backend validates the factory, receiver, event ID and cutoff against finalized chain state. It selects check-ins strictly before cutoff, sorts addresses, rechecks deposited membership, and computes Ethereum `keccak256(abi.encode(chainId, vault, eventId, cutoff, attendees))`. The transaction stores that payload and its finalized block anchor before responding. Subsequent reads check that the anchor remains canonical. The Go wire type lives in `packages/shared/attendance.go`, matching CRE's version-1 format.
 
-Missing/unavailable data fails closed. Empty attendance returns 409 because the zero-attendee settlement policy is still unresolved. Snapshot creation does not mean financial settlement succeeded; Envio/contract receipts establish that. Indexed `AttendanceMarked` is never used as check-in input, since it is emitted only during settlement.
+Missing/unavailable data fails closed. A successfully authenticated, finalized empty snapshot returns `attendees: []` and a valid domain hash for the zero-attendance refund. Snapshot creation does not mean financial settlement succeeded; Envio/contract receipts establish that. Indexed `AttendanceMarked` is never used as check-in input, since it is emitted only during settlement.
 
 ## Runtime configuration and remaining work
 
 See `.env.example`. The current local CRE testnet config points to `http://127.0.0.1:8080`; a deployed DON needs a reachable HTTPS URL and its secret provisioned in the Vault DON. `CORS_ALLOWED_ORIGINS` is an explicit comma-separated list, locally `http://localhost:3000`. The API accepts bearer headers, not auth cookies.
 
-The frontend Privy login/embedded-wallet journey and a real authenticated event/check-in/snapshot run remain to be exercised. The standalone `cre/local` recipe still uses its own in-memory attendance fixture; its prior success is not evidence that this Go/Neon flow has run end to end. CRE deployment activation remains separate.
+The interactive local application previously exercised Privy wallet creation, deposit, authenticated check-in, frozen snapshot, CRE settlement and claim with Go/Neon. See [interactive evidence](../cre/evidence/interactive-local-2026-09-28.json). That record predates the new payout policy; updated financial scenarios require a fresh local run. CRE public deployment remains separate.
 
 References: [Privy access tokens](https://docs.privy.io/authentication/user-authentication/access-tokens), [querying Privy users](https://docs.privy.io/user-management/users/managing-users/querying-users).

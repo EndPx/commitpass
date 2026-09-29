@@ -15,6 +15,14 @@ check-in → settlement → claim through Privy, Go/Neon, Envio and CRE CLI on A
 See [the recorded local application flow](cre/evidence/interactive-local-2026-09-28.json).
 Use `pnpm local:app` to run it; the public testnet deployment is unchanged.
 
+The organizer workspace now includes an optional Mera Private Event Kit: one
+passkey encrypts separate door codes/instructions for each event under independent
+PRF salts. Privy remains the account and wallet layer. Neon stores only the
+Mera credential ID and encrypted vault envelopes. The source and build are ready;
+the live passkey ceremony and fresh-device recovery demonstration still require
+a PRF-capable authenticator and the organizer's interaction. See
+[web integration notes](apps/web/README.md).
+
 ## Repository layout
 
 ```text
@@ -106,7 +114,7 @@ The contract must enforce timing, authorization, and one-time execution. Schedul
 - **Yield:** distributions use recovered assets and realized yield. Morpho withdrawal availability and potential losses must be handled explicitly; a settlement deadline is not a guarantee of immediate liquidity.
 - **Data:** Envio owns indexed chain data. The backend owns metadata, profiles, check-ins, and immutable settlement snapshots in separate database schemas.
 
-The current target uses mockAUSD and a mock ERC-4626 vault on Monad testnet. Mainnet Clearstar is not part of this deployment configuration. Cancellation, zero attendance and permanent loss/liquidity recovery still need explicit policies.
+The current target uses mockAUSD and a mock ERC-4626 vault on Monad testnet. Mainnet Clearstar is not part of this deployment configuration. Cancellation and zero-attendance policies are implemented locally in the new contract version; the older public testnet deployment does not include them. Permanent loss/liquidity recovery still needs an explicit policy.
 
 ## Planned stack
 
@@ -115,6 +123,7 @@ The current target uses mockAUSD and a mock ERC-4626 vault on Monad testnet. Mai
 | Monad and Solidity     | Event factory, event contracts, and financial settlement             |
 | Next.js and TypeScript | Participant and organizer application                                |
 | Privy                  | Onboarding, embedded wallets, transaction signing, and sponsored gas |
+| Mera                   | Optional passkey PRF encryption for organizer event kits             |
 | Go                     | Metadata, organizer authorization, attendance, and snapshot APIs     |
 | Envio HyperIndex       | Contract discovery and indexing of confirmed onchain activity        |
 | Neon PostgreSQL        | Indexed data and application data                                    |
