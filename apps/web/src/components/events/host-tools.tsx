@@ -8,7 +8,6 @@ import type {
 } from "@commitpass/shared";
 import { jsonRequest, shorten } from "@/lib/events";
 import { CoverUpload } from "./cover-upload";
-import { MeraPrivateKit } from "./mera-private-kit";
 export function HostTools({
   event,
   refresh,
@@ -76,10 +75,6 @@ export function HostTools({
   return (
     <section className="host-tools">
       <h2>Guest list & event details</h2>
-      <MeraPrivateKit
-        eventVault={event.vault}
-        eventTitle={event.metadata?.title || "CommitPass event"}
-      />
       <details>
         <summary>Edit event details</summary>
         <form

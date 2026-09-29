@@ -47,27 +47,19 @@ The backend validates ES256 signatures against the app-specific Privy JWKS, issu
 | -------------------------------------------- | ------------------------------------------------------------------------ |
 | `POST /v1/session`                           | Privy token; synchronize the authenticated user and current wallet links |
 | `GET /v1/me`                                 | Privy token; return that user's ID and current wallets                   |
-| `GET /v1/me/mera-credential`                 | Privy token; read that user's Mera credential metadata                   |
-| `PUT /v1/me/mera-credential`                 | Privy token; link one Mera credential ID for reuse across events         |
 | `GET /v1/events/{vault}/metadata`            | Public event description                                                 |
 | `PUT /v1/events/{vault}/metadata`            | Privy token plus the current onchain owner wallet                        |
 | `GET /v1/events/{vault}/check-ins`           | Current event owner                                                      |
 | `PUT /v1/events/{vault}/check-ins/{wallet}`  | Current event owner; record an eligible deposited participant            |
 | `GET /v1/events/{vault}/attendance/{wallet}` | Current participant wallet owner; read their own check-in status         |
-| `GET /v1/events/{vault}/private-kit`         | Current event owner; return opaque Mera vault JSON                       |
-| `PUT /v1/events/{vault}/private-kit`         | Current event owner; store opaque Mera vault JSON                        |
 
 The attendance read derives wallet ownership from the fresh Privy user response.
 It returns `checkedIn` and `checkedInAt`, without revealing the host identity or
 other participants. Missing attendance is distinct from a database failure.
 
-Private kits contain only the Mera vault JSON. The API validates its v1 envelope
-and credential match but does not decrypt, index, log, or return private plaintext.
-The client validates untrusted vault JSON
-with Mera's `parseSecretVault` before one user-verified decrypt ceremony. The
-stored vault contains credential metadata, a random PRF salt, AES-GCM nonce and
-ciphertext; it never contains the PRF output or encryption key. The owner check is
-still enforced by the current onchain owner wallet.
+Migrations `003_private_event_vault.sql` and `004_mera_credential.sql` are retained
+for schema compatibility. Their columns are unused by the current product; no
+stored ciphertext is deleted by removing the private-kit feature.
 
 Metadata accepts `title`, `description`, `location`, `posterUrl`, `timezone`, and
 `appearance`; poster URLs must use HTTPS. Migration `002_event_appearance.sql`

@@ -15,14 +15,6 @@ check-in → settlement → claim through Privy, Go/Neon, Envio and CRE CLI on A
 See [the recorded local application flow](cre/evidence/interactive-local-2026-09-28.json).
 Use `pnpm local:app` to run it; the public testnet deployment is unchanged.
 
-The organizer workspace now includes an optional Mera Private Event Kit: one
-passkey encrypts separate door codes/instructions for each event under independent
-PRF salts. Privy remains the account and wallet layer. Neon stores only the
-Mera credential ID and encrypted vault envelopes. The source and build are ready;
-the live passkey ceremony and fresh-device recovery demonstration still require
-a PRF-capable authenticator and the organizer's interaction. See
-[web integration notes](apps/web/README.md).
-
 ## Repository layout
 
 ```text
@@ -123,7 +115,6 @@ The current target uses mockAUSD and a mock ERC-4626 vault on Monad testnet. Mai
 | Monad and Solidity     | Event factory, event contracts, and financial settlement             |
 | Next.js and TypeScript | Participant and organizer application                                |
 | Privy                  | Onboarding, embedded wallets, transaction signing, and sponsored gas |
-| Mera                   | Optional passkey PRF encryption for organizer event kits             |
 | Go                     | Metadata, organizer authorization, attendance, and snapshot APIs     |
 | Envio HyperIndex       | Contract discovery and indexing of confirmed onchain activity        |
 | Neon PostgreSQL        | Indexed data and application data                                    |
@@ -146,4 +137,4 @@ The implementation should retain their direct product flows while adapting accou
 - [Best workflow with CRE](https://hackathon.monad.xyz/tracks/best-workflow-with-cre)
 - [Privy](https://hackathon.monad.xyz/tracks/privy)
 
-Privy is the primary account and wallet integration for the first complete flow. Mera, alternate login methods and additional Agora bounty work are deferred until that flow is complete.
+Privy is the primary account and wallet integration. Mera is deferred until we have a useful role for it in the core attendance flow; alternate login methods and Agora bounty work are outside the current scope.

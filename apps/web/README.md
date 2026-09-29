@@ -138,15 +138,6 @@ the launcher; public addresses remain the default for ordinary commands. Local
 receipts use `/local/tx/{hash}` instead of Monadscan, and pending transaction keys
 are scoped to the run. [Interactive instructions](../../cre/local/INTERACTIVE.md).
 
-Host tools also include a Mera Private Event Kit. Mera encrypts the kit in the
-browser with a fresh event vault and stores only vault JSON through the authenticated
-owner endpoint. The public credential ID is linked to the Privy account for
-reuse across multiple event kits. The plaintext is never sent to Neon. Clear local storage or use a
-fresh browser and unlock the stored vault with the same synced passkey to prove
-cross-device recovery. Mera needs an HTTPS/localhost relying party and an
-authenticator that returns the WebAuthn PRF; `PRF_UNAVAILABLE` is shown as an
-actionable error. Privy remains the wallet and transaction layer.
-
 `/events/{vault}` combines Envio discovery/metadata with pinned-block live contract
 reads every 15 seconds. The API event read refreshes every 20 seconds. Contract
 read failure pauses financial actions, and transaction receipts precede success

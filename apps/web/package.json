@@ -9,7 +9,6 @@
     "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
-    "@category-labs/mera": "0.2.0",
     "@commitpass/shared": "workspace:*",
     "@gsap/react": "2.1.2",
     "@js-temporal/polyfill": "0.5.1",
