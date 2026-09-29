@@ -38,6 +38,10 @@ export function MeraPrivateKit({ eventVault, eventTitle }: Props) {
   const [vault, setVault] = useState<PasskeySecretVault | null>(null);
   const [credential, setCredential] =
     useState<PasskeyCredentialMetadata | null>(null);
+  const [pendingVault, setPendingVault] = useState<{
+    value: PasskeySecretVault;
+    draft: string;
+  } | null>(null);
   const [kit, setKit] = useState<Kit | null>(null);
   const [draft, setDraft] = useState<Kit>({ doorCode: "", instructions: "" });
   const [loading, setLoading] = useState(true);
@@ -52,6 +56,7 @@ export function MeraPrivateKit({ eventVault, eventTitle }: Props) {
     setLoading(true);
     setLoadFailed(false);
     setVault(null);
+    setPendingVault(null);
     setKit(null);
     setCredential(null);
     setError("");
@@ -160,6 +165,7 @@ export function MeraPrivateKit({ eventVault, eventTitle }: Props) {
     setError("");
     setMessage("");
     try {
+      const serialized = JSON.stringify(draft);
       let next: PasskeySecretVault;
       const selected = credential ?? vault?.credential;
       if (
@@ -170,26 +176,31 @@ export function MeraPrivateKit({ eventVault, eventTitle }: Props) {
         throw new Error(
           "This kit belongs to a different passkey. Unlock it before changing it.",
         );
-      const secret = encodeKit(draft);
-      try {
-        if (selected) {
-          next = await createSecretVaultWithExistingPasskey({
-            rpId,
-            credential: selected,
-            secret,
-          });
-        } else {
-          next = await createSecretVaultWithNewPasskey({
-            rp: { id: rpId, name: rpName },
-            user: {
-              name: `${user?.id ?? "organizer"}@commitpass.local`,
-              displayName: `CommitPass host · ${eventTitle}`,
-            },
-            secret,
-          });
+      if (pendingVault?.draft === serialized) {
+        next = pendingVault.value;
+      } else {
+        const secret = encodeKit(draft);
+        try {
+          if (selected) {
+            next = await createSecretVaultWithExistingPasskey({
+              rpId,
+              credential: selected,
+              secret,
+            });
+          } else {
+            next = await createSecretVaultWithNewPasskey({
+              rp: { id: rpId, name: rpName },
+              user: {
+                name: `${user?.id ?? "organizer"}@commitpass.local`,
+                displayName: `CommitPass host · ${eventTitle}`,
+              },
+              secret,
+            });
+          }
+        } finally {
+          secret.fill(0);
         }
-      } finally {
-        secret.fill(0);
+        setPendingVault({ value: next, draft: serialized });
       }
       const token = await getAccessToken();
       if (!token) throw new Error("Please sign in again.");
@@ -213,6 +224,7 @@ export function MeraPrivateKit({ eventVault, eventTitle }: Props) {
         body: JSON.stringify({ vault: next }),
       });
       setVault(next);
+      setPendingVault(null);
       setKit(draft);
       setEditing(false);
       setMessage(

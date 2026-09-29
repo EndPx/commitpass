@@ -272,6 +272,20 @@ indexer.onEvent(
 );
 
 indexer.onEvent(
+  { contract: "CommitPassVault", event: "EventCancelled", fields },
+  async ({ event, context }) => {
+    const current = await loadEvent(context, event.chainId, event.srcAddress);
+    if (!current) return;
+    context.CommitmentEvent.set({
+      ...current,
+      status: "CANCELLED",
+      registrationClosed: true,
+      ...updated(event),
+    });
+  },
+);
+
+indexer.onEvent(
   { contract: "CommitPassVault", event: "SettlementFinalized", fields },
   async ({ event, context }) => {
     const current = await loadEvent(context, event.chainId, event.srcAddress);
