@@ -1,5 +1,13 @@
 # Lifecycle acceptance — 28 September 2026
 
+## Monad testnet trigger/read-path check — 30 September 2026
+
+[Public RPC cron simulation](monad-testnet-cron-2026-09-30.md) verified chain
+10143 and the deployed receiver, then completed one CRE cron callback with zero
+registered events. It did not broadcast, freeze attendance or execute a public
+lifecycle transaction. The [repeatable command](../README.md#monad-testnet-cron-simulation)
+rejects a nonempty receiver before invoking the simulator.
+
 ## Updated settlement policy — 29 September 2026
 
 The [new local result](settlement-policy-local-2026-09-29.json) completed with

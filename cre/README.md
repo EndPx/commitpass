@@ -33,6 +33,28 @@ pnpm --filter @commitpass/cre compile:wasm
 
 Ordinary monorepo builds typecheck CRE. Explicit WASM compilation produces `cre/dist/lifecycle.wasm` through Javy. A build is not workflow execution evidence.
 
+## Monad testnet cron simulation
+
+Run `pnpm --filter @commitpass/cre simulate` from the repository root after setting
+`lifecycle/config.testnet.json` to the receiver in the shared Monad testnet
+deployment manifest. The command builds the shared package and WASM, confirms
+chain ID 10143 and receiver bytecode through the public Monad testnet RPC, then
+runs one cron trigger without `--broadcast`. It uses an absolute WASM path so the
+CRE CLI works from Windows workspace paths containing spaces.
+
+This command currently requires `vaultCount() == 0`. That guard prevents a future
+due event from freezing attendance through the backend during a supposedly
+read-only check. A `sweep completed` result with zero registered events proves
+the configured trigger and read path execute against Monad testnet; it does not
+prove an event start, settlement, receiver call, or deployed DON execution.
+For the complete start and settlement simulation, use `pnpm cre:local` against
+Anvil. Chainlink's [trigger overview](https://docs.chain.link/cre/capabilities/triggers)
+explains that simulation selects a trigger immediately, whereas deployed DONs
+watch for triggers continuously. Its [handler guide](https://docs.chain.link/cre/guides/workflow/using-triggers/overview)
+maps each trigger to a callback. The [EVM log trigger guide](https://docs.chain.link/cre/guides/workflow/using-triggers/evm-log-trigger-ts)
+documents the finalized confidence level and base64 address/topic filters used
+by this workflow.
+
 After receiver signature changes, run `forge build` in `contracts`, then `node scripts/export-automation-abi.mjs` from the root and format its output. The ABI comes from the Solidity compiler artifact.
 
 ## Configuration and activation
