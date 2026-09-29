@@ -179,7 +179,7 @@ function ValueEditor({
             ? {
                 title: "Refundable commitment",
                 description:
-                  "Guests commit this amount to reserve a spot. It becomes claimable after confirmed attendance and settlement.",
+                  "Attendees reclaim this amount after settlement. No-show commitments are split 50% to CommitPass and 50% to attendees. Cancelled events and zero-attendance settlements refund all commitments without a fee.",
                 icon: <Ticket size={25} />,
               }
             : {

@@ -37,6 +37,7 @@ type Participant {
   attended: Boolean!
   claimed: Boolean!
   claimedAmount: BigInt!
+  allocatedAmount: BigInt
   depositedAt: BigInt!
   depositTransaction: String!
   claimTransaction: String

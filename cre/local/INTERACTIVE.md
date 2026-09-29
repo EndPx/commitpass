@@ -31,8 +31,7 @@ the real CRE CLI/WASM. It uses the real authenticated Go attendance snapshot API
    eligibility at the contract cutoff. CRE retrieves the immutable Neon snapshot.
 8. After settlement, the participant claims from the event page.
 
-Scheduled start/end use the same workflow. Empty attendance is not interpreted as
-a successful settlement. When an API or workflow execution fails, the next loop
+Scheduled start/end use the same workflow. A valid frozen empty attendance snapshot finalizes as a full refund for every depositor. Failed attendance reads continue to defer settlement. When an API or workflow execution fails, the next loop
 retries and the contract's idempotence checks remain in force.
 
 ## Boundaries and storage

@@ -277,9 +277,11 @@ export function EventDetail({
             <div>
               <h2>Your commitment comes with you.</h2>
               <p>
-                Attend and get your commitment back after settlement. Confirmed
-                attendees also share eligible rewards. Missing the event means
-                forfeiting your commitment.
+                Attend and claim your commitment back plus a share of rewards.
+                No-show commitments are split 50% to CommitPass and 50% to
+                attendees. Attendees also share all recovered yield.
+                Cancellation before start and settlement with zero recorded
+                attendance refund everyone’s commitment without a platform fee.
               </p>
               <small>
                 Testnet tokens have no monetary value. Rewards are variable.
@@ -417,7 +419,7 @@ function ReservationPanel({
         abi: eventVaultAbi,
         functionName: "eventSettled",
       });
-      if (person[0] && settled && person[1] && !person[2] && person[3] > 0n) {
+      if (person[0] && settled && !person[2] && person[3] > 0n) {
         await chainClient.simulateContract({
           address: event.vault,
           abi: eventVaultAbi,
@@ -556,7 +558,10 @@ function ReservationPanel({
   }
   const deposited = participation?.[0];
   const claimable =
-    participation?.[1] && !participation[2] && participation[3] > 0n;
+    !!live?.settled &&
+    participation?.[0] &&
+    !participation[2] &&
+    participation[3] > 0n;
   const open =
     !!live &&
     !live.closed &&
@@ -573,6 +578,7 @@ function ReservationPanel({
           claimed={!!participation?.[2]}
           attended={!!participation?.[1]}
           settled={!!live?.settled}
+          refund={live?.outcome === 2 || live?.outcome === 3}
         />
       )}
       <section className="reservation-panel">
@@ -590,7 +596,9 @@ function ReservationPanel({
             : claimable
               ? `${amount(participation![3].toString())} mockAUSD is available to claim.`
               : deposited
-                ? "You’re on the list. Your host will confirm your attendance at the event."
+                ? live?.settled && live?.outcome === 1
+                  ? "No attendance was confirmed. Your commitment was forfeited: 50% to CommitPass and 50% to attendees."
+                  : "You’re on the list. Your host will confirm your attendance at the event."
                 : "A refundable commitment. Show up, check in, and claim it back after settlement."}
         </p>
         {!authenticated ? (
@@ -639,13 +647,17 @@ function ReservationPanel({
                 : participation?.[2]
                   ? "Return claimed"
                   : claimable
-                    ? "Claim your return"
+                    ? live?.outcome === 2 || live?.outcome === 3
+                      ? "Claim refund"
+                      : "Claim your return"
                     : deposited
-                      ? "You’re going"
+                      ? live?.settled
+                        ? "No claim available"
+                        : "You’re going"
                       : open
                         ? "Commit & reserve"
                         : "Registration closed"}
-            {deposited && !claimable && <Check size={16} />}
+            {deposited && !claimable && !live?.settled && <Check size={16} />}
           </button>
         )}
         {readError && (

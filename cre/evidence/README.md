@@ -1,5 +1,27 @@
 # Lifecycle acceptance — 28 September 2026
 
+## Updated settlement policy — 29 September 2026
+
+The [new local result](settlement-policy-local-2026-09-29.json) completed with
+`status: passed` using freshly compiled contracts and CRE CLI/WASM on disposable
+Anvil. It includes the earlier start/settle/idempotency/unavailable-API scenarios
+plus two new cases:
+
+- A valid frozen snapshot with **zero attendees** settled. Both depositors were
+  allocated their full 10 mockAUSD; protocol revenue was zero.
+- Cancellation before start allocated and paid back 10 mockAUSD to each of two
+  depositors; protocol revenue was zero.
+- Normal settlement with one attendee and one no-show allocated **16.999999
+  mockAUSD** to the attendee (10 principal + 5 no-show reward + 1.999999 realized
+  yield) and **5 mockAUSD** to the separate platform treasury. ERC-4626 rounded
+  the 2 mockAUSD donation down by one raw unit during redemption.
+
+Six focused Solidity checks in `contracts/test/SettlementPolicy.t.sol` passed for
+normal distribution, zero attendance, cancellation/refunds, access/timing/start
+request rejection and deterministic odd-unit rounding. The new result is local
+simulation evidence, not an updated public deployment. The browser-operated
+result below predates this policy and retains its original facts.
+
 ## Interactive application execution
 
 [Interactive result](interactive-local-2026-09-28.json) records one complete

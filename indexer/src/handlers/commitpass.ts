@@ -117,6 +117,7 @@ indexer.onEvent(
       attended: false,
       claimed: false,
       claimedAmount: 0n,
+      allocatedAmount: undefined,
       depositedAt: BigInt(event.block.timestamp),
       depositTransaction: event.transaction.hash,
       claimTransaction: undefined,
@@ -225,21 +226,11 @@ indexer.onEvent(
   async ({ event, context }) => {
     const current = await loadEvent(context, event.chainId, event.srcAddress);
     if (!current) return;
-    const noShowStake =
-      BigInt(current.participantCount - current.attendeeCount) *
-      current.stakeAmount;
-    const netYield = event.params.totalYield - event.params.protocolFee;
-    const reward =
-      current.attendeeCount === 0
-        ? 0n
-        : current.stakeAmount +
-          (noShowStake + netYield) / BigInt(current.attendeeCount);
     context.CommitmentEvent.set({
       ...current,
       status: "SETTLED",
       totalYield: event.params.totalYield,
       protocolFee: event.params.protocolFee,
-      rewardPerAttendee: reward,
       ...updated(event),
     });
     activity(
@@ -249,6 +240,69 @@ indexer.onEvent(
       "SETTLED",
       undefined,
       event.params.totalYield,
+    );
+  },
+);
+
+indexer.onEvent(
+  { contract: "CommitPassVault", event: "ClaimAllocated", fields },
+  async ({ event, context }) => {
+    const id = eventKey(event.chainId, event.srcAddress);
+    const participant = await context.Participant.get(
+      participantKey(id, event.params.participant),
+    );
+    if (!participant) {
+      if (!context.isPreload)
+        throw new Error("Allocation references missing deposit");
+      return;
+    }
+    context.Participant.set({
+      ...participant,
+      allocatedAmount: event.params.amount,
+    });
+    activity(
+      context,
+      event,
+      id,
+      "CLAIM_ALLOCATED",
+      event.params.participant,
+      event.params.amount,
+    );
+  },
+);
+
+indexer.onEvent(
+  { contract: "CommitPassVault", event: "SettlementFinalized", fields },
+  async ({ event, context }) => {
+    const current = await loadEvent(context, event.chainId, event.srcAddress);
+    if (!current) return;
+    const outcome = Number(event.params.outcome);
+    if (![1, 2, 3].includes(outcome))
+      throw new Error("Unknown settlement outcome");
+    const eligible =
+      outcome === 1 ? current.attendeeCount : current.participantCount;
+    context.CommitmentEvent.set({
+      ...current,
+      status:
+        outcome === 3 ? "CANCELLED" : outcome === 2 ? "REFUNDED" : "SETTLED",
+      registrationClosed: true,
+      protocolFee: event.params.platformRevenue,
+      rewardPerAttendee: eligible
+        ? event.params.totalAllocated / BigInt(eligible)
+        : 0n,
+      ...updated(event),
+    });
+    activity(
+      context,
+      event,
+      current.id,
+      outcome === 3
+        ? "CANCELLED"
+        : outcome === 2
+          ? "ZERO_ATTENDANCE_REFUND"
+          : "ALLOCATION_FINALIZED",
+      undefined,
+      event.params.totalAllocated,
     );
   },
 );

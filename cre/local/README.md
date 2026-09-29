@@ -21,7 +21,7 @@ Prerequisites: pnpm dependencies, Bun, a logged-in CRE CLI, and Foundry. Windows
 4. Repeat the request; assert no second deposit occurred.
 5. Donate 2 mock AUSD to model yield. Freeze attendance with one attendee.
 6. Return HTTP 503 from the attendance server; require CRE to fail for that reason and the event to remain unsettled.
-7. Restore the same frozen snapshot; execute settlement through CRE and assert the attendee can claim **21.9 mock AUSD**.
+7. Restore the same frozen snapshot; execute settlement through CRE and assert the attendee can claim **16.999999 mockAUSD** (10 principal + 5 from no-shows + 1.999999 realized surplus after ERC-4626 rounding; treasury receives 5).
 8. Repeat settlement; assert the claim allocation is unchanged.
 9. Create a second event and execute scheduled start and settlement through the cron trigger, with both guests attending.
 

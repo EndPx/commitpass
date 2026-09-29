@@ -148,8 +148,9 @@ func (s *reader) participants(w http.ResponseWriter, r *http.Request) {
 	}
 	s.list(w, r, `SELECT to_jsonb(p) || jsonb_build_object(
         'amount', p.amount::text, 'claimedAmount', p."claimedAmount"::text, 'depositedAt', p."depositedAt"::text,
-        'claimableAmount', (CASE WHEN e.status = 'SETTLED' AND p.attended AND NOT p.claimed
-            THEN e."rewardPerAttendee" ELSE 0 END)::text)
+        'claimableAmount', (CASE WHEN p.claimed THEN 0
+            WHEN to_jsonb(p)->>'allocatedAmount' IS NOT NULL THEN (to_jsonb(p)->>'allocatedAmount')::numeric
+            WHEN e.status = 'SETTLED' AND p.attended THEN e."rewardPerAttendee" ELSE 0 END)::text)
         FROM envio."Participant" p JOIN envio."CommitmentEvent" e ON e.id = p.event_id
         WHERE p.event_id = $1 AND p.id > $2 ORDER BY p.id LIMIT 101`, id, r.URL.Query().Get("after"))
 }

@@ -17,6 +17,9 @@ contracts:
       - event: DepositToYieldSource
       - event: AttendanceMarked
       - event: EventSettled
+      - event: ClaimAllocated
+      - event: SettlementFinalized
+      - event: EventCancelled
       - event: RewardClaimed
       - event: OwnershipTransferred
   - name: CommitPassAutomation

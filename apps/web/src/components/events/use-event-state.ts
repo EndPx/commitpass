@@ -12,6 +12,7 @@ import {
   assetAddress,
 } from "@/lib/chain";
 import type { Address } from "viem";
+import { isLocal } from "@/lib/runtime-network";
 
 export async function readEventState(vault: Address) {
   const block = await chainClient.getBlock();
@@ -34,6 +35,10 @@ export async function readEventState(vault: Address) {
     deadline,
     start,
     schedule,
+    outcome,
+    revenue,
+    allocated,
+    claimed,
   ] = await Promise.all([
     chainClient.readContract({
       address: factoryAddress,
@@ -60,6 +65,18 @@ export async function readEventState(vault: Address) {
       args: [vault],
       blockNumber: block.number,
     }),
+    isLocal
+      ? chainClient.readContract({ ...at, functionName: "settlementOutcome" })
+      : Promise.resolve(0),
+    isLocal
+      ? chainClient.readContract({ ...at, functionName: "protocolRevenue" })
+      : Promise.resolve(0n),
+    isLocal
+      ? chainClient.readContract({ ...at, functionName: "totalAllocated" })
+      : Promise.resolve(0n),
+    isLocal
+      ? chainClient.readContract({ ...at, functionName: "totalClaimed" })
+      : Promise.resolve(0n),
   ]);
   if (
     !known ||
@@ -69,16 +86,25 @@ export async function readEventState(vault: Address) {
   )
     throw new Error("This event is not configured for CommitPass automation.");
   const cutoff = schedule[2] || schedule[1];
-  const status = settled
-    ? "SETTLED"
-    : started && block.timestamp >= cutoff
-      ? "SETTLEMENT_REQUESTED"
-      : started
-        ? "ACTIVE"
-        : schedule[3] || block.timestamp >= start
-          ? "START_REQUESTED"
-          : "CREATED";
+  const status =
+    outcome === 3
+      ? "CANCELLED"
+      : outcome === 2
+        ? "REFUNDED"
+        : settled
+          ? "SETTLED"
+          : started && block.timestamp >= cutoff
+            ? "SETTLEMENT_REQUESTED"
+            : started
+              ? "ACTIVE"
+              : schedule[3] || block.timestamp >= start
+                ? "START_REQUESTED"
+                : "CREATED";
   return {
+    outcome,
+    revenue,
+    allocated,
+    claimed,
     owner,
     started,
     settled,

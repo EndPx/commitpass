@@ -1,0 +1,84 @@
+{
+  "environment": "local Anvil only; not Monad testnet or a DON deployment",
+  "chainId": 10143,
+  "rpc": "http://127.0.0.1:8547",
+  "steps": [
+    {
+      "name": "manual-start",
+      "exitCode": 0,
+      "expectedSuccess": true
+    },
+    {
+      "name": "manual-start-retry",
+      "exitCode": 0,
+      "expectedSuccess": true
+    },
+    {
+      "name": "attendance-unavailable",
+      "exitCode": 1,
+      "expectedSuccess": false
+    },
+    {
+      "name": "manual-settlement",
+      "exitCode": 0,
+      "expectedSuccess": true
+    },
+    {
+      "name": "settlement-retry",
+      "exitCode": 0,
+      "expectedSuccess": true
+    },
+    {
+      "name": "scheduled-start",
+      "exitCode": 0,
+      "expectedSuccess": true
+    },
+    {
+      "name": "scheduled-settlement",
+      "exitCode": 0,
+      "expectedSuccess": true
+    },
+    {
+      "name": "zero-attendance-start",
+      "exitCode": 0,
+      "expectedSuccess": true
+    },
+    {
+      "name": "zero-attendance-settlement",
+      "exitCode": 0,
+      "expectedSuccess": true
+    }
+  ],
+  "contracts": {
+    "asset": "0x2D95B950a3D95de41Daab5E1a067ddEcDEEe5De5",
+    "yieldVault": "0x5383c0619D2091E6E8F1E905C591a8e1119FD440",
+    "factory": "0xa508125c1b0c54748f95d3AE6d56944c4e4E6A1b",
+    "receiver": "0x36d8638227B0C29b7621413dc03639617D3bD3F4",
+    "mockForwarder": "0xB9F79d863261869B234c481D1f9A7af84AeAd192"
+  },
+  "manual": {
+    "vault": "0x77fCF3D08c27E08EEf0100Db830Dd0048Fc391Bc",
+    "snapshotHash": "0x5f7d26ad98e8f0fe038b1bc2515f41578621eee00e0ab173d57f6fc5439d6a49",
+    "claimedRaw": "16999999",
+    "claimTransactionHash": "0x9295d1ac742fbfa1bff3f03dd56b4c3bbe882615b8b0e47be541e6a3a37a97b6"
+  },
+  "scheduled": {
+    "vault": "0x0195192F12fAdD8E1b911dB33bf492A2aBcAd5D8",
+    "settled": true
+  },
+  "zeroAttendance": {
+    "vault": "0x442a2408229bddB9687c13Ce6678D3176263094d",
+    "snapshotHash": "0x80fef17f2944a734c2e82524fa7dac479284a471d446c4d8d8d7591cf9c43485",
+    "allocatedRaw": "20000000",
+    "protocolRevenueRaw": "0"
+  },
+  "cancelled": {
+    "vault": "0x5E0E6cbF05BC94A8fCbf4Fb622Ba1E3C0B0029CA",
+    "transactionHash": "0x6ec525c9e5c6638d928e0422ca939ad2c4d029a4b8c01f057d7c4b7a36edeee5",
+    "claimedRaw": "20000000",
+    "protocolRevenueRaw": "0"
+  },
+  "snapshotReads": 3,
+  "completedAt": "2026-09-29T10:33:58.617Z",
+  "status": "passed"
+}

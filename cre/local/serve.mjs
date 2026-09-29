@@ -30,6 +30,7 @@ const rpc = "http://127.0.0.1:8547";
 const runId = randomBytes(8).toString("hex");
 const relayKey = generatePrivateKey();
 const owner = privateKeyToAccount(relayKey);
+const treasury = privateKeyToAccount(generatePrivateKey());
 const controlToken = randomBytes(32).toString("hex");
 const attendanceToken = randomBytes(32).toString("hex");
 const client = createPublicClient({
@@ -226,7 +227,7 @@ async function main() {
   );
   const factory = await deploy(
     compiled("CommitPassFactory.sol", "CommitPassFactory"),
-    [yieldVault, owner.address],
+    [yieldVault, treasury.address],
   );
   const receiver = await deploy(receiverAbi, [forwarder, factory]);
   const workflowId = await client.readContract({

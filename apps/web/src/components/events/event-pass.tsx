@@ -12,12 +12,14 @@ export function EventPass({
   claimed,
   attended,
   settled,
+  refund = false,
 }: {
   event: EventSummary;
   wallet: string;
   claimed: boolean;
   attended: boolean;
   settled: boolean;
+  refund?: boolean;
 }) {
   const { getAccessToken } = usePrivy();
   const [qr, setQr] = useState("");
@@ -75,17 +77,19 @@ export function EventPass({
   }, [event.vault, wallet, getAccessToken]);
   const status = claimed
     ? "Return claimed"
-    : settled
-      ? attended
-        ? "Attendance confirmed"
-        : "Not marked as attended"
-      : attendanceError
-        ? "Check-in status unavailable"
-        : attendance === null
-          ? "Loading check-in status…"
-          : attendance
-            ? "Checked in"
-            : "You’re on the guest list";
+    : refund
+      ? "Refund available"
+      : settled
+        ? attended
+          ? "Attendance confirmed"
+          : "Not marked as attended"
+        : attendanceError
+          ? "Check-in status unavailable"
+          : attendance === null
+            ? "Loading check-in status…"
+            : attendance
+              ? "Checked in"
+              : "You’re on the guest list";
   function calendar() {
     const escape = (value: string) =>
       value

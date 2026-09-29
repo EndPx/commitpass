@@ -81,7 +81,7 @@ export function EventList({ personal = false }: { personal?: boolean }) {
   const visible = rows
     .filter((event) => {
       const past =
-        event.status === "SETTLED" ||
+        ["SETTLED", "REFUNDED", "CANCELLED"].includes(event.status) ||
         Number(event.settleAt || event.startAt) * 1000 < Date.now();
       return (
         (tab === "past" ? past : !past) &&

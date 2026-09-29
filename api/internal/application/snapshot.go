@@ -137,10 +137,6 @@ func (s *service) snapshot(w http.ResponseWriter, r *http.Request) {
 		fail(w, err)
 		return
 	}
-	if len(attendees) == 0 {
-		problem(w, 409, "No attendance recorded; zero-attendee policy is unresolved")
-		return
-	}
 	if len(attendees) > 500 || uint64(len(attendees)) > event.ParticipantCount {
 		problem(w, 409, "Attendance exceeds onchain participant count")
 		return

@@ -23,7 +23,7 @@ const steps = [
   },
   {
     title: "Good things come back.",
-    body: "After the event settles, claim your commitment back—plus your share of any no-show deposits and available rewards.",
+    body: "After settlement, claim your commitment back—plus your share of eligible rewards. No-show commitments are split between attendees and CommitPass.",
   },
 ];
 

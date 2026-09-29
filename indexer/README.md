@@ -17,7 +17,7 @@ HyperIndex **3.12.1**, targeting **Monad testnet (10143)**. This service discove
 
 `VaultCreated` dynamically registers event vaults. Receiver events record schedules and requests; vault events establish actual start and settlement. A request does not mark an event settled. Reward estimates use the contract's integer formula; payments use `RewardClaimed` amounts.
 
-All writes use HyperIndex entity operations and participate in reorg rollback. Handlers account for v3's preload pass. `AttendanceMarked` represents attendance accepted during settlement, not live application check-in. Share transfers do not transfer participant claim rights.
+All writes use HyperIndex entity operations and participate in reorg rollback. Handlers account for v3's preload pass. `AttendanceMarked` represents attendance accepted during settlement, not live application check-in. Share transfers do not transfer participant claim rights. New contract logs distinguish `CANCELLED`, `REFUNDED` (zero attendance) and `SETTLED`. `ClaimAllocated` stores each participant’s exact raw-token entitlement, including remainder units; `RewardClaimed` proves payout. Envio materializes confirmed logs, while host buttons and check-in rows never set financial status. Existing public testnet contracts do not emit the new events.
 
 ## Neon
 

@@ -63,7 +63,7 @@ POST /v1/attendance-snapshots/{chainId}/{vault}/{eventId}/{cutoff}
 Authorization: Bearer <CRE secret>
 ```
 
-Exact JSON shape: `AttendanceSnapshot` in `packages/shared/src/automation.ts`. Numeric fields are canonical decimal strings; `version` is the number 1 and `frozen` must be true. `attendees` contains 1-500 deposited wallet addresses, sorted numerically and without duplicates.
+Exact JSON shape: `AttendanceSnapshot` in `packages/shared/src/automation.ts`. Numeric fields are canonical decimal strings; `version` is the number 1 and `frozen` must be true. `attendees` contains 0-500 deposited wallet addresses, sorted numerically and without duplicates.
 
 ```text
 snapshotHash = keccak256(abi.encode(
@@ -79,14 +79,14 @@ Backend requirements:
 - Exclude check-ins after cutoff. A 200 response means a complete immutable snapshot; unavailable or incomplete data returns non-200.
 - Do not add timestamps or transient fields to the response.
 
-Failed HTTP requests, malformed data, unknown fields, digest mismatch, empty attendance and consensus disagreement defer settlement. They never mean nobody attended. The receiver cannot independently prove physical presence or DB immutability; those remain organizer/backend responsibilities.
+Failed HTTP requests, malformed data, unknown fields, digest mismatch and consensus disagreement defer settlement. They never mean nobody attended. A successfully frozen, validated empty snapshot is an explicit zero-attendance refund. The receiver cannot independently prove physical presence or DB immutability; those remain organizer/backend responsibilities.
 
 ## Current boundaries
 
 - The receiver and mock-asset contracts are deployed on Monad testnet; see `contracts/DEPLOYMENT.md`. No deployed DON execution or completed public event lifecycle is claimed. Local testnet config points at the Go API on loopback; deployed workflows require a reachable HTTPS endpoint. A real Privy-authorized check-in/snapshot run is still pending.
 - Testnet uses mockAUSD and a mock yield vault. It has no mainnet Clearstar connection or organic yield; token donations can model yield.
-- Empty attendance, cancellation and permanent loss/liquidity recovery need explicit policies. Automatic settlement rejects empty lists. Redemption failure or principal shortfall reverts atomically, leaving settlement pending.
-- Equal-share rounding dust remains in the event vault under the inherited formula.
+- A valid empty attendance snapshot refunds all commitments plus recovered surplus without a platform fee. Owner cancellation before start opens principal refunds directly onchain. Redemption failure or principal shortfall reverts atomically, leaving settlement pending.
+- Claim allocations include deterministic remainder distribution in registration order. Platform revenue is 50% of no-show principal only when attendance is nonzero; no yield fee applies.
 - Privy/Mera login choices do not change participant identity: claims belong to the depositing wallet.
 
 References: [receiver contracts](https://docs.chain.link/cre/guides/workflow/using-evm-client/onchain-write/building-consumer-contracts), [EVM writes](https://docs.chain.link/cre/guides/workflow/using-evm-client/onchain-write/overview-ts), [secrets](https://docs.chain.link/cre/guides/workflow/secrets/using-secrets-simulation-ts).

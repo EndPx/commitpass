@@ -75,7 +75,7 @@ const snapshotSchema = z
     eventId: uint,
     cutoff: uint,
     frozen: z.literal(true),
-    attendees: z.array(address).min(1).max(500),
+    attendees: z.array(address).max(500),
     snapshotHash: hash,
   })
   .strict();

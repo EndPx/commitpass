@@ -42,6 +42,7 @@ const client = createPublicClient({
 // Ephemeral local signers; the user's Foundry keystore is never read by this runner.
 const relayerKey = generatePrivateKey();
 const organizer = privateKeyToAccount(relayerKey);
+const treasury = privateKeyToAccount(generatePrivateKey());
 const guests = [
   privateKeyToAccount(generatePrivateKey()),
   privateKeyToAccount(generatePrivateKey()),
@@ -265,10 +266,7 @@ async function main() {
   });
   const asset = await deploy(assetContract);
   const yieldVault = await deploy(yieldContract, [asset]);
-  const factory = await deploy(factoryContract, [
-    yieldVault,
-    organizer.address,
-  ]);
+  const factory = await deploy(factoryContract, [yieldVault, treasury.address]);
   const receiver = await deploy(receiverContract, [mockForwarder, factory]);
   const workflowId = await read(
     forwarderContract,
@@ -420,7 +418,12 @@ async function main() {
   const reward = await read(vaultContract, manual.vault, "getUserReward", [
     guestA.account.address,
   ]);
-  assert.equal(reward, 21_900_000n);
+  // Mock ERC-4626 share conversion rounds the 2-token donation down by one raw unit.
+  assert.equal(reward, 16_999_999n);
+  assert.equal(
+    await read(assetContract, asset, "balanceOf", [treasury.address]),
+    5_000_000n,
+  );
   const beforeClaim = await read(assetContract, asset, "balanceOf", [
     guestA.account.address,
   ]);
@@ -479,6 +482,87 @@ async function main() {
     10_000_000n,
   );
   evidence.scheduled = { vault: scheduled.vault, settled: true };
+
+  const empty = await createEvent(false);
+  const emptyStart = await write(
+    owner,
+    receiverContract,
+    receiver,
+    "requestStart",
+    [empty.vault],
+  );
+  await simulate("zero-attendance-start", emptyStart);
+  const emptyEnd = await write(
+    owner,
+    receiverContract,
+    receiver,
+    "requestSettlement",
+    [empty.vault],
+  );
+  const emptySnapshot = await freeze(empty, []);
+  await simulate("zero-attendance-settlement", emptyEnd);
+  assert.equal(await read(vaultContract, empty.vault, "settlementOutcome"), 2);
+  assert.equal(await read(vaultContract, empty.vault, "protocolRevenue"), 0n);
+  assert.equal(
+    await read(vaultContract, empty.vault, "getUserReward", [
+      guestA.account.address,
+    ]),
+    10_000_000n,
+  );
+  assert.equal(
+    await read(vaultContract, empty.vault, "getUserReward", [
+      guestB.account.address,
+    ]),
+    10_000_000n,
+  );
+  evidence.zeroAttendance = {
+    vault: empty.vault,
+    snapshotHash: emptySnapshot.snapshotHash,
+    allocatedRaw: String(
+      await read(vaultContract, empty.vault, "totalAllocated"),
+    ),
+    protocolRevenueRaw: "0",
+  };
+
+  const cancelled = await createEvent(false);
+  const cancelReceipt = await write(
+    owner,
+    vaultContract,
+    cancelled.vault,
+    "cancelEvent",
+  );
+  assert.equal(
+    await read(vaultContract, cancelled.vault, "settlementOutcome"),
+    3,
+  );
+  assert.equal(
+    await read(vaultContract, cancelled.vault, "protocolRevenue"),
+    0n,
+  );
+  assert.equal(
+    await read(vaultContract, cancelled.vault, "getUserReward", [
+      guestA.account.address,
+    ]),
+    10_000_000n,
+  );
+  assert.equal(
+    await read(vaultContract, cancelled.vault, "getUserReward", [
+      guestB.account.address,
+    ]),
+    10_000_000n,
+  );
+  await write(guestA, vaultContract, cancelled.vault, "claimReward");
+  await write(guestB, vaultContract, cancelled.vault, "claimReward");
+  assert.equal(
+    await read(vaultContract, cancelled.vault, "totalClaimed"),
+    20_000_000n,
+  );
+  evidence.cancelled = {
+    vault: cancelled.vault,
+    transactionHash: cancelReceipt.transactionHash,
+    claimedRaw: "20000000",
+    protocolRevenueRaw: "0",
+  };
   evidence.snapshotReads = snapshotReads;
   evidence.completedAt = new Date().toISOString();
   evidence.status = "passed";

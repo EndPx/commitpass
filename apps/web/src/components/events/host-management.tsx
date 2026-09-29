@@ -5,6 +5,7 @@ import { usePrivy, useSendTransaction, useWallets } from "@privy-io/react-auth";
 import { encodeFunctionData, type Hash } from "viem";
 import {
   eventAutomationAbi,
+  eventVaultAbi,
   MONAD_TESTNET,
   type EventSummary,
 } from "@commitpass/shared";
@@ -15,7 +16,7 @@ import { EditorDialog, DialogActions } from "./editor-dialog";
 import { HostTools } from "./host-tools";
 import { readEventState, type LiveEventState } from "./use-event-state";
 import { useAccount } from "./account-context";
-import { runtimeStorageKey } from "@/lib/runtime-network";
+import { isLocal, runtimeStorageKey } from "@/lib/runtime-network";
 
 export function HostManagement({
   event,
@@ -28,16 +29,16 @@ export function HostManagement({
   owner: boolean;
   refresh: () => void;
 }) {
-  const { authenticated, ready, getAccessToken } = usePrivy();
+  const { authenticated, ready } = usePrivy();
   const account = useAccount();
   const { wallets } = useWallets();
   const wallet = wallets.find(
     (item) => item.address.toLowerCase() === live?.owner.toLowerCase(),
   );
   const { sendTransaction } = useSendTransaction();
-  const [confirmation, setConfirmation] = useState<"start" | "end" | null>(
-    null,
-  );
+  const [confirmation, setConfirmation] = useState<
+    "start" | "end" | "cancel" | null
+  >(null);
   const [pending, setPending] = useState<Hash | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -66,8 +67,13 @@ export function HostManagement({
     setPending(null);
     if (result.status !== "success")
       throw new Error("The request did not complete. You can try again.");
+    const updated = await readEventState(event.vault);
     setMessage(
-      "Request confirmed. Waiting for automation to execute the next step.",
+      updated.outcome === 3
+        ? "Cancellation confirmed. All guests can claim their full commitment."
+        : updated.settled
+          ? "Settlement confirmed. Claims are available."
+          : "Request confirmed. Waiting for automation to execute the next step.",
     );
   }
   async function execute() {
@@ -103,41 +109,51 @@ export function HostManagement({
           state.timestamp >= state.cutoff)
       )
         throw new Error("This event is already wrapping up or is not active.");
-      if (action === "end") {
-        const token = await getAccessToken();
-        if (!token) throw new Error("Please sign in again.");
-        const attendance = await jsonRequest<{ checkIns: unknown[] }>(
-          `/api/events/${event.vault}/check-ins`,
-          { headers: { Authorization: `Bearer ${token}` } },
+      if (
+        action === "cancel" &&
+        (state.started ||
+          state.settled ||
+          state.startRequested ||
+          state.timestamp >= state.start)
+      )
+        throw new Error(
+          "Cancellation is only available before the start time and before any start request.",
         );
-        if (!attendance.checkIns.length)
-          throw new Error(
-            "Check in at least one attendee before ending the event. Settlement requires a confirmed attendee.",
-          );
-      }
       localStorage.setItem(`${key}:ready`, "1");
       localStorage.removeItem(`${key}:ready`);
       await wallet.switchChain(MONAD_TESTNET.chainId);
-      const functionName =
-        action === "start" ? "requestStart" : "requestSettlement";
-      await chainClient.simulateContract({
-        address: automationAddress,
-        abi: eventAutomationAbi,
-        functionName,
-        args: [event.vault],
-        account: wallet.address as `0x${string}`,
-      });
+      let data: `0x${string}`;
+      const to = action === "cancel" ? event.vault : automationAddress;
+      if (action === "cancel") {
+        await chainClient.simulateContract({
+          address: to,
+          abi: eventVaultAbi,
+          functionName: "cancelEvent",
+          account: wallet.address as `0x${string}`,
+        });
+        data = encodeFunctionData({
+          abi: eventVaultAbi,
+          functionName: "cancelEvent",
+        });
+      } else {
+        const functionName =
+          action === "start" ? "requestStart" : "requestSettlement";
+        await chainClient.simulateContract({
+          address: to,
+          abi: eventAutomationAbi,
+          functionName,
+          args: [event.vault],
+          account: wallet.address as `0x${string}`,
+        });
+        data = encodeFunctionData({
+          abi: eventAutomationAbi,
+          functionName,
+          args: [event.vault],
+        });
+      }
       setMessage("Confirm this request in your wallet.");
       const tx = await sendTransaction(
-        {
-          to: automationAddress,
-          chainId: MONAD_TESTNET.chainId,
-          data: encodeFunctionData({
-            abi: eventAutomationAbi,
-            functionName,
-            args: [event.vault],
-          }),
-        },
+        { to, chainId: MONAD_TESTNET.chainId, data },
         { address: wallet.address, uiOptions: { showWalletUIs: true } },
       );
       setPending(tx.hash);
@@ -250,26 +266,34 @@ export function HostManagement({
       </ol>
       <div className="host-lifecycle">
         <h3>
-          {live.settled
-            ? "All wrapped up."
-            : ending
-              ? "Settlement is in progress."
-              : live.started
-                ? "Your event is live."
-                : starting
-                  ? "Waiting for the event to start."
-                  : "Ready when your people are."}
+          {live.outcome === 3
+            ? "Event cancelled."
+            : live.outcome === 2
+              ? "Full refunds are available."
+              : live.settled
+                ? "All wrapped up."
+                : ending
+                  ? "Settlement is in progress."
+                  : live.started
+                    ? "Your event is live."
+                    : starting
+                      ? "Waiting for the event to start."
+                      : "Ready when your people are."}
         </h3>
         <p>
-          {live.settled
-            ? "Settlement is confirmed. Eligible guests can claim their return from their event page."
-            : ending
-              ? "Check-in is closed. Automation will use the attendance snapshot to settle commitments. This page refreshes automatically."
-              : live.started
-                ? "Check guests in below. Ending the event closes check-in immediately and requests settlement."
-                : starting
-                  ? "Automation is waiting to execute the start. This page updates when the contract confirms it."
-                  : "Starting closes registration and asks automation to put the committed funds into the event’s yield vault."}
+          {live.outcome === 3
+            ? "Cancellation is confirmed onchain. Every guest can claim their full commitment with no fee."
+            : live.outcome === 2
+              ? "No attendance was recorded in the finalized snapshot. Every guest can claim their commitment plus a share of recovered yield. No platform fee applies."
+              : live.settled
+                ? "Settlement is confirmed. Eligible guests can claim their return from their event page."
+                : ending
+                  ? "Check-in is closed. Automation will use the attendance snapshot to settle commitments. This page refreshes automatically."
+                  : live.started
+                    ? "Check guests in below. Ending the event closes check-in immediately and requests settlement."
+                    : starting
+                      ? "Automation is waiting to execute the start. This page updates when the contract confirms it."
+                      : "Starting closes registration and asks automation to put the committed funds into the event’s yield vault."}
         </p>
         {pending ? (
           <button
@@ -296,6 +320,27 @@ export function HostManagement({
               {live.started ? "End event" : "Start event"}
             </button>
           )
+        )}
+        {isLocal &&
+          !pending &&
+          !live.settled &&
+          !live.started &&
+          !live.startRequested &&
+          live.timestamp < live.start && (
+            <button
+              className="button cancel-event-button"
+              disabled={busy || !wallet}
+              onClick={() => setConfirmation("cancel")}
+            >
+              Cancel event
+            </button>
+          )}
+        {isLocal && live.settled && (
+          <p className="field-note">
+            Allocated to guests: {amount(live.allocated.toString())} mockAUSD ·
+            Claimed: {amount(live.claimed.toString())} · Platform revenue:{" "}
+            {amount(live.revenue.toString())}
+          </p>
         )}
         {!wallet && (
           <p className="field-note">
@@ -328,12 +373,18 @@ export function HostManagement({
       {confirmation && !busy && (
         <EditorDialog
           title={
-            confirmation === "start" ? "Start this event?" : "End this event?"
+            confirmation === "cancel"
+              ? "Cancel this event?"
+              : confirmation === "start"
+                ? "Start this event?"
+                : "End this event?"
           }
           description={
-            confirmation === "start"
-              ? "Registration closes immediately. Automation will then start the event and move commitments into the yield vault."
-              : "Check-in closes immediately. Confirm every present guest before continuing. Automation will settle using the frozen attendance snapshot."
+            confirmation === "cancel"
+              ? "This permanently closes the event. Every depositor will be able to claim their full commitment, with no platform fee. Funds stay in the contract until claimed."
+              : confirmation === "start"
+                ? "Registration closes immediately. Automation will then start the event and move commitments into the yield vault."
+                : "Check-in closes immediately. Confirm every present guest before continuing. Automation will settle using the frozen attendance snapshot. If nobody is checked in, all guests receive a full refund plus recovered yield, with no platform fee."
           }
           busy={busy}
           onClose={() => setConfirmation(null)}
@@ -352,7 +403,9 @@ export function HostManagement({
                   ? "Confirming…"
                   : confirmation === "start"
                     ? "Start event"
-                    : "End event"
+                    : confirmation === "cancel"
+                      ? "Cancel event & enable refunds"
+                      : "End event"
               }
             />
           </form>
