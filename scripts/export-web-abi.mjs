@@ -24,6 +24,11 @@ const contracts = [
       "owner",
       "automation",
       "eventDate",
+      "cancelEvent",
+      "settlementOutcome",
+      "protocolRevenue",
+      "totalAllocated",
+      "totalClaimed",
     ],
   ],
   [

@@ -5,7 +5,7 @@ Based on [ATFI at 1c57d35](https://github.com/ATFi-Event/smart-contract/tree/1c5
 ## Contracts
 
 - `CommitPassFactory(yieldVault, treasury)` creates event vaults with fixed deployment configuration; `vaultByEventId` exposes their addresses.
-- `CommitPassVault` accepts the configured yield vault's asset. Start deposits pooled assets; settlement redeems the entire share balance, charges the inherited 5% fee on positive realized yield and allocates attendee claims.
+- `CommitPassVault` accepts the configured yield vault's asset. Start deposits pooled assets; settlement redeems the entire share balance, takes 50% of forfeited no-show principal for the treasury and allocates the remainder plus all recovered yield to attendees. Zero attendance refunds every depositor.
 - `CommitPassAutomation(forwarder, factory)` accepts CRE reports. Its deployer configures a nonzero workflow ID once. The application calls `factory.createAutomatedEvent(..., receiver, settleAt)` to create the vault and attach its immutable schedule atomically. The internal setup uses `vault.setAutomation`, callable only by its owner or creating factory before deposits. Only the receiver can start/settle once configured.
 - `mocks/MockYieldVault.sol` supplies faucet-funded mockAUSD (6 decimals) and a mock ERC-4626 vault, restricted to chain IDs 10143/31337. No real AUSD, Clearstar investment or organic yield is involved.
 
@@ -33,8 +33,10 @@ See [CRE setup and snapshot API specification](../cre/README.md).
 
 ## Limits
 
-- Factory, receiver and mock assets are deployed and verified on Monad testnet. See [deployment evidence](DEPLOYMENT.md). The CRE workflow is not activated yet.
+- The verified Monad testnet deployment in [DEPLOYMENT.md](DEPLOYMENT.md) uses the earlier immutable contract version. Cancellation, zero-attendee refunds and 50% no-show revenue in this source apply only to a new deployment or a fresh local Anvil run.
 - Redemption failure or recovery below committed principal reverts settlement. This preserves nominal refund accounting but does not solve permanent loss or unavailable liquidity.
-- Automated zero-attendee settlement is deferred. Cancellation/refund/recovery needs a policy; legacy owner-operated vaults retain inherited empty-attendance behavior.
-- Rounding dust remains in the vault. ERC-20 share transfers do not transfer participant claims; this event contract is not itself ERC-4626.
-- The inherited vault suite exercises a separate mock with simulated yield. It does not cover this receiver or establish live Morpho compatibility. Only the factory fixture was adapted for its constructor dependencies; no new tests were added or executed in this turn.
+- Owner cancellation is allowed strictly before eventDate, before any Start request, and before yield deposit or finalization. It enables full principal refunds through individual claims. Active-event cancellation and principal-loss recovery are not implemented.
+- Treasury receives floor(noShowPrincipal / 2). Claim remainders are assigned one raw token unit at a time in registration order, so all allocated assets are conserved independently of claim order. ERC-20 share transfers do not transfer participant claims; this event contract is not itself ERC-4626.
+- The inherited vault suite exercises a separate mock with simulated yield. `SettlementPolicy.t.sol` exercises the real vault and receiver integration for cancellation, zero attendance, no-show revenue and exact allocations. These results do not establish live Morpho compatibility.
+
+The exact payout rules and accounting caveats are in [SETTLEMENT.md](SETTLEMENT.md).

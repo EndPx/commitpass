@@ -10,6 +10,7 @@ import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 
 interface IEventAutomation {
     function registerEvent(address vault, uint256 settleAt) external;
+    function canCancel(address vault) external view returns (bool);
 }
 
 contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
@@ -17,10 +18,14 @@ contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
 
     IERC20 public immutable ASSET_TOKEN;
     IERC4626 public immutable yieldVault;
-    uint256 private constant BPS_PRECISION = 10000;
     address public immutable treasury;
     address public immutable factory;
-    uint256 public protocolFeeBps = 500; // PRD 2.5: 5% protocol fee (500 bps)
+    uint256 public constant protocolFeeBps = 5000; // 50% of forfeited no-show principal only
+    // 0 = pending, 1 = normal, 2 = zero attendance refund, 3 = cancelled
+    uint8 public settlementOutcome;
+    uint256 public protocolRevenue;
+    uint256 public totalAllocated;
+    uint256 public totalClaimed;
 
     // Event specific data
     uint256 public eventId;
@@ -81,6 +86,9 @@ contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
     event EventSettled(uint256 totalYield, uint256 protocolFee);
     event DepositToYieldSource(uint256 amount);
     event RewardClaimed(address indexed participant, uint256 rewardAmount);
+    event ClaimAllocated(address indexed participant, uint256 amount);
+    event SettlementFinalized(uint8 outcome, uint256 noShowPrincipal, uint256 platformRevenue, uint256 totalAllocated);
+    event EventCancelled();
 
 
     constructor(
@@ -133,7 +141,7 @@ contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
      * @dev Deposit pooled assets into the configured ERC-4626 yield vault
      */
     function depositToYieldSource() external onlyLifecycleExecutor nonReentrant {
-        require(!depositedToYield, "Already deposited to yield");
+        require(!depositedToYield && !eventSettled, "Event not startable");
         uint256 amountToDeposit = ASSET_TOKEN.balanceOf(address(this));
         require(amountToDeposit > 0, "No assets to deposit");
         ASSET_TOKEN.forceApprove(address(yieldVault), amountToDeposit);
@@ -155,35 +163,73 @@ contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
         require(depositedToYield, "Not yet deposited to yield");
         require(!eventSettled, "Event already settled");
 
-        for (uint256 i = 0; i < _attendedParticipants.length; i++) {
-            address participantAddr = _attendedParticipants[i];
-            Participant storage user = participants[participantAddr];
-            if (user.hasDeposited && !user.hasAttended) {
-                user.hasAttended = true;
-                emit AttendanceMarked(participantAddr);
-            }
+        require(_attendedParticipants.length <= participantAddresses.length, "Invalid attendance count");
+        address previous;
+        for (uint256 i; i < _attendedParticipants.length; i++) {
+            address participant = _attendedParticipants[i];
+            require(participant > previous && participants[participant].hasDeposited, "Invalid attendee");
+            participants[participant].hasAttended = true;
+            previous = participant;
+            emit AttendanceMarked(participant);
         }
-
         _withdrawAllFromYieldSource();
-
-        // Calculate realized yield after redemption (real balance - original deposited amount)
-        uint256 currentBalance = ASSET_TOKEN.balanceOf(address(this));
-        require(currentBalance >= stakeAmount * participantAddresses.length, "Principal shortfall");
-        uint256 actualYieldEarned = currentBalance > totalDepositedToYield ? currentBalance - totalDepositedToYield : 0;
-        totalYieldEarned = actualYieldEarned;
-
-        // Take 5% of actual yield for treasury (skip if yield is 0)
-        uint256 protocolFeeAmount = actualYieldEarned > 0 ? (actualYieldEarned * protocolFeeBps) / BPS_PRECISION : 0;
-        totalNetYield = totalYieldEarned - protocolFeeAmount;
-
-        if (protocolFeeAmount > 0) {
-            ASSET_TOKEN.safeTransfer(treasury, protocolFeeAmount);
-        }
-
-        _calculateRewards();
+        uint256 principal = stakeAmount * participantAddresses.length;
+        uint256 balance = ASSET_TOKEN.balanceOf(address(this));
+        require(balance >= principal, "Principal shortfall");
+        // All recovered surplus belongs to participants; there is no yield fee.
+        totalYieldEarned = balance - principal;
+        totalNetYield = totalYieldEarned;
+        uint256 attendedCount = _attendedParticipants.length;
+        uint256 noShowPrincipal = attendedCount == 0 ? 0 : (participantAddresses.length - attendedCount) * stakeAmount;
+        protocolRevenue = noShowPrincipal / 2; // Floor the immutable 50% fee; odd units stay with guests.
+        settlementOutcome = attendedCount == 0 ? 2 : 1;
         eventSettled = true;
         eventSettlementTime = block.timestamp;
-        emit EventSettled(totalYieldEarned, protocolFeeAmount);
+        _allocate(balance - protocolRevenue, attendedCount == 0);
+        if (protocolRevenue > 0) ASSET_TOKEN.safeTransfer(treasury, protocolRevenue);
+        emit EventSettled(totalYieldEarned, protocolRevenue);
+        emit SettlementFinalized(settlementOutcome, noShowPrincipal, protocolRevenue, totalAllocated);
+    }
+
+    /// @notice Cancellation creates refundable claims; payouts occur individually.
+    function cancelEvent() external onlyOwner nonReentrant {
+        require(!eventSettled && !depositedToYield, "Event not cancellable");
+        require(block.timestamp < eventDate, "Event start time passed");
+        require(automation == address(0) || IEventAutomation(automation).canCancel(address(this)), "Start already requested");
+        uint256 principal = stakeAmount * participantAddresses.length;
+        require(ASSET_TOKEN.balanceOf(address(this)) >= principal, "Principal shortfall");
+        registrationClosed = true;
+        eventSettled = true;
+        settlementOutcome = 3;
+        eventSettlementTime = block.timestamp;
+        // Before start, refund exactly each commitment. No cancellation fee.
+        _allocate(principal, true);
+        emit RegistrationClosed();
+        emit EventCancelled();
+        emit SettlementFinalized(3, 0, 0, totalAllocated);
+    }
+
+    // Registration order deterministically receives any indivisible remainder.
+    // All allocated units are conserved and never depend on claim order.
+    function _allocate(uint256 available, bool refundAll) internal {
+        uint256 eligible;
+        for (uint256 i; i < participantAddresses.length; i++) {
+            if (refundAll || participants[participantAddresses[i]].hasAttended) eligible++;
+        }
+        if (eligible == 0) { require(available == 0, "No refund recipients"); return; }
+        uint256 each = available / eligible;
+        uint256 remainder = available % eligible;
+        for (uint256 i; i < participantAddresses.length; i++) {
+            address participant = participantAddresses[i];
+            if (refundAll || participants[participant].hasAttended) {
+                uint256 claim = each;
+                if (remainder > 0) { claim++; remainder--; }
+                participants[participant].claimableRewards = claim;
+                totalAllocated += claim;
+                emit ClaimAllocated(participant, claim);
+            }
+        }
+        require(totalAllocated == available, "Allocation mismatch");
     }
 
     function _withdrawAllFromYieldSource() internal {
@@ -194,7 +240,6 @@ contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
     function claimReward() external nonReentrant {
         Participant storage user = participants[msg.sender];
         require(user.hasDeposited, "Not a participant");
-        require(user.hasAttended, "Did not attend");
         require(!user.hasClaimed, "Already claimed");
         require(eventSettled, "Event not settled");
 
@@ -202,6 +247,7 @@ contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
         require(rewardAmount > 0, "No reward available");
 
         user.hasClaimed = true;
+        totalClaimed += rewardAmount;
 
         if (totalAssets() < rewardAmount) {
             _withdrawAllFromYieldSource();
@@ -210,36 +256,6 @@ contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
         ASSET_TOKEN.safeTransfer(msg.sender, rewardAmount);
 
         emit RewardClaimed(msg.sender, rewardAmount);
-    }
-
-    /**
-     * @dev Hitung reward untuk setiap peserta yang hadir
-     * Formula: Stake Awal + ((Total No-Show Stake + Net Yield) / Jumlah Peserta Hadir)
-     */
-    function _calculateRewards() internal {
-        uint256 attendedCount;
-        uint256 totalNoShowStake;
-
-        for (uint256 i = 0; i < participantAddresses.length; i++) {
-            address participantAddr = participantAddresses[i];
-            if (participants[participantAddr].hasAttended) {
-                attendedCount++;
-            } else {
-                totalNoShowStake += stakeAmount;
-            }
-        }
-
-        if (attendedCount == 0) return;
-
-        uint256 bonusPerParticipant = (totalNoShowStake + totalNetYield) / attendedCount;
-
-        for (uint256 i = 0; i < participantAddresses.length; i++) {
-            address participantAddr = participantAddresses[i];
-            Participant storage user = participants[participantAddr];
-            if (user.hasAttended) {
-                user.claimableRewards = stakeAmount + bonusPerParticipant;
-            }
-        }
     }
 
     // View functions for assets management

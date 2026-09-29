@@ -140,6 +140,13 @@
   },
   {
     "type": "function",
+    "name": "cancelEvent",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "claimReward",
     "inputs": [],
     "outputs": [],
@@ -434,6 +441,19 @@
   },
   {
     "type": "function",
+    "name": "protocolRevenue",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "registrationClosed",
     "inputs": [],
     "outputs": [
@@ -498,6 +518,19 @@
   },
   {
     "type": "function",
+    "name": "settlementOutcome",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "stakeAmount",
     "inputs": [],
     "outputs": [
@@ -524,7 +557,33 @@
   },
   {
     "type": "function",
+    "name": "totalAllocated",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "totalAssets",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "totalClaimed",
     "inputs": [],
     "outputs": [
       {
@@ -732,6 +791,25 @@
   },
   {
     "type": "event",
+    "name": "ClaimAllocated",
+    "inputs": [
+      {
+        "name": "participant",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "DepositMade",
     "inputs": [
       {
@@ -760,6 +838,12 @@
         "internalType": "uint256"
       }
     ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "EventCancelled",
+    "inputs": [],
     "anonymous": false
   },
   {
@@ -818,6 +902,37 @@
       },
       {
         "name": "rewardAmount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "SettlementFinalized",
+    "inputs": [
+      {
+        "name": "outcome",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      },
+      {
+        "name": "noShowPrincipal",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "platformRevenue",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalAllocated",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"

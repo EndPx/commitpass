@@ -73,6 +73,7 @@ contract CommitPassAutomation is IReportReceiver, IERC165, ReentrancyGuard {
         Schedule storage schedule = schedules[vault];
         CommitPassVault eventVault = CommitPassVault(vault);
         require(schedule.startAt != 0 && msg.sender == eventVault.owner(), "Organizer only");
+        require(!eventVault.eventSettled(), "Event finalized");
         require(!eventVault.depositedToYield(), "Already started");
         require(eventVault.getParticipantCount() > 0, "No participants");
         eventVault.closeRegistration();
@@ -95,6 +96,11 @@ contract CommitPassAutomation is IReportReceiver, IERC165, ReentrancyGuard {
 
     function vaultCount() external view returns (uint256) {
         return vaults.length;
+    }
+
+    function canCancel(address vault) external view returns (bool) {
+        Schedule memory schedule = schedules[vault];
+        return schedule.startAt != 0 && block.timestamp < schedule.startAt && !schedule.startRequested && schedule.requestedCutoff == 0;
     }
 
     // Stateless round-robin discovery; manual requests use the log trigger immediately.
@@ -131,6 +137,7 @@ contract CommitPassAutomation is IReportReceiver, IERC165, ReentrancyGuard {
         Schedule storage schedule = schedules[vault];
         require(schedule.startAt != 0, "Unknown event");
         CommitPassVault eventVault = CommitPassVault(vault);
+        require(eventVault.settlementOutcome() != 3, "Event cancelled");
         (uint256 eventId, uint8 readyAction, uint256 expectedCutoff) = getState(vault);
         if (action == START) {
             require(attendees.length == 0 && snapshotHash == bytes32(0) && cutoff == 0, "Invalid start payload");
@@ -140,7 +147,7 @@ contract CommitPassAutomation is IReportReceiver, IERC165, ReentrancyGuard {
             eventVault.depositToYieldSource();
         } else {
             require(action == SETTLE && cutoff == expectedCutoff, "Invalid settlement");
-            require(attendees.length > 0 && attendees.length <= eventVault.getParticipantCount(), "Invalid attendance count");
+            require(attendees.length <= eventVault.getParticipantCount(), "Invalid attendance count");
             require(snapshotHash == keccak256(abi.encode(chainId, vault, eventId, cutoff, attendees)), "Snapshot mismatch");
             if (eventVault.eventSettled()) {
                 require(schedule.settledSnapshot == snapshotHash, "Conflicting settlement");
