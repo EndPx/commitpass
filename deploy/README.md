@@ -1,7 +1,8 @@
 # Hosted CommitPass
 
-Recorded on 30 September 2026. API, indexer, CRE runtime source, and frontend:
-`77187b5e1559cb25979af3062247936855d9a605`. Public commitments now use Circle's
+Recorded on 30 September 2026. API/indexer/CRE runtime source:
+`77187b5e1559cb25979af3062247936855d9a605`. Frontend source after the compact
+profile and faucet update: `f2f69733cdb6d588ec7ae9140db78afb14e42960`. Public commitments use Circle's
 native Monad testnet USDC, address `0x534b2f3A21130d7a60830c2Df862319e593943A3`
 (6 decimals). [Deployment and verification](../contracts/DEPLOYMENT.md).
 
@@ -47,7 +48,7 @@ was reset; the earlier environment files also remain available for rollback.
 
 ## Vercel
 
-The current production deployment is `dpl_EnHTy4GaSCjpz4cQVPnBHrrZBHy6`.
+The current production deployment is `dpl_HtMekxjvnxpzs72DCSnwgSndi8VX`.
 Builds first compile the shared workspace, then Next.js. `.vercelignore` excludes
 the root Go/contract/indexer/CRE workspaces and local credentials while retaining
 the Next.js `/api` route handlers.
@@ -98,6 +99,17 @@ deployment succeeded independently of that connection.
   empty/read paths, not funded settlement or claim execution.
   Claim execution remains on the existing event page; settlement allocates funds
   and individual `claimReward()` calls transfer participants' returns.
+- Profile defaults to Activity with compact identity/metric tiles and a financial
+  strip, following the supplied Axis reference. Charts remain under Analytics.
+  Local inspection put the activity heading at y=493 in a 1280x720 viewport and
+  y=637 at 375x812, without horizontal overflow. The settlement paragraph was
+  removed; tab keyboard navigation and verified-wallet copying were inspected.
+- Header Faucet shows fixed USDC/Monad testnet and a verified linked wallet.
+  Local signed-in inspection showed the correct recipient and copy confirmation.
+  Circle's current form ignored the tested network/address URL parameters;
+  the app copies the wallet and opens the official faucet with instructions to
+  choose Monad Testnet and paste it. No Circle request was submitted, and no
+  wallet was created during verification.
 - The frontend `/api/session` and VPS `/v1/me` rejected missing tokens with 401.
 - API and indexer services are enabled and active. The USDC indexer starts at
   block 66,933,185 and reported readiness/realtime mode in its service logs.
