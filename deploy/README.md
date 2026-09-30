@@ -1,8 +1,8 @@
 # Hosted CommitPass
 
 Recorded on 30 September 2026. API/indexer/CRE runtime source:
-`77187b5e1559cb25979af3062247936855d9a605`. Frontend source after the compact
-profile and header-action styling update: `10baffe39848e502efaaa2ed4e53044986009066`. Public commitments use Circle's
+`77187b5e1559cb25979af3062247936855d9a605`. Frontend source after the account wallet menu update:
+`a041914f28854dfc2ce08edb244071a2cce0fe08`. Public commitments use Circle's
 native Monad testnet USDC, address `0x534b2f3A21130d7a60830c2Df862319e593943A3`
 (6 decimals). [Deployment and verification](../contracts/DEPLOYMENT.md).
 
@@ -48,7 +48,7 @@ was reset; the earlier environment files also remain available for rollback.
 
 ## Vercel
 
-The current production deployment is `dpl_5j5iuBkARaurGo335QdjJ2Kc7XcE`.
+The current production deployment is `dpl_2qcEPXbcWcAUb5QcWHqYtSsQDRjJ`.
 Builds first compile the shared workspace, then Next.js. `.vercelignore` excludes
 the root Go/contract/indexer/CRE workspaces and local credentials while retaining
 the Next.js `/api` route handlers.
@@ -110,6 +110,11 @@ deployment succeeded independently of that connection.
   the app copies the wallet and opens the official faucet with instructions to
   choose Monad Testnet and paste it. No Circle request was submitted, and no
   wallet was created during verification.
+- The account dropdown shows the full verified wallet address beneath the email,
+  preferring the embedded wallet, with a copy button and accessible confirmation.
+  Signed-in production inspection confirmed the full 42-character address and
+  successful copy feedback. At 375px, the 264px popover stayed within the viewport
+  with a 44px copy target and no horizontal overflow.
 - The frontend `/api/session` and VPS `/v1/me` rejected missing tokens with 401.
 - API and indexer services are enabled and active. The USDC indexer starts at
   block 66,933,185 and reported readiness/realtime mode in its service logs.
