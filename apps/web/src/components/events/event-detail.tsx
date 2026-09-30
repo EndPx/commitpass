@@ -403,7 +403,7 @@ function ReservationPanel({
       const asset = await chainClient.readContract({
         address: event.vault,
         abi: eventVaultAbi,
-        functionName: "ASSET_TOKEN",
+        functionName: "USDC_TOKEN",
       });
       if (asset.toLowerCase() !== assetAddress.toLowerCase())
         throw new Error("This event uses an unsupported asset.");
@@ -494,7 +494,7 @@ function ReservationPanel({
       });
       if (balance < stake)
         throw new Error(
-          "Your wallet needs more mockAUSD test tokens to reserve this spot.",
+          "Your wallet needs more USDC test tokens to reserve this spot.",
         );
       // Persist capability is checked before asking the wallet to send a transaction.
       localStorage.setItem(`${key}:ready`, "1");
@@ -587,14 +587,14 @@ function ReservationPanel({
             {deposited ? "Your reservation" : "Reserve your spot"}
           </strong>
           <span>
-            {amount(event.stakeAmount)} <small>mockAUSD</small>
+            {amount(event.stakeAmount)} <small>USDC</small>
           </span>
         </div>
         <p>
           {participation?.[2]
             ? "Your return has been claimed."
             : claimable
-              ? `${amount(participation![3].toString())} mockAUSD is available to claim.`
+              ? `${amount(participation![3].toString())} USDC is available to claim.`
               : deposited
                 ? live?.settled && live?.outcome === 1
                   ? "No attendance was confirmed. Your commitment was forfeited: 50% to CommitPass and 50% to attendees."

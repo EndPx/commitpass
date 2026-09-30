@@ -4,16 +4,16 @@
 
 An event platform on Monad where guests reserve a spot with a refundable deposit and share rewards from people who don't show up.
 
-Participants reserve a place by depositing a fixed commitment into an event contract. Organizers record attendance. At settlement, attendees become eligible to claim their commitment, half of forfeited no-show deposits, and all recovered yield. The other half of no-show commitments goes to CommitPass. Valid zero-attendance settlement refunds all depositors; a host cancellation before start opens full refunds. See [settlement policy](contracts/SETTLEMENT.md). The earlier public testnet contracts retain their immutable pre-policy behavior.
+Participants reserve a place by depositing a fixed commitment into an event contract. Organizers record attendance. At settlement, attendees become eligible to claim their commitment, half of forfeited no-show deposits, and all recovered yield. The other half of no-show commitments goes to CommitPass. Valid zero-attendance settlement refunds all depositors; a host cancellation before start opens full refunds. See [settlement policy](contracts/SETTLEMENT.md). The legacy deployment retains its immutable pre-policy behavior; the current USDC deployment includes the updated policy.
 
 ## Status
 
-CommitPass is being built for the Metropolis Consumer Products & Payments track on Monad testnet (10143). MockAUSD, MockYieldVault, CommitPassFactory and the CRE receiver are deployed and verified on Monadscan through Etherscan API. Envio and the Go read API connect to Neon using the shared deployment manifest. The backend implements Privy token verification, owner-authorized check-ins and immutable attendance snapshots. The frontend includes Privy sign-in, the event editor, reservation/claim actions, participant QR passes and a host management workspace. The local CRE lifecycle passes start, settlement and claim scenarios; a real authenticated public end-to-end event run remains pending because CRE deployment access is not enabled and its workflow is not activated. See [local execution and activation evidence](cre/evidence/README.md), [deployment evidence](contracts/DEPLOYMENT.md), [contract boundaries](contracts/README.md) and [CRE setup](cre/README.md).
+CommitPass is being built for the Metropolis Consumer Products & Payments track on Monad testnet (10143). Circle USDC is the commitment asset on Monad testnet. A USDC-backed MockYieldVault, CommitPassFactory and CRE receiver are deployed; source verification and receipt details are recorded in the deployment manifest. Envio and the Go read API connect to Neon using the shared deployment manifest. The backend implements Privy token verification, owner-authorized check-ins and immutable attendance snapshots. The frontend includes Privy sign-in, the event editor, reservation/claim actions, participant QR passes and a host management workspace. The local CRE lifecycle passes start, settlement and claim scenarios; a real authenticated public end-to-end event run remains pending because CRE deployment access is not enabled and its workflow is not activated. See [local execution and activation evidence](cre/evidence/README.md), [deployment evidence](contracts/DEPLOYMENT.md), [contract boundaries](contracts/README.md) and [CRE setup](cre/README.md).
 
 The interactive local application has completed create → reserve → start →
 check-in → settlement → claim through Privy, Go/Neon, Envio and CRE CLI on Anvil.
 See [the recorded local application flow](cre/evidence/interactive-local-2026-09-28.json).
-Use `pnpm local:app` to run it; the public testnet deployment is unchanged.
+Use `pnpm local:app` to run it with a local MockUSDC fixture. The public deployment uses Circle's native Monad testnet USDC; historical local evidence retains its original token and deployment identifiers.
 
 The frontend is now hosted at [commitpass-kappa.vercel.app](https://commitpass-kappa.vercel.app).
 The Go API, Envio indexer and recurring CRE read simulation run on the Hostinger
@@ -113,7 +113,7 @@ The contract must enforce timing, authorization, and one-time execution. Schedul
 - **Yield:** distributions use recovered assets and realized yield. Morpho withdrawal availability and potential losses must be handled explicitly; a settlement deadline is not a guarantee of immediate liquidity.
 - **Data:** Envio owns indexed chain data. The backend owns metadata, profiles, check-ins, and immutable settlement snapshots in separate database schemas.
 
-The current target uses mockAUSD and a mock ERC-4626 vault on Monad testnet. Mainnet Clearstar is not part of this deployment configuration. Cancellation and zero-attendance policies are implemented locally in the new contract version; the older public testnet deployment does not include them. Permanent loss/liquidity recovery still needs an explicit policy.
+The current target uses Circle USDC (`0x534b2f3A21130d7a60830c2Df862319e593943A3`, 6 decimals) and a mock ERC-4626 vault on Monad testnet. Mainnet Clearstar is not part of this deployment configuration. Cancellation and zero-attendance policies are present in the current USDC contracts; their funded public execution still needs an end-to-end run. Permanent loss/liquidity recovery still needs an explicit policy.
 
 ## Planned stack
 

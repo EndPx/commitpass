@@ -21,7 +21,7 @@ the real CRE CLI/WASM. It uses the real authenticated Go attendance snapshot API
 1. Open `http://localhost:3000`. Confirm the **Local mode** banner is visible.
 2. Sign in with Privy. Set up the embedded wallet if needed.
 3. Click **Get local test funds**. This funds the signed-in wallet with local MON
-   and mockAUSD once per session. Tokens have no monetary value.
+   and mock USDC once per session. Tokens have no monetary value.
 4. Create an event with future registration/start/end times. Keep the session
    running while using the application. Envio may take a few blocks to show it.
 5. A participant signs in, receives local funds, reserves, and receives their pass.

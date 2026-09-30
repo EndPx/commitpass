@@ -106,7 +106,7 @@ Failed HTTP requests, malformed data, unknown fields, digest mismatch and consen
 ## Current boundaries
 
 - The receiver and mock-asset contracts are deployed on Monad testnet; see `contracts/DEPLOYMENT.md`. No deployed DON execution or completed public event lifecycle is claimed. Local testnet config points at the Go API on loopback; deployed workflows require a reachable HTTPS endpoint. A real Privy-authorized check-in/snapshot run is still pending.
-- Testnet uses mockAUSD and a mock yield vault. It has no mainnet Clearstar connection or organic yield; token donations can model yield.
+- Testnet uses Circle USDC on Monad (`0x534b2f3A21130d7a60830c2Df862319e593943A3`, 6 decimals) and a mock yield vault. It has no mainnet Clearstar connection or organic yield; token donations can model yield.
 - A valid empty attendance snapshot refunds all commitments plus recovered surplus without a platform fee. Owner cancellation before start opens principal refunds directly onchain. Redemption failure or principal shortfall reverts atomically, leaving settlement pending.
 - Claim allocations include deterministic remainder distribution in registration order. Platform revenue is 50% of no-show principal only when attendance is nonzero; no yield fee applies.
 - Privy/Mera login choices do not change participant identity: claims belong to the depositing wallet.

@@ -5,9 +5,9 @@ Based on [ATFI at 1c57d35](https://github.com/ATFi-Event/smart-contract/tree/1c5
 ## Contracts
 
 - `CommitPassFactory(yieldVault, treasury)` creates event vaults with fixed deployment configuration; `vaultByEventId` exposes their addresses.
-- `CommitPassVault` accepts the configured yield vault's asset. Start deposits pooled assets; settlement redeems the entire share balance, takes 50% of forfeited no-show principal for the treasury and allocates the remainder plus all recovered yield to attendees. Zero attendance refunds every depositor.
+- `CommitPassVault` accepts the configured yield vault's 6-decimal USDC asset through `USDC_TOKEN`. Start deposits pooled assets; settlement redeems the entire share balance, takes 50% of forfeited no-show principal for the treasury and allocates the remainder plus all recovered yield to attendees. Zero attendance refunds every depositor.
 - `CommitPassAutomation(forwarder, factory)` accepts CRE reports. Its deployer configures a nonzero workflow ID once. The application calls `factory.createAutomatedEvent(..., receiver, settleAt)` to create the vault and attach its immutable schedule atomically. The internal setup uses `vault.setAutomation`, callable only by its owner or creating factory before deposits. Only the receiver can start/settle once configured.
-- `mocks/MockYieldVault.sol` supplies faucet-funded mockAUSD (6 decimals) and a mock ERC-4626 vault, restricted to chain IDs 10143/31337. No real AUSD, Clearstar investment or organic yield is involved.
+- `mocks/MockYieldVault.sol` supplies a local `MockUSDC` fixture and a testnet ERC-4626 vault. Public deployment uses Circle's existing Monad testnet USDC at `0x534b2f3A21130d7a60830c2Df862319e593943A3`; it does not deploy a mock commitment token. The yield vault remains a mock, with no Clearstar investment or organic yield.
 
 ## Authorization
 

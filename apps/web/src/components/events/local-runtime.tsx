@@ -47,7 +47,7 @@ export function LocalRuntimeNotice() {
                 body: JSON.stringify({ wallet: wallet.address }),
               });
               setMessage(
-                "Local wallet funded: 10 MON and 1,000 mockAUSD (once per run).",
+                "Local wallet funded: 10 MON and 1,000 USDC (once per run).",
               );
             } catch (error) {
               setMessage(

@@ -244,8 +244,7 @@ export function HostManagement({
         <div>
           <span>Committed</span>
           <strong>
-            {amount((live.count * live.stake).toString())}{" "}
-            <small>mockAUSD</small>
+            {amount((live.count * live.stake).toString())} <small>USDC</small>
           </strong>
         </div>
         <div>
@@ -337,7 +336,7 @@ export function HostManagement({
           )}
         {isLocal && live.settled && (
           <p className="field-note">
-            Allocated to guests: {amount(live.allocated.toString())} mockAUSD ·
+            Allocated to guests: {amount(live.allocated.toString())} USDC ·
             Claimed: {amount(live.claimed.toString())} · Platform revenue:{" "}
             {amount(live.revenue.toString())}
           </p>

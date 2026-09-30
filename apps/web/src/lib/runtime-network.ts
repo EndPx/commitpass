@@ -5,7 +5,7 @@ type LocalDeployment = {
   runId: string;
   chainId: number;
   contracts: Record<
-    "CommitPassFactory" | "CommitPassAutomation" | "MockAUSD",
+    "CommitPassFactory" | "CommitPassAutomation" | "USDC",
     { address: Address }
   >;
 };
@@ -15,7 +15,7 @@ if (
   local &&
   (local.chainId !== 10143 ||
     !/^[a-z0-9]{12,32}$/.test(local.runId) ||
-    ["CommitPassFactory", "CommitPassAutomation", "MockAUSD"].some(
+    ["CommitPassFactory", "CommitPassAutomation", "USDC"].some(
       (name) =>
         !/^0x[0-9a-fA-F]{40}$/.test(
           local.contracts[name as keyof LocalDeployment["contracts"]]

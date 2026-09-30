@@ -229,6 +229,10 @@ events, excluding cancelled and zero-attendance refunds. Keep wallet balance,
 locked commitments, available returns, and received funds visually separate.
 Do not sum different assets or label claimable funds as wallet balance. Return
 actions open the existing event claim flow, which validates current chain state.
+The public commitment asset is native Circle USDC on Monad testnet, with 6
+decimals and its address from the shared manifest. All public amounts use USDC
+labels. Historical mockAUSD data remains isolated from USDC financial totals;
+local Anvil runs use a clearly identified MockUSDC fixture.
 Use a quiet four-column financial summary (two on mobile), compact participation
 rows, explicit loading/error/empty states, and existing original cover assets.
 Add an attendance ring and a six-month registration bar chart. Use full-history

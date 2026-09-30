@@ -278,7 +278,7 @@ function ValueEditor({
                   : undefined
               }
             />
-            {field === "commitment" && <span>mockAUSD</span>}
+            {field === "commitment" && <span>USDC</span>}
           </div>
         )}
         {field === "deadline" && (

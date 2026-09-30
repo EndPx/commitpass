@@ -125,7 +125,7 @@ export function EventListCard({
             </span>
           ) : (
             <span className="discover-commitment">
-              {amount(event.stakeAmount)} mockAUSD <span>refundable</span>
+              {amount(event.stakeAmount)} USDC <span>refundable</span>
             </span>
           )}
           <span className="plan-guests">

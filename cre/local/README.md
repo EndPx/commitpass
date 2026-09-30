@@ -16,12 +16,12 @@ Prerequisites: pnpm dependencies, Bun, a logged-in CRE CLI, and Foundry. Windows
 ## What runs
 
 1. Deploy the actual factory, event vault implementation, receiver and mock ERC-4626 assets to a fresh local chain.
-2. Create an event and deposit 10 mock AUSD from each of two ephemeral participants.
+2. Create an event and deposit 10 mock USDC from each of two ephemeral participants.
 3. Execute CRE's EVM-log trigger for an organizer start request; assert funds entered the yield vault.
 4. Repeat the request; assert no second deposit occurred.
-5. Donate 2 mock AUSD to model yield. Freeze attendance with one attendee.
+5. Donate 2 mock USDC to model yield. Freeze attendance with one attendee.
 6. Return HTTP 503 from the attendance server; require CRE to fail for that reason and the event to remain unsettled.
-7. Restore the same frozen snapshot; execute settlement through CRE and assert the attendee can claim **16.999999 mockAUSD** (10 principal + 5 from no-shows + 1.999999 realized surplus after ERC-4626 rounding; treasury receives 5).
+7. Restore the same frozen snapshot; execute settlement through CRE and assert the attendee can claim **16.999999 mock USDC** (10 principal + 5 from no-shows + 1.999999 realized surplus after ERC-4626 rounding; treasury receives 5).
 8. Repeat settlement; assert the claim allocation is unchanged.
 9. Create a second event and execute scheduled start and settlement through the cron trigger, with both guests attending.
 

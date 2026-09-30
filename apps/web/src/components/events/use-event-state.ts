@@ -48,7 +48,7 @@ export async function readEventState(vault: Address) {
       blockNumber: block.number,
     }),
     chainClient.readContract({ ...at, functionName: "owner" }),
-    chainClient.readContract({ ...at, functionName: "ASSET_TOKEN" }),
+    chainClient.readContract({ ...at, functionName: "USDC_TOKEN" }),
     chainClient.readContract({ ...at, functionName: "automation" }),
     chainClient.readContract({ ...at, functionName: "depositedToYield" }),
     chainClient.readContract({ ...at, functionName: "eventSettled" }),

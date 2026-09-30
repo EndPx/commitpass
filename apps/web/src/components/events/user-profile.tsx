@@ -167,7 +167,7 @@ export function UserProfile() {
             </button>
           </div>
         )}
-        <section className="profile-funds" aria-label="Your mockAUSD funds">
+        <section className="profile-funds" aria-label="Your USDC funds">
           <Fund
             label="Wallet balance"
             value={
@@ -352,7 +352,7 @@ function Fund({
     <div className={highlight ? "profile-fund highlighted" : "profile-fund"}>
       <span>{label}</span>
       <strong>{value}</strong>
-      {token && <small>mockAUSD</small>}
+      {token && <small>USDC</small>}
       {note && <p>{note}</p>}
     </div>
   );
@@ -412,7 +412,7 @@ function Position({ position }: { position: ProfilePosition }) {
         className={`profile-position-return${claimable ? " available" : ""}`}
       >
         <strong>
-          {amount(value)} <small>mockAUSD</small>
+          {amount(value)} <small>USDC</small>
         </strong>
         <span>
           {state}

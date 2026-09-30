@@ -587,7 +587,7 @@ export function CreateEvent() {
                 <Ticket size={18} />
                 <span>Commitment</span>
                 <strong>
-                  {draft.commitment} <small>mockAUSD</small>
+                  {draft.commitment} <small>USDC</small>
                 </strong>
                 <Pencil size={13} />
               </button>
@@ -701,8 +701,8 @@ export function CreateEvent() {
             )}
           </div>
           <p className="field-note">
-            {isLocal ? "Local Anvil" : "Monad testnet"} · mockAUSD has no
-            monetary value. Publishing requires testnet MON for gas.
+            {isLocal ? "Local Anvil" : "Monad testnet"} · USDC has no monetary
+            value. Publishing requires testnet MON for gas.
           </p>
         </div>
       </form>
