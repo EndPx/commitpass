@@ -8,7 +8,7 @@ description: Reserve a spot, show up, and collect your commitment back.
 
 CommitPass helps community organizers turn an RSVP into a commitment. Guests reserve a place with USDC, the host records attendance, and the event contract calculates each guest's return. Guests who attend reclaim their commitment and share rewards from forfeited no-show commitments.
 
-![An original illustration of a community workshop, with a checked event pass in the foreground.](assets/commitpass-community.png)
+![An original illustration of a community workshop, with the CommitPass logo printed on an event pass in the foreground.](assets/commitpass-community-v2.png)
 
 _Original artwork for these docs. This is an illustrative scene, not a photograph of a real CommitPass event._
 

@@ -31,3 +31,13 @@ Generation prompt:
 
 `gitbook/assets/commitpass-mark.png` copies the existing application mark without
 modification. Its original provenance is recorded in `apps/web/public/brand/README.md`.
+
+## Branded cover revision
+
+The published cover uses `gitbook/assets/commitpass-community-v2.png`. It was edited
+with the built-in image tool using the original cover as the target and the actual
+application mark as the insert reference. The original file remains available.
+
+Edit prompt:
+
+> Use case: precise-object-edit. Image 1 is the edit target, the wide CommitPass community courtyard cover illustration. Image 2 is a supporting insert/reference: the actual CommitPass brand mark, a rounded open C enclosing a checkmark, terracotta on transparent. Make exactly one local change to Image 1: replace the generic standalone checkmark inside the cream circular badge on the foreground terracotta ticket in the lower left with the actual CommitPass C-and-check mark from Image 2. Preserve the exact distinctive open-C enclosing-check silhouette, rounded proportions, spacing and orientation of the reference mark. Render it in terracotta on the existing cream circular ticket badge and match the ticket's slight perspective so it looks printed on that ticket. Fit the mark clearly within the existing badge with a clean margin. Preserve all the people, all faces, hands, courtyard, poster art, foliage, lighting, palette, gouache texture, composition, ticket outline, camera framing and 2.4:1 image dimensions. Do not redesign the brand mark, do not add text, do not add logos elsewhere, do not change any other part of the image. The C-and-check symbol must be recognizable as the supplied logo, not merely a standalone checkmark.
