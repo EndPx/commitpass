@@ -1,13 +1,14 @@
 {
   "chainId": 10143,
   "network": "monad-testnet",
-  "sourceCommit": "ec4653c635bb6e85820cda1c706dfd31aa0c954f",
-  "recordedAt": "2026-09-30T09:21:42.987Z",
+  "contractModel": "direct-vault-receiver-v1",
+  "sourceCommit": "894a5ee",
+  "recordedAt": "2026-09-30T22:33:51.000Z",
   "deployer": "0xc82f469Aa95a2f7792300c8d11230e9023A98600",
   "treasury": "0xc82f469Aa95a2f7792300c8d11230e9023A98600",
   "forwarder": "0xB9F79d863261869B234c481D1f9A7af84AeAd192",
-  "startBlock": 66933185,
-  "totalFeeWei": "784383831007615377",
+  "startBlock": 67091536,
+  "totalFeeWei": "557042952000000000",
   "contracts": {
     "USDC": {
       "address": "0x534b2f3A21130d7a60830c2Df862319e593943A3",
@@ -35,32 +36,20 @@
       }
     },
     "CommitPassFactory": {
-      "address": "0x4De2d5a126fAFBbd488251E98C1706165730746C",
-      "transactionHash": "0x9841048774d01ed18377d539b5af26a90200566305df96a2495dc98f79f24853",
-      "blockNumber": 66933188,
-      "runtimeCodeHash": "0x7a92f055365b086e69f945fb6e7a6b88e4e525f192cb2498a92547f76d64c7fb",
-      "gasUsed": "4000833",
-      "feeWei": "412085799004000833",
+      "address": "0x94f7408816cc9eAB7e5043E92bdDdDAFf3A9931F",
+      "transactionHash": "0xff0b0cd82dd737767f82cdd28f81d691351e82fa303854b0949100c81026c3f3",
+      "blockNumber": 67091536,
+      "runtimeCodeHash": "0x08212c7d6952a5cbf81b538bfe9aca60146f5d7f8f0a9adfb93c13ed8fbaaf2c",
+      "gasUsed": "5408184",
+      "feeWei": "557042952000000000",
       "verification": {
         "provider": "etherscan",
-        "status": "Pass - Verified",
-        "guid": "488uyb5hxptruq54h7qt6a8bhwcugpe4ewpzygphpxbiph22wq",
-        "url": "https://testnet.monadscan.com/address/0x4De2d5a126fAFBbd488251E98C1706165730746C#code"
+        "status": "Pending"
       }
-    },
-    "CommitPassAutomation": {
-      "address": "0x6edf064f8cb13d5295182e452925628582f03a98",
-      "contractName": "CommitPassSimulationAutomation",
-      "transactionHash": "0x7490fbd7c438edebbc2bc9dd12a2d011a84b2722ee0aaacb71b21aa516a582bf",
-      "blockNumber": 66999778,
-      "runtimeCodeHash": "0xd7f557e195ab98678ce00f497d986ae1bbf56968f46d0b44cb23d5ad23191d10",
-      "gasUsed": "2651836",
-      "feeWei": "265183600002651836",
-      "sourceCommit": "9be9d0cff95906338952dbd5ee9bcb1e1c75044f"
     }
   },
   "execution": {
-    "mode": "cre-cli-simulation-broadcast",
+    "mode": "cre-cli-vault-simulation-broadcast",
     "forwarder": "0xB9F79d863261869B234c481D1f9A7af84AeAd192",
     "reportSigner": "0x8FA244d58Ac61Fc773cB83045f312A30bdC6bfe5",
     "donDeployed": false
