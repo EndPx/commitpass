@@ -48,9 +48,9 @@ profile links to the event's existing claim flow, which reads current chain stat
 
 `INDEXER_DATABASE_URL` must target `commitpass_indexer`. Connections default to read-only transactions, with two connections and bounded query timeouts. Connection and SQL errors are not exposed to callers. Missing configuration or schema yields 503; an unindexed event detail yields 404.
 
-The VPS uses `COMMITPASS_INDEXER_SCHEMA=envio_usdc_simulation` to read the USDC
+The VPS uses `COMMITPASS_INDEXER_SCHEMA=envio_usdc_vault` to read the USDC
 indexer namespace. Historical `envio` and `envio_hosted` schemas are preserved.
-`envio_hosted`, `envio_usdc`, and `envio_usdc_simulation` are accepted hosted overrides.
+`envio_hosted`, `envio_usdc`, and `envio_usdc_vault` are accepted hosted overrides.
 
 These routes report Envio's indexed state, which may be delayed and can roll back after a reorg. They do not independently prove finality.
 
@@ -85,7 +85,7 @@ color, title font, light/dark mode), with defaults for existing rows. Financial
 event creation and lifecycle transactions remain wallet/contract operations.
 The backend does not sign them.
 
-Check-in is idempotent per event/wallet. The event must have started, its automation must match the deployed receiver, and the participant's deposit must exist in finalized state. Both chain time and database time must precede the onchain cutoff. The server supplies timestamps and actor identity. Check-in records are append-only in this version; there is no correction/delete endpoint. An existing check-in can be read back on retry after the window closes.
+Check-in is idempotent per event/wallet. The event must have started, its creating factory and immutable schedule must match the active deployment, and the participant's deposit must exist in finalized state. Both chain time and database time must precede the onchain cutoff. The server supplies timestamps and actor identity. Check-in records are append-only in this version; there is no correction/delete endpoint. An existing check-in can be read back on retry after the window closes.
 
 ## Neon application data
 

@@ -2,7 +2,7 @@
 export const factoryAbi = [
   {
     type: "function",
-    name: "createAutomatedEvent",
+    name: "createEvent",
     inputs: [
       {
         name: "stakeAmount",
@@ -25,11 +25,6 @@ export const factoryAbi = [
         internalType: "uint256",
       },
       {
-        name: "automation",
-        type: "address",
-        internalType: "address",
-      },
-      {
         name: "settleAt",
         type: "uint256",
         internalType: "uint256",
@@ -37,12 +32,44 @@ export const factoryAbi = [
     ],
     outputs: [
       {
-        name: "eventId",
+        name: "",
         type: "uint256",
         internalType: "uint256",
       },
     ],
     stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "getBatch",
+    inputs: [
+      {
+        name: "slot",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [
+      {
+        name: "result",
+        type: "address[]",
+        internalType: "address[]",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "isConfigured",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "bool",
+        internalType: "bool",
+      },
+    ],
+    stateMutability: "view",
   },
   {
     type: "function",
@@ -62,6 +89,25 @@ export const factoryAbi = [
       },
     ],
     stateMutability: "view",
+  },
+  {
+    type: "event",
+    name: "LifecycleRequested",
+    inputs: [
+      {
+        name: "vault",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+      {
+        name: "action",
+        type: "uint8",
+        indexed: false,
+        internalType: "uint8",
+      },
+    ],
+    anonymous: false,
   },
   {
     type: "event",
@@ -129,19 +175,6 @@ export const eventVaultAbi = [
   },
   {
     type: "function",
-    name: "automation",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
     name: "cancelEvent",
     inputs: [],
     outputs: [],
@@ -202,6 +235,19 @@ export const eventVaultAbi = [
   },
   {
     type: "function",
+    name: "factory",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     name: "getParticipantCount",
     inputs: [],
     outputs: [
@@ -209,6 +255,75 @@ export const eventVaultAbi = [
         name: "",
         type: "uint256",
         internalType: "uint256",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getSchedule",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "",
+        type: "bool",
+        internalType: "bool",
+      },
+      {
+        name: "",
+        type: "bytes32",
+        internalType: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getState",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "action",
+        type: "uint8",
+        internalType: "uint8",
+      },
+      {
+        name: "",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "isConfigured",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "bool",
+        internalType: "bool",
       },
     ],
     stateMutability: "view",
@@ -225,6 +340,24 @@ export const eventVaultAbi = [
       },
     ],
     stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "onReport",
+    inputs: [
+      {
+        name: "metadata",
+        type: "bytes",
+        internalType: "bytes",
+      },
+      {
+        name: "report",
+        type: "bytes",
+        internalType: "bytes",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
   },
   {
     type: "function",
@@ -314,6 +447,20 @@ export const eventVaultAbi = [
   },
   {
     type: "function",
+    name: "requestSettlement",
+    inputs: [],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "requestStart",
+    inputs: [],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     name: "settlementOutcome",
     inputs: [],
     outputs: [
@@ -360,128 +507,6 @@ export const eventVaultAbi = [
         name: "",
         type: "uint256",
         internalType: "uint256",
-      },
-    ],
-    stateMutability: "view",
-  },
-] as const;
-export const eventAutomationAbi = [
-  {
-    type: "function",
-    name: "getState",
-    inputs: [
-      {
-        name: "vault",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    outputs: [
-      {
-        name: "eventId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "action",
-        type: "uint8",
-        internalType: "uint8",
-      },
-      {
-        name: "cutoff",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    name: "isConfigured",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "bool",
-        internalType: "bool",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    name: "requestSettlement",
-    inputs: [
-      {
-        name: "vault",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    name: "requestStart",
-    inputs: [
-      {
-        name: "vault",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    name: "schedules",
-    inputs: [
-      {
-        name: "",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    outputs: [
-      {
-        name: "startAt",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "settleAt",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "requestedCutoff",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "startRequested",
-        type: "bool",
-        internalType: "bool",
-      },
-      {
-        name: "settledSnapshot",
-        type: "bytes32",
-        internalType: "bytes32",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    name: "workflowId",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "bytes32",
-        internalType: "bytes32",
       },
     ],
     stateMutability: "view",

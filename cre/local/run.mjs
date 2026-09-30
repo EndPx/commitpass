@@ -250,10 +250,6 @@ async function main() {
     "CommitPassFactory.sol",
     "CommitPassFactory",
   );
-  const receiverContract = compiled(
-    "CommitPassAutomation.sol",
-    "CommitPassAutomation",
-  );
   const vaultContract = compiled("CommitPassVault.sol", "CommitPassVault");
   const forwarderContract = compiled(
     "LocalCREForwarder.sol",
@@ -266,24 +262,26 @@ async function main() {
   });
   const asset = await deploy(assetContract);
   const yieldVault = await deploy(yieldContract, [asset]);
-  const factory = await deploy(factoryContract, [yieldVault, treasury.address]);
-  const receiver = await deploy(receiverContract, [mockForwarder, factory]);
   const workflowId = await read(
     forwarderContract,
     mockForwarder,
     "WORKFLOW_ID",
   );
-  await write(owner, receiverContract, receiver, "configureWorkflow", [
+  const factory = await deploy(factoryContract, [
+    yieldVault,
+    treasury.address,
+    mockForwarder,
     workflowId,
+    "0x0000000000000000000000000000000000000000",
   ]);
   for (const wallet of wallets)
     await write(wallet, assetContract, asset, "faucet");
-  evidence.contracts = { asset, yieldVault, factory, receiver, mockForwarder };
+  evidence.contracts = { asset, yieldVault, factory, mockForwarder };
   writeFileSync(
     new URL("config.json", local),
     JSON.stringify(
       {
-        receiver,
+        factory,
         attendanceApi: api,
         attendanceSecretId: "ATTENDANCE_API_TOKEN",
         gasLimit: "5000000",
@@ -327,12 +325,11 @@ async function main() {
     const startAt = deadline + 10n;
     const settleAt = startAt + (scheduled ? 10n : 600n);
     const id = await read(factoryContract, factory, "eventIdCounter");
-    await write(owner, factoryContract, factory, "createAutomatedEvent", [
+    await write(owner, factoryContract, factory, "createEvent", [
       10_000_000n,
       deadline,
       startAt,
       2n,
-      receiver,
       settleAt,
     ]);
     const vault = await read(factoryContract, factory, "vaultByEventId", [id]);
@@ -346,9 +343,7 @@ async function main() {
     return { id, vault, startAt, settleAt };
   }
   async function freeze(event, attendees) {
-    const [, , cutoff] = await read(receiverContract, receiver, "getState", [
-      event.vault,
-    ]);
+    const [, , cutoff] = await read(vaultContract, event.vault, "getState");
     const sorted = [...attendees]
       .map((value) => getAddress(value))
       .sort((a, b) => (BigInt(a) < BigInt(b) ? -1 : 1));
@@ -379,9 +374,7 @@ async function main() {
   }
 
   const manual = await createEvent(false);
-  const start = await write(owner, receiverContract, receiver, "requestStart", [
-    manual.vault,
-  ]);
+  const start = await write(owner, vaultContract, manual.vault, "requestStart");
   await simulate("manual-start", start);
   assert.equal(
     await read(vaultContract, manual.vault, "depositedToYield"),
@@ -403,10 +396,9 @@ async function main() {
   ]);
   const end = await write(
     owner,
-    receiverContract,
-    receiver,
+    vaultContract,
+    manual.vault,
     "requestSettlement",
-    [manual.vault],
   );
   const frozen = await freeze(manual, [guestA.account.address]);
   unavailable = true;
@@ -486,18 +478,16 @@ async function main() {
   const empty = await createEvent(false);
   const emptyStart = await write(
     owner,
-    receiverContract,
-    receiver,
+    vaultContract,
+    empty.vault,
     "requestStart",
-    [empty.vault],
   );
   await simulate("zero-attendance-start", emptyStart);
   const emptyEnd = await write(
     owner,
-    receiverContract,
-    receiver,
+    vaultContract,
+    empty.vault,
     "requestSettlement",
-    [empty.vault],
   );
   const emptySnapshot = await freeze(empty, []);
   await simulate("zero-attendance-settlement", emptyEnd);

@@ -107,7 +107,7 @@ queries derive wallets from a fresh verified `/v1/me` response, then query Envio
 Metadata failures are separate from missing metadata; service failures are not
 presented as empty lists. Go still authorizes every metadata and check-in write.
 
-Factory/vault/automation ABI subsets are generated from the shared compiled ABI
+Factory/vault ABI subsets are generated from the shared compiled ABI
 snapshots by `node packages/shared/tools/export-web-abi.mjs` (also called by `contracts:abi`).
 The client uses the shared deployment manifest and chain configuration. Wallet
 transactions require explicit user actions and Privy's confirmation UI. Reservation
@@ -122,12 +122,7 @@ locally for confirmation recovery. No keys or tokens are put in draft storage.
 
 ### Current deployment boundary
 
-On 28 September 2026, the deployed receiver's `workflowId` was read as zero.
-`createAutomatedEvent` cannot succeed until CRE registration/configuration is
-completed. The form reads this state and blocks publishing while leaving draft
-saving available. Do not bypass it with the non-automated factory function or
-invent a workflow ID. No real event transaction was executed while building these
-screens; live create/reserve/check-in/settle/claim acceptance remains pending.
+Creation checks factory readiness and invokes the single `createEvent` function with `settleAt`. Start/end requests target the event vault directly. Financial start and settlement require authorized CRE reports. Testnet currently uses signed CLI broadcast simulation; DON activation is pending. Fresh browser evidence must be checked against the current manifest rather than old immutable deployments.
 
 ## Participant and host lifecycle
 

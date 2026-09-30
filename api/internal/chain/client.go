@@ -27,11 +27,11 @@ var ErrUnavailable = errors.New("chain state unavailable")
 var ErrUnconfigured = errors.New("event automation is not configured")
 
 type Client struct {
-	url                                 string
-	http                                *http.Client
-	ChainID                             uint64
-	Factory, Automation                 common.Address
-	factoryABI, vaultABI, automationABI abi.ABI
+	url                  string
+	http                 *http.Client
+	ChainID              uint64
+	Factory              common.Address
+	factoryABI, vaultABI abi.ABI
 }
 
 type Block struct {
@@ -66,7 +66,7 @@ func New(endpoint string) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	c := &Client{url: endpoint, ChainID: deployment.ChainID, Factory: common.HexToAddress(deployment.Contracts["CommitPassFactory"].Address), Automation: common.HexToAddress(deployment.Contracts["CommitPassAutomation"].Address), http: &http.Client{Timeout: 8 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}}
+	c := &Client{url: endpoint, ChainID: deployment.ChainID, Factory: common.HexToAddress(deployment.Contracts["CommitPassFactory"].Address), http: &http.Client{Timeout: 8 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}}
 	if os.Getenv("COMMITPASS_LOCAL") == "1" {
 		if u.Hostname() != "127.0.0.1" && u.Hostname() != "localhost" {
 			return nil, fmt.Errorf("local mode requires loopback RPC")
@@ -76,7 +76,7 @@ func New(endpoint string) (*Client, error) {
 			return nil, fmt.Errorf("local mode requires Anvil")
 		}
 	}
-	for name, target := range map[string]*abi.ABI{"CommitPassFactory": &c.factoryABI, "CommitPassVault": &c.vaultABI, "CommitPassAutomation": &c.automationABI} {
+	for name, target := range map[string]*abi.ABI{"CommitPassFactory": &c.factoryABI, "CommitPassVault": &c.vaultABI} {
 		data, err := shared.ContractABI(name)
 		if err != nil {
 			return nil, err
@@ -229,13 +229,13 @@ func (c *Client) Event(ctx context.Context, vault common.Address, finalized bool
 	}
 	values, err := c.calls(ctx, block, []call{
 		{vault, &c.vaultABI, "eventId", nil}, {vault, &c.vaultABI, "owner", nil}, {vault, &c.vaultABI, "depositedToYield", nil},
-		{vault, &c.vaultABI, "eventSettled", nil}, {vault, &c.vaultABI, "getParticipantCount", nil}, {vault, &c.vaultABI, "automation", nil},
-		{c.Automation, &c.automationABI, "schedules", []any{vault}},
+		{vault, &c.vaultABI, "eventSettled", nil}, {vault, &c.vaultABI, "getParticipantCount", nil}, {vault, &c.vaultABI, "factory", nil},
+		{vault, &c.vaultABI, "getSchedule", nil},
 	})
 	if err != nil {
 		return Event{}, err
 	}
-	configured := values[5][0].(common.Address) == c.Automation && values[6][0].(*big.Int).Sign() != 0
+	configured := values[5][0].(common.Address) == c.Factory && values[6][0].(*big.Int).Sign() != 0
 	cutoff := values[6][2].(*big.Int)
 	if cutoff.Sign() == 0 {
 		cutoff = values[6][1].(*big.Int)

@@ -48,7 +48,6 @@ Copy `.env.example` on another machine and supply credentials. To override the s
 
 ```dotenv
 ENVIO_FACTORY_ADDRESS=<deployed CommitPassFactory>
-ENVIO_AUTOMATION_ADDRESS=<deployed CommitPassAutomation>
 ENVIO_START_BLOCK=<earliest deployment block>
 ```
 

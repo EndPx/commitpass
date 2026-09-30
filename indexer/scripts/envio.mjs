@@ -17,12 +17,10 @@ const deployment = JSON.parse(
 );
 process.env.ENVIO_FACTORY_ADDRESS ||=
   deployment.contracts.CommitPassFactory.address;
-process.env.ENVIO_AUTOMATION_ADDRESS ||=
-  deployment.contracts.CommitPassAutomation.address;
 process.env.ENVIO_START_BLOCK ||= String(deployment.startBlock);
 const args = process.argv.slice(2);
 if (args[0] === "start") {
-  for (const key of ["ENVIO_FACTORY_ADDRESS", "ENVIO_AUTOMATION_ADDRESS"]) {
+  for (const key of ["ENVIO_FACTORY_ADDRESS"]) {
     if (
       !/^0x[0-9a-fA-F]{40}$/.test(process.env[key] ?? "") ||
       /^0x0{40}$/.test(process.env[key])
@@ -45,9 +43,12 @@ if (args[0] === "start" || args.includes("db-migrate")) {
     process.env.ENVIO_RPC_URL === "http://127.0.0.1:8547";
   const hostedSchema =
     process.env.COMMITPASS_LOCAL !== "1" &&
-    ["envio_hosted", "envio_usdc", "envio_usdc_simulation"].includes(
-      process.env.ENVIO_PG_SCHEMA,
-    );
+    [
+      "envio_hosted",
+      "envio_usdc",
+      "envio_usdc_simulation",
+      "envio_usdc_vault",
+    ].includes(process.env.ENVIO_PG_SCHEMA);
   if (
     process.env.ENVIO_PG_DATABASE !== "commitpass_indexer" ||
     (process.env.ENVIO_PG_SCHEMA !== "envio" &&
@@ -60,7 +61,7 @@ if (args[0] === "start" || args.includes("db-migrate")) {
     );
   }
   if (
-    ["envio_usdc", "envio_usdc_simulation"].includes(
+    ["envio_usdc", "envio_usdc_simulation", "envio_usdc_vault"].includes(
       process.env.ENVIO_PG_SCHEMA,
     ) &&
     (process.env.ENVIO_FACTORY_ADDRESS?.toLowerCase() !==

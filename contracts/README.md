@@ -1,42 +1,43 @@
 # CommitPass contracts
 
-Based on [ATFI at 1c57d35](https://github.com/ATFi-Event/smart-contract/tree/1c57d35b80bb67afc04ee3d9a26292721695aed5), extended for configurable ERC-4626 yield and CRE execution. The initial naming-only port remains in commit `3710d47`.
+## Structure
 
-## Contracts
+- `CommitPassFactory` creates each vault with an immutable organizer, schedule, yield vault, treasury and CRE authorization. The only creation entry point is `createEvent(stakeAmount, registrationDeadline, eventDate, maxParticipant, settleAt)`.
+- `CommitPassVault` holds USDC commitments, receives CRE reports directly and allocates claims. Source groups configuration, events, construction, participant actions, organizer actions, internal execution and views.
+- `cre/ReceiverTemplate.sol` is an abstract receiver base compiled into each vault. It adapts Chainlink's consumer pattern with immutable permissions; it is not a separately deployed contract.
+- `interfaces/` contains external interfaces. `mocks/MockYieldVault.sol` contains local USDC fixtures and the testnet ERC-4626 yield mock.
 
-- `CommitPassFactory(yieldVault, treasury)` creates event vaults with fixed deployment configuration; `vaultByEventId` exposes their addresses.
-- `CommitPassVault` accepts the configured yield vault's 6-decimal USDC asset through `USDC_TOKEN`. Start deposits pooled assets; settlement redeems the entire share balance, takes 50% of forfeited no-show principal for the treasury and allocates the remainder plus all recovered yield to attendees. Zero attendance refunds every depositor.
-- `CommitPassAutomation(forwarder, factory)` accepts CRE reports. Its deployer configures a nonzero workflow ID once. The application calls `factory.createAutomatedEvent(..., receiver, settleAt)` to create the vault and attach its immutable schedule atomically. The internal setup uses `vault.setAutomation`, callable only by its owner or creating factory before deposits. Only the receiver can start/settle once configured.
-- `mocks/MockYieldVault.sol` supplies a local `MockUSDC` fixture and a testnet ERC-4626 vault. Public deployment uses Circle's existing Monad testnet USDC at `0x534b2f3A21130d7a60830c2Df862319e593943A3`; it does not deploy a mock commitment token. The yield vault remains a mock, with no Clearstar investment or organic yield.
+## Authorization and lifecycle
 
-## Authorization
+Only the original organizer can call `requestStart()`, `requestSettlement()` or cancel before start. Organizer ownership cannot be transferred or renounced. Requests emit a factory log that wakes CRE. The configured forwarder is the only caller of `onReport`.
 
-Manual requests and timestamps converge on one report path. Receiver checks the trusted forwarder, workflow ID in 64-byte metadata, chain ID, expiry, schedule, snapshot digest, sorted unique attendees and deposited membership. Duplicate start and identical settlement reports are no-ops; conflicting settlements revert. Deposits after start are rejected. Automation supports up to 500 participants per event.
+A deployed standard CRE workflow uses the production forwarder and its actual nonzero workflow ID in metadata. Testnet CLI broadcasts use the official MockForwarder and a vault/chain-bound EIP-712 signature from an immutable operator signer. The public MockForwarder alone grants no financial authority. Immutable authorization is established before any deposit.
 
-Attendance remains organizer-attested. A digest identifies the data used; it does not establish physical attendance.
+The consumer checks chain, target vault, report expiry, timing, cutoff, snapshot hash, sorted unique attendees and deposited membership. Repeated starts and identical settlements do not repeat financial actions. Scheduled execution and organizer requests use the same report path.
 
-## Build and configuration
+Attendance remains organizer-attested. Its snapshot digest identifies the data used; it does not prove physical presence.
+
+## Financial policy
+
+At normal settlement, treasury receives floor(no-show principal / 2). Attendees receive all remaining assets, including recovered yield. Zero attendance refunds all depositors without a platform fee. Cancellation before start opens exact principal claims. Raw-unit remainders are assigned in registration order. Share transfers do not transfer participant claims; the event vault is not itself ERC-4626.
+
+The commitment asset is Circle's Monad testnet USDC (`0x534b2f3A21130d7a60830c2Df862319e593943A3`, 6 decimals). The yield vault remains a mock. Redemption failure or recovered balance below committed principal reverts settlement; loss recovery and active-event cancellation are not implemented. Capacity is capped at 500.
+
+## Build, deploy and verify
 
 ```sh
 git submodule update --init --recursive
 cd contracts
 forge build
+forge test
 ```
 
-Solidity 0.8.28, Cancun, optimizer and `via_ir`. Dependencies remain pinned to forge-std `8bbcf6e3f8f62f419e5429a0bd89331c85c37824` and OpenZeppelin `c64a1edb67b6e3f4a15cca8909c9482ad33a02b0`.
+Compiler: Solidity 0.8.28, Cancun, optimizer 200, via IR. `.env.example` lists public deployment inputs and the verifier credential reference. Existing Foundry keystores are consumed by native CLI options without exporting private keys.
 
-`.env.example` lists deployment inputs. `script/DeployTestnet.s.sol` prepares mock assets, factory and receiver, rejecting chains other than Monad testnet. Compiling sends no transactions. Individual factory/vault scripts use `YIELD_VAULT`, `TREASURY`, and for standalone vaults `ORGANIZER`. A standalone vault cannot use the factory-validated automation registry.
+- `script/DeployCommitPassFactory.s.sol` deploys the factory on Monad testnet.
+- `script/DeployCommitPassVault.s.sol` creates a vault through that factory, ensuring registration and authorization are atomic.
+- `script/verify-vault.sh` reads a created vault's public immutable/configuration fields and verifies its exact 12-argument constructor. Verifying one address does not guarantee automatic exact verification of later addresses.
+- `test/DeploymentScripts.t.sol` executes both Solidity deployment scripts and checks their results.
+- `test/SettlementPolicy.t.sol` exercises the real vault's financial and authorization rules; `test/SimulationReport.t.sol` checks signed broadcast authorization and domain isolation. The inherited `CommitPassVault.t.sol` tests an older independent mock and is not evidence for the new receiver path.
 
-`DeployTestnet` uses `DEPLOYER_ADDRESS` with Foundry's encrypted keystore options (`--account`, `--password-file`, and the matching `--sender`). It does not read or export a raw private key. Supply the chosen treasury and verified deployed-workflow forwarder explicitly.
-
-See [CRE setup and snapshot API specification](../cre/README.md).
-
-## Limits
-
-- The verified Monad testnet deployment in [DEPLOYMENT.md](DEPLOYMENT.md) uses the earlier immutable contract version. Cancellation, zero-attendee refunds and 50% no-show revenue in this source apply only to a new deployment or a fresh local Anvil run.
-- Redemption failure or recovery below committed principal reverts settlement. This preserves nominal refund accounting but does not solve permanent loss or unavailable liquidity.
-- Owner cancellation is allowed strictly before eventDate, before any Start request, and before yield deposit or finalization. It enables full principal refunds through individual claims. Active-event cancellation and principal-loss recovery are not implemented.
-- Treasury receives floor(noShowPrincipal / 2). Claim remainders are assigned one raw token unit at a time in registration order, so all allocated assets are conserved independently of claim order. ERC-20 share transfers do not transfer participant claims; this event contract is not itself ERC-4626.
-- The inherited vault suite exercises a separate mock with simulated yield. `SettlementPolicy.t.sol` exercises the real vault and receiver integration for cancellation, zero attendance, no-show revenue and exact allocations. These results do not establish live Morpho compatibility.
-
-The exact payout rules and accounting caveats are in [SETTLEMENT.md](SETTLEMENT.md).
+See [CRE configuration](../cre/README.md), [deployment records](DEPLOYMENT.md) and [settlement policy](SETTLEMENT.md).

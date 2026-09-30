@@ -4,10 +4,7 @@ import type { Address } from "viem";
 type LocalDeployment = {
   runId: string;
   chainId: number;
-  contracts: Record<
-    "CommitPassFactory" | "CommitPassAutomation" | "USDC",
-    { address: Address }
-  >;
+  contracts: Record<"CommitPassFactory" | "USDC", { address: Address }>;
 };
 const raw = process.env.NEXT_PUBLIC_COMMITPASS_LOCAL_DEPLOYMENT;
 const local: LocalDeployment | null = raw ? JSON.parse(raw) : null;
@@ -15,7 +12,7 @@ if (
   local &&
   (local.chainId !== 10143 ||
     !/^[a-z0-9]{12,32}$/.test(local.runId) ||
-    ["CommitPassFactory", "CommitPassAutomation", "USDC"].some(
+    ["CommitPassFactory", "USDC"].some(
       (name) =>
         !/^0x[0-9a-fA-F]{40}$/.test(
           local.contracts[name as keyof LocalDeployment["contracts"]]

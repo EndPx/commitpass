@@ -1,18 +1,8 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import {
-  eventVaultAbi,
-  eventAutomationAbi,
-  factoryAbi,
-} from "@commitpass/shared";
-import {
-  chainClient,
-  factoryAddress,
-  automationAddress,
-  assetAddress,
-} from "@/lib/chain";
+import { eventVaultAbi, factoryAbi } from "@commitpass/shared";
+import { chainClient, factoryAddress, assetAddress } from "@/lib/chain";
 import type { Address } from "viem";
-import { isLocal } from "@/lib/runtime-network";
 
 export async function readEventState(vault: Address) {
   const block = await chainClient.getBlock();
@@ -25,7 +15,7 @@ export async function readEventState(vault: Address) {
     known,
     owner,
     asset,
-    automation,
+    creatingFactory,
     started,
     settled,
     closed,
@@ -49,7 +39,7 @@ export async function readEventState(vault: Address) {
     }),
     chainClient.readContract({ ...at, functionName: "owner" }),
     chainClient.readContract({ ...at, functionName: "USDC_TOKEN" }),
-    chainClient.readContract({ ...at, functionName: "automation" }),
+    chainClient.readContract({ ...at, functionName: "factory" }),
     chainClient.readContract({ ...at, functionName: "depositedToYield" }),
     chainClient.readContract({ ...at, functionName: "eventSettled" }),
     chainClient.readContract({ ...at, functionName: "registrationClosed" }),
@@ -58,30 +48,16 @@ export async function readEventState(vault: Address) {
     chainClient.readContract({ ...at, functionName: "stakeAmount" }),
     chainClient.readContract({ ...at, functionName: "registrationDeadline" }),
     chainClient.readContract({ ...at, functionName: "eventDate" }),
-    chainClient.readContract({
-      address: automationAddress,
-      abi: eventAutomationAbi,
-      functionName: "schedules",
-      args: [vault],
-      blockNumber: block.number,
-    }),
-    isLocal
-      ? chainClient.readContract({ ...at, functionName: "settlementOutcome" })
-      : Promise.resolve(0),
-    isLocal
-      ? chainClient.readContract({ ...at, functionName: "protocolRevenue" })
-      : Promise.resolve(0n),
-    isLocal
-      ? chainClient.readContract({ ...at, functionName: "totalAllocated" })
-      : Promise.resolve(0n),
-    isLocal
-      ? chainClient.readContract({ ...at, functionName: "totalClaimed" })
-      : Promise.resolve(0n),
+    chainClient.readContract({ ...at, functionName: "getSchedule" }),
+    chainClient.readContract({ ...at, functionName: "settlementOutcome" }),
+    chainClient.readContract({ ...at, functionName: "protocolRevenue" }),
+    chainClient.readContract({ ...at, functionName: "totalAllocated" }),
+    chainClient.readContract({ ...at, functionName: "totalClaimed" }),
   ]);
   if (
     !known ||
     asset.toLowerCase() !== assetAddress.toLowerCase() ||
-    automation.toLowerCase() !== automationAddress.toLowerCase() ||
+    creatingFactory.toLowerCase() !== factoryAddress.toLowerCase() ||
     schedule[0] === 0n
   )
     throw new Error("This event is not configured for CommitPass automation.");

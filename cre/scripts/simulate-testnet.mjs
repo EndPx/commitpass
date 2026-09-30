@@ -19,42 +19,44 @@ const deployment = JSON.parse(
 
 if (!existsSync(wasm)) throw new Error("Compile the CRE workflow first");
 if (
-  !isAddress(config.receiver) ||
-  config.receiver.toLowerCase() !==
-    deployment.contracts.CommitPassAutomation.address.toLowerCase()
+  !isAddress(config.factory) ||
+  config.factory.toLowerCase() !==
+    deployment.contracts.CommitPassFactory.address.toLowerCase()
 )
-  throw new Error("Simulation receiver must match the Monad testnet manifest");
+  throw new Error("Simulation factory must match the Monad testnet manifest");
 
 const rpc = createPublicClient({
   transport: http("https://testnet-rpc.monad.xyz"),
 });
 if ((await rpc.getChainId()) !== 10143)
   throw new Error("RPC is not Monad testnet");
-const code = await rpc.getBytecode({ address: config.receiver });
+const code = await rpc.getBytecode({ address: config.factory });
 if (!code || code === "0x")
-  throw new Error("Receiver has no code on Monad testnet");
+  throw new Error("Factory has no code on Monad testnet");
 
-const vaultCount = await rpc.readContract({
-  address: config.receiver,
-  abi: [
-    {
-      type: "function",
-      name: "vaultCount",
-      stateMutability: "view",
-      inputs: [],
-      outputs: [{ type: "uint256" }],
-    },
-  ],
-  functionName: "vaultCount",
-});
+const vaultCount =
+  (await rpc.readContract({
+    address: config.factory,
+    abi: [
+      {
+        type: "function",
+        name: "eventIdCounter",
+        stateMutability: "view",
+        inputs: [],
+        outputs: [{ type: "uint256" }],
+      },
+    ],
+    functionName: "eventIdCounter",
+  })) - 1n;
 if (!broadcast && vaultCount !== 0n)
   throw new Error(
-    "Public receiver has events. Use an explicit manual simulation after reviewing possible attendance snapshot writes.",
+    "Public factory has events. Use an explicit manual simulation after reviewing possible attendance snapshot writes.",
   );
 
 if (broadcast) {
   if (
-    deployment.execution?.mode !== "cre-cli-simulation-broadcast" ||
+    deployment.contractModel !== "direct-vault-receiver-v1" ||
+    deployment.execution?.mode !== "cre-cli-vault-simulation-broadcast" ||
     !config.simulationSigningSecretId
   )
     throw new Error(
@@ -62,9 +64,9 @@ if (broadcast) {
     );
   if (
     keccak256(code).toLowerCase() !==
-    deployment.contracts.CommitPassAutomation.runtimeCodeHash.toLowerCase()
+    deployment.contracts.CommitPassFactory.runtimeCodeHash.toLowerCase()
   )
-    throw new Error("Receiver bytecode differs from the deployment manifest");
+    throw new Error("Factory bytecode differs from the deployment manifest");
   const { privateKeyToAccount } = await import("viem/accounts");
   const key = process.env.CRE_ETH_PRIVATE_KEY;
   if (
@@ -78,14 +80,14 @@ if (broadcast) {
   const sender = privateKeyToAccount(key).address;
   const [signer, forwarder] = await Promise.all([
     rpc.readContract({
-      address: config.receiver,
+      address: config.factory,
       abi: parseAbi([
         "function simulationReportSigner() view returns (address)",
       ]),
       functionName: "simulationReportSigner",
     }),
     rpc.readContract({
-      address: config.receiver,
+      address: config.factory,
       abi: parseAbi(["function forwarder() view returns (address)"]),
       functionName: "forwarder",
     }),

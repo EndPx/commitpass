@@ -8,12 +8,17 @@ contract DeployCommitPassFactory is Script {
     CommitPassFactory public commitPassFactory;
 
     function run() external returns (address) {
-        uint256 privateKey = vm.envUint("PRIVATE_KEY");
-
+        require(block.chainid == 10143, "Monad testnet only");
         console.log("Deploying CommitPassFactory...");
 
-        vm.startBroadcast(privateKey);
-        commitPassFactory = new CommitPassFactory(vm.envAddress("YIELD_VAULT"), vm.envAddress("TREASURY"));
+        vm.startBroadcast(vm.envAddress("DEPLOYER_ADDRESS"));
+        commitPassFactory = new CommitPassFactory(
+            vm.envAddress("YIELD_VAULT"),
+            vm.envAddress("TREASURY"),
+            vm.envAddress("CRE_FORWARDER"),
+            vm.envOr("CRE_WORKFLOW_ID", bytes32(0)),
+            vm.envOr("SIMULATION_REPORT_SIGNER", address(0))
+        );
         vm.stopBroadcast();
 
         console.log("CommitPassFactory deployed at:", address(commitPassFactory));

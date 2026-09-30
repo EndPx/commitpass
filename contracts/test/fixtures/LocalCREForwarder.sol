@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import {IReportReceiver} from "../../src/CommitPassAutomation.sol";
+import {IReportReceiver} from "../../src/interfaces/IReportReceiver.sol";
 
 /// @notice Anvil-only fixture for CRE CLI simulation, NOT a DON signature verifier.
 /// Its report/getTransmissionInfo ABI follows Chainlink's MockKeystoneForwarder.
@@ -20,15 +20,23 @@ contract LocalCREForwarder {
     }
 
     mapping(bytes32 => TransmissionInfo) private transmissions;
-    event ReportProcessed(address indexed receiver, bytes32 indexed workflowExecutionId, bytes2 indexed reportId, bool result);
+    event ReportProcessed(
+        address indexed receiver, bytes32 indexed workflowExecutionId, bytes2 indexed reportId, bool result
+    );
 
-    constructor(address localRelayer) { relayer = localRelayer; }
+    constructor(address localRelayer) {
+        relayer = localRelayer;
+    }
 
     function getTransmissionId(address receiver, bytes32 executionId, bytes2 reportId) public pure returns (bytes32) {
         return keccak256(bytes.concat(bytes20(receiver), executionId, reportId));
     }
 
-    function getTransmissionInfo(address receiver, bytes32 executionId, bytes2 reportId) external view returns (TransmissionInfo memory) {
+    function getTransmissionInfo(address receiver, bytes32 executionId, bytes2 reportId)
+        external
+        view
+        returns (TransmissionInfo memory)
+    {
         return transmissions[getTransmissionId(receiver, executionId, reportId)];
     }
 

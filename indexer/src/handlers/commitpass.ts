@@ -154,20 +154,6 @@ indexer.onEvent(
 );
 
 indexer.onEvent(
-  { contract: "CommitPassVault", event: "AutomationConfigured", fields },
-  async ({ event, context }) => {
-    const current = await loadEvent(context, event.chainId, event.srcAddress);
-    if (!current) return;
-    context.CommitmentEvent.set({
-      ...current,
-      automation: event.params.automation,
-      ...updated(event),
-    });
-    activity(context, event, current.id, "AUTOMATION_CONFIGURED");
-  },
-);
-
-indexer.onEvent(
   { contract: "CommitPassVault", event: "DepositToYieldSource", fields },
   async ({ event, context }) => {
     const current = await loadEvent(context, event.chainId, event.srcAddress);
@@ -384,7 +370,7 @@ indexer.onEvent(
 );
 
 indexer.onEvent(
-  { contract: "CommitPassAutomation", event: "EventRegistered", fields },
+  { contract: "CommitPassFactory", event: "EventRegistered", fields },
   async ({ event, context }) => {
     const current = await loadEvent(context, event.chainId, event.params.vault);
     if (!current) return;
@@ -392,7 +378,7 @@ indexer.onEvent(
       ...current,
       startAt: event.params.startAt,
       settleAt: event.params.settleAt,
-      automation: event.srcAddress,
+      automation: event.params.vault,
       ...updated(event),
     });
     activity(context, event, current.id, "SCHEDULE_REGISTERED");
@@ -400,7 +386,7 @@ indexer.onEvent(
 );
 
 indexer.onEvent(
-  { contract: "CommitPassAutomation", event: "LifecycleRequested", fields },
+  { contract: "CommitPassFactory", event: "LifecycleRequested", fields },
   async ({ event, context }) => {
     const current = await loadEvent(context, event.chainId, event.params.vault);
     if (!current) return;
@@ -423,7 +409,7 @@ indexer.onEvent(
 );
 
 indexer.onEvent(
-  { contract: "CommitPassAutomation", event: "LifecycleExecuted", fields },
+  { contract: "CommitPassVault", event: "LifecycleExecuted", fields },
   async ({ event, context }) => {
     const current = await loadEvent(context, event.chainId, event.params.vault);
     if (!current) return;

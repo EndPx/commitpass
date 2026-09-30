@@ -15,7 +15,6 @@ import {
   type Hash,
 } from "viem";
 import {
-  eventAutomationAbi,
   factoryAbi,
   MONAD_TESTNET,
   type EventMetadata,
@@ -37,12 +36,7 @@ import {
   Palette,
   Shuffle,
 } from "lucide-react";
-import {
-  chainClient,
-  factoryAddress,
-  automationAddress,
-  explorer,
-} from "@/lib/chain";
+import { chainClient, factoryAddress, explorer } from "@/lib/chain";
 import { jsonRequest } from "@/lib/events";
 import { useAccount } from "./account-context";
 import { EventCover } from "./event-cover";
@@ -132,8 +126,8 @@ export function CreateEvent() {
     setChecking(true);
     void chainClient
       .readContract({
-        address: automationAddress,
-        abi: eventAutomationAbi,
+        address: factoryAddress,
+        abi: factoryAbi,
         functionName: "isConfigured",
       })
       .then((id) => {
@@ -281,8 +275,8 @@ export function CreateEvent() {
           throw new Error("Use a public HTTPS image URL without credentials.");
       }
       const workflow = await chainClient.readContract({
-        address: automationAddress,
-        abi: eventAutomationAbi,
+        address: factoryAddress,
+        abi: factoryAbi,
         functionName: "isConfigured",
       });
       if (!workflow)
@@ -296,13 +290,12 @@ export function CreateEvent() {
         BigInt(deadline),
         BigInt(start),
         BigInt(capacity),
-        automationAddress,
         BigInt(end),
       ] as const;
       await chainClient.simulateContract({
         address: factoryAddress,
         abi: factoryAbi,
-        functionName: "createAutomatedEvent",
+        functionName: "createEvent",
         args,
         account: wallet.address as Address,
       });
@@ -313,7 +306,7 @@ export function CreateEvent() {
           chainId: MONAD_TESTNET.chainId,
           data: encodeFunctionData({
             abi: factoryAbi,
-            functionName: "createAutomatedEvent",
+            functionName: "createEvent",
             args,
           }),
         },

@@ -34,7 +34,8 @@ import {
 } from "viem";
 import { z } from "zod";
 import {
-  automationAbi,
+  factoryAbi,
+  eventVaultAbi,
   MONAD_TESTNET,
   reportParameters,
   snapshotParameters,
@@ -52,10 +53,8 @@ const uint = z
 const hash = z.string().regex(/^0x[0-9a-fA-F]{64}$/);
 const configSchema = z
   .object({
-    receiver: address.refine(
-      (value) => value !== zeroAddress,
-      "Deploy the receiver and configure its address",
-    ),
+    mode: z.enum(["onchain", "local-simulation"]).default("onchain"),
+    factory: address.optional(),
     attendanceApi: z
       .string()
       // Javy has no global URL constructor; z.string().url() rejects every URL there.
@@ -67,7 +66,13 @@ const configSchema = z
     gasLimit: z.string().regex(/^[1-9][0-9]*$/),
     simulationSigningSecretId: z.string().min(1).optional(),
   })
-  .strict();
+  .strict()
+  .refine(
+    (config) =>
+      config.mode === "local-simulation" ||
+      (config.factory && config.factory !== zeroAddress),
+    "Configure the event factory",
+  );
 type Config = z.infer<typeof configSchema>;
 
 const snapshotSchema = z
@@ -94,12 +99,17 @@ function client() {
   return new EVMClient(network.chainSelector.selector);
 }
 
-function read(runtime: Runtime<Config>, evm: EVMClient, data: Hex): Hex {
+function read(
+  runtime: Runtime<Config>,
+  evm: EVMClient,
+  target: Address,
+  data: Hex,
+): Hex {
   const reply = evm
     .callContract(runtime, {
       call: encodeCallMsg({
         from: zeroAddress,
-        to: runtime.config.receiver,
+        to: target,
         data,
       }),
       blockNumber: LAST_FINALIZED_BLOCK_NUMBER,
@@ -186,16 +196,31 @@ function processEvent(
   evm: EVMClient,
   vault: Address,
 ) {
+  const known = decodeFunctionResult({
+    abi: factoryAbi,
+    functionName: "isVault",
+    data: read(
+      runtime,
+      evm,
+      runtime.config.factory!,
+      encodeFunctionData({
+        abi: factoryAbi,
+        functionName: "isVault",
+        args: [vault],
+      }),
+    ),
+  });
+  if (!known) throw new Error("Unknown event vault");
   const [eventId, action, cutoff] = decodeFunctionResult({
-    abi: automationAbi,
+    abi: eventVaultAbi,
     functionName: "getState",
     data: read(
       runtime,
       evm,
+      vault,
       encodeFunctionData({
-        abi: automationAbi,
+        abi: eventVaultAbi,
         functionName: "getState",
-        args: [vault],
       }),
     ),
   });
@@ -217,13 +242,15 @@ function processEvent(
   ]);
   const report = runtime
     .report({
-      encodedPayload: hexToBase64(signSimulationPayload(runtime, payload)),
+      encodedPayload: hexToBase64(
+        signSimulationPayload(runtime, vault, payload),
+      ),
       ...EVM_DEFAULT_REPORT_ENCODER,
     })
     .result();
   const result = evm
     .writeReport(runtime, {
-      receiver: runtime.config.receiver,
+      receiver: vault,
       report,
       gasConfig: { gasLimit: runtime.config.gasLimit },
     })
@@ -231,7 +258,8 @@ function processEvent(
   if (
     result.txStatus !== TxStatus.SUCCESS ||
     result.receiverContractExecutionStatus !==
-      EVM_PB.ReceiverContractExecutionStatus.SUCCESS
+      EVM_PB.ReceiverContractExecutionStatus.SUCCESS ||
+    !result.txHash?.length
   ) {
     throw new Error(
       `Lifecycle write failed for ${vault}: tx=${result.txStatus}, receiver=${result.receiverContractExecutionStatus}`,
@@ -241,7 +269,11 @@ function processEvent(
   return "confirmed";
 }
 
-function signSimulationPayload(runtime: Runtime<Config>, payload: Hex): Hex {
+function signSimulationPayload(
+  runtime: Runtime<Config>,
+  vault: Address,
+  payload: Hex,
+): Hex {
   if (!runtime.config.simulationSigningSecretId) return payload;
   const key = runtime
     .getSecret({ id: runtime.config.simulationSigningSecretId })
@@ -253,7 +285,7 @@ function signSimulationPayload(runtime: Runtime<Config>, payload: Hex): Hex {
       name: "CommitPass CRE simulation",
       version: "1",
       chainId: MONAD_TESTNET.chainId,
-      verifyingContract: runtime.config.receiver,
+      verifyingContract: vault,
     },
     types: { SimulationReport: [{ name: "payload", type: "bytes" }] },
     primaryType: "SimulationReport",
@@ -276,16 +308,44 @@ function signSimulationPayload(runtime: Runtime<Config>, payload: Hex): Hex {
 }
 
 function onCron(runtime: Runtime<Config>) {
+  if (runtime.config.mode === "local-simulation") {
+    const status = new HTTPClient()
+      .sendRequest(
+        runtime,
+        (requester: HTTPSendRequester) => {
+          const response = requester
+            .sendRequest({
+              url: `${runtime.config.attendanceApi.replace(/\/$/, "")}/health`,
+              method: "GET",
+            })
+            .result();
+          if (response.statusCode !== 200 || response.body.length > 64_000)
+            throw new Error("Attendance API unavailable");
+          const body = JSON.parse(new TextDecoder().decode(response.body));
+          if (body.status !== "ok")
+            throw new Error("Attendance API not healthy");
+          return "ok";
+        },
+        consensusIdenticalAggregation<string>(),
+      )()
+      .result();
+    return JSON.stringify({
+      mode: "local-simulation",
+      attendanceApi: status,
+      wouldWrite: false,
+    });
+  }
   const evm = client();
   const slot = BigInt(Math.floor(runtime.now().getTime() / 60_000));
   const vaults = decodeFunctionResult({
-    abi: automationAbi,
+    abi: factoryAbi,
     functionName: "getBatch",
     data: read(
       runtime,
       evm,
+      runtime.config.factory!,
       encodeFunctionData({
-        abi: automationAbi,
+        abi: factoryAbi,
         functionName: "getBatch",
         args: [slot],
       }),
@@ -309,10 +369,13 @@ function onCron(runtime: Runtime<Config>) {
 }
 
 function onRequest(runtime: Runtime<Config>, log: EVMLog) {
-  if (getAddress(bytesToHex(log.address)) !== runtime.config.receiver)
+  if (
+    runtime.config.mode !== "onchain" ||
+    getAddress(bytesToHex(log.address)) !== runtime.config.factory
+  )
     throw new Error("Unexpected log source");
   const event = decodeEventLog({
-    abi: automationAbi,
+    abi: factoryAbi,
     eventName: "LifecycleRequested",
     data: bytesToHex(log.data),
     topics: log.topics.map((topic) => bytesToHex(topic)) as [Hex, ...Hex[]],
@@ -322,11 +385,18 @@ function onRequest(runtime: Runtime<Config>, log: EVMLog) {
 }
 
 function initWorkflow(config: Config) {
+  if (config.mode === "local-simulation")
+    return [
+      handler(
+        new CronCapability().trigger({ schedule: "0 * * * * *" }),
+        onCron,
+      ),
+    ];
   return [
     handler(new CronCapability().trigger({ schedule: "0 * * * * *" }), onCron),
     handler(
       client().logTrigger({
-        addresses: [hexToBase64(config.receiver)],
+        addresses: [hexToBase64(config.factory!)],
         topics: [
           {
             values: [

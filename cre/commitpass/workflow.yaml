@@ -13,14 +13,14 @@ local-settings:
   workflow-artifacts:
     workflow-path: ./main.ts
     config-path: ../.local/config.json
-    secrets-path: ../secrets.example.yaml
+    secrets-path: ../local/secrets.example.yaml
 interactive-settings:
   user-workflow:
     workflow-name: commitpass-interactive
   workflow-artifacts:
     workflow-path: ./main.ts
     config-path: ../.interactive/config.json
-    secrets-path: ../secrets.example.yaml
+    secrets-path: ../local/secrets.example.yaml
 
 staging-settings:
   user-workflow:
@@ -30,3 +30,12 @@ staging-settings:
     workflow-path: ./main.ts
     config-path: ./config.testnet.json
     secrets-path: ../secrets.yaml
+
+local-simulation:
+  user-workflow:
+    workflow-name: commitpass-receiver-free
+    deployment-registry: private
+  workflow-artifacts:
+    workflow-path: ./main.ts
+    config-path: ./config.local-simulation.json
+    secrets-path: ./secrets.local-simulation.yaml

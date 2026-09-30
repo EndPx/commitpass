@@ -32,10 +32,11 @@ contract CommitPassFactoryTest is Test {
         vm.chainId(31337);
         MockUSDC asset = new MockUSDC();
         MockYieldVault yieldVault = new MockYieldVault(asset);
-        factory = new CommitPassFactory(address(yieldVault), address(this));
+        factory =
+            new CommitPassFactory(address(yieldVault), address(this), address(this), bytes32(uint256(1)), address(0));
     }
 
-    function testFactoryDeployment() public {
+    function testFactoryDeployment() public view {
         // Test that factory is deployed correctly
         assertTrue(address(factory) != address(0), "Factory should be deployed");
         assertEq(factory.eventIdCounter(), 1, "Initial eventId counter should be 1");
@@ -47,22 +48,17 @@ contract CommitPassFactoryTest is Test {
 
         // Test creating event with valid parameters
         vm.startPrank(address(this));
-        uint256 eventId = factory.createEvent(
-            TEST_STAKE_AMOUNT,
-            deadline,
-            eventDate,
-            MAX_PARTICIPANTS
-        );
+        uint256 eventId =
+            factory.createEvent(TEST_STAKE_AMOUNT, deadline, eventDate, MAX_PARTICIPANTS, (eventDate) + 1 days);
         vm.stopPrank();
 
         // Verify event creation
         assertEq(eventId, 1, "Event ID should be 1");
         assertEq(factory.eventIdCounter(), 2, "Event ID counter should increment to 2");
 
-        // Verify vault was registered in factory
-        address[] memory createdVaults = new address[](1);
-        // We need to check if vault was registered - but we don't have a getter for the vault list
-        // So we'll use the isValidVault function with the address from the event
+        address createdVault = factory.vaultByEventId(eventId);
+        assertTrue(factory.isValidVault(createdVault));
+        assertEq(CommitPassVault(createdVault).organizer(), address(this));
     }
 
     function testCreateEventInvalidDeadline() public {
@@ -72,12 +68,7 @@ contract CommitPassFactoryTest is Test {
 
         vm.startPrank(address(this));
         vm.expectRevert("Invalid deadline");
-        factory.createEvent(
-            TEST_STAKE_AMOUNT,
-            invalidDeadline,
-            eventDate,
-            MAX_PARTICIPANTS
-        );
+        factory.createEvent(TEST_STAKE_AMOUNT, invalidDeadline, eventDate, MAX_PARTICIPANTS, (eventDate) + 1 days);
         vm.stopPrank();
     }
 
@@ -88,12 +79,7 @@ contract CommitPassFactoryTest is Test {
 
         vm.startPrank(address(this));
         vm.expectRevert("Deadline in past");
-        factory.createEvent(
-            TEST_STAKE_AMOUNT,
-            pastDeadline,
-            eventDate,
-            MAX_PARTICIPANTS
-        );
+        factory.createEvent(TEST_STAKE_AMOUNT, pastDeadline, eventDate, MAX_PARTICIPANTS, (eventDate) + 1 days);
         vm.stopPrank();
     }
 
@@ -103,12 +89,7 @@ contract CommitPassFactoryTest is Test {
 
         vm.startPrank(address(this));
         vm.expectRevert("Invalid stake amount");
-        factory.createEvent(
-            0,
-            deadline,
-            eventDate,
-            MAX_PARTICIPANTS
-        );
+        factory.createEvent(0, deadline, eventDate, MAX_PARTICIPANTS, (eventDate) + 1 days);
         vm.stopPrank();
     }
 
@@ -118,12 +99,7 @@ contract CommitPassFactoryTest is Test {
 
         vm.startPrank(address(this));
         vm.expectRevert("Invalid max participants");
-        factory.createEvent(
-            TEST_STAKE_AMOUNT,
-            deadline,
-            eventDate,
-            0
-        );
+        factory.createEvent(TEST_STAKE_AMOUNT, deadline, eventDate, 0, (eventDate) + 1 days);
         vm.stopPrank();
     }
 
@@ -138,12 +114,8 @@ contract CommitPassFactoryTest is Test {
         // with the correct parameters except for the vault address
         vm.expectEmit(true, false, true, true);
         emit VaultCreated(1, address(0), address(this), TEST_STAKE_AMOUNT, MAX_PARTICIPANTS, deadline, eventDate);
-        uint256 eventId = factory.createEvent(
-            TEST_STAKE_AMOUNT,
-            deadline,
-            eventDate,
-            MAX_PARTICIPANTS
-        );
+        uint256 eventId =
+            factory.createEvent(TEST_STAKE_AMOUNT, deadline, eventDate, MAX_PARTICIPANTS, (eventDate) + 1 days);
         vm.stopPrank();
 
         // Verify event ID
@@ -159,19 +131,16 @@ contract CommitPassFactoryTest is Test {
         vm.startPrank(address(this));
 
         // Create first event
-        uint256 eventId1 = factory.createEvent(
-            TEST_STAKE_AMOUNT,
-            deadline1,
-            eventDate1,
-            MAX_PARTICIPANTS
-        );
+        uint256 eventId1 =
+            factory.createEvent(TEST_STAKE_AMOUNT, deadline1, eventDate1, MAX_PARTICIPANTS, (eventDate1) + 1 days);
 
         // Create second event
         uint256 eventId2 = factory.createEvent(
             TEST_STAKE_AMOUNT * 2, // Different stake amount
             deadline2,
             eventDate2,
-            MAX_PARTICIPANTS + 10 // Different max participants
+            MAX_PARTICIPANTS + 10, // Different max participants
+            (eventDate2) + 1 days
         );
 
         vm.stopPrank();
@@ -187,20 +156,14 @@ contract CommitPassFactoryTest is Test {
         uint256 eventDate = block.timestamp + EVENT_DATE;
 
         vm.startPrank(address(this));
-        uint256 eventId = factory.createEvent(
-            TEST_STAKE_AMOUNT,
-            deadline,
-            eventDate,
-            MAX_PARTICIPANTS
-        );
+        uint256 eventId =
+            factory.createEvent(TEST_STAKE_AMOUNT, deadline, eventDate, MAX_PARTICIPANTS, (eventDate) + 1 days);
         vm.stopPrank();
 
-        // We need to get the vault address from the event or from the created CommitPassVault
-        // Since we can't easily get it here, we'll skip this test for now
-        // In a real test, you'd emit the vault address or use a mapping to track it
+        assertTrue(factory.isValidVault(factory.vaultByEventId(eventId)));
     }
 
-    function testIsValidVaultWithInvalidAddress() public {
+    function testIsValidVaultWithInvalidAddress() public view {
         // Test with a random address
         address randomAddress = address(0x123456789);
 
@@ -211,20 +174,15 @@ contract CommitPassFactoryTest is Test {
 
     function testCreateEventWithExtremeValues() public {
         // Test with maximum reasonable values
-        uint256 maxStakeAmount = type(uint256).max;
         uint256 maxDeadline = block.timestamp + 365 days; // 1 year
         uint256 maxEventDate = block.timestamp + 365 days + 1; // 1 year + 1 day
-        uint256 maxParticipants = type(uint256).max;
 
         vm.startPrank(address(this));
 
         // Test max stake amount (but need to ensure it doesn't overflow)
         uint256 reasonableMaxStake = 1_000_000 * 1e6; // 1M USDC
         uint256 eventId = factory.createEvent(
-            reasonableMaxStake,
-            maxDeadline,
-            maxEventDate,
-            MAX_PARTICIPANTS
+            reasonableMaxStake, maxDeadline, maxEventDate, MAX_PARTICIPANTS, (maxEventDate) + 1 days
         );
 
         vm.stopPrank();
@@ -241,21 +199,14 @@ contract CommitPassFactoryTest is Test {
 
         // First organizer creates event
         vm.startPrank(organizer1);
-        uint256 eventId1 = factory.createEvent(
-            TEST_STAKE_AMOUNT,
-            deadline,
-            eventDate,
-            MAX_PARTICIPANTS
-        );
+        uint256 eventId1 =
+            factory.createEvent(TEST_STAKE_AMOUNT, deadline, eventDate, MAX_PARTICIPANTS, (eventDate) + 1 days);
         vm.stopPrank();
 
         // Second organizer creates event
         vm.startPrank(organizer2);
         uint256 eventId2 = factory.createEvent(
-            TEST_STAKE_AMOUNT * 2,
-            deadline,
-            eventDate,
-            MAX_PARTICIPANTS + 10
+            TEST_STAKE_AMOUNT * 2, deadline, eventDate, MAX_PARTICIPANTS + 10, (eventDate) + 1 days
         );
         vm.stopPrank();
 
@@ -265,12 +216,9 @@ contract CommitPassFactoryTest is Test {
     }
 
     // Fuzzing test for createEvent function
-    function testFuzzCreateEvent(
-        uint256 stakeAmount,
-        uint256 deadline,
-        uint256 eventDate,
-        uint256 maxParticipant
-    ) public {
+    function testFuzzCreateEvent(uint256 stakeAmount, uint256 deadline, uint256 eventDate, uint256 maxParticipant)
+        public
+    {
         // Skip invalid values
         vm.assume(stakeAmount > 0);
         vm.assume(deadline < eventDate);
@@ -279,15 +227,10 @@ contract CommitPassFactoryTest is Test {
         vm.assume(stakeAmount <= 1_000_000 * 1e6); // Reasonable max limit
         vm.assume(deadline <= block.timestamp + 365 days);
         vm.assume(eventDate <= block.timestamp + 365 days + 1);
-        vm.assume(maxParticipant <= 1_000_000);
+        vm.assume(maxParticipant <= 500);
 
         vm.startPrank(address(this));
-        uint256 eventId = factory.createEvent(
-            stakeAmount,
-            deadline,
-            eventDate,
-            maxParticipant
-        );
+        uint256 eventId = factory.createEvent(stakeAmount, deadline, eventDate, maxParticipant, (eventDate) + 1 days);
         vm.stopPrank();
 
         assertTrue(eventId > 0, "Event should be created successfully");

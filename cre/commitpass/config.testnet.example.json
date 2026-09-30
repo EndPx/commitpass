@@ -1,5 +1,6 @@
 {
-  "receiver": "0x0000000000000000000000000000000000000000",
+  "mode": "onchain",
+  "factory": "0x0000000000000000000000000000000000000000",
   "attendanceApi": "https://attendance.example.invalid",
   "attendanceSecretId": "ATTENDANCE_API_TOKEN",
   "gasLimit": "5000000"

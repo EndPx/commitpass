@@ -1,74 +1,60 @@
 # CommitPass CRE lifecycle
 
-Target: **Monad testnet (10143)**. SDK 1.22.0. Shared receiver ABI and wire formats live in `@commitpass/shared`.
-
-**Current execution choice:** CRE CLI simulation with explicit `--broadcast`
-on Monad testnet, run by the VPS service. DON deployment remains deferred.
-The simulation receiver uses the official Monad MockForwarder and requires a
-receiver/chain-bound EIP-712 signature on every payload from an immutable operator
-signer. The public mock forwarder alone is not financial authorization. No DON
-workflow ID is fabricated; `isConfigured()` describes receiver readiness.
-The production `CommitPassAutomation` keeps its forwarder/workflow validation.
+Target: **Monad testnet (10143)**. SDK 1.22.0. Execution currently uses the authenticated CRE CLI with `--broadcast` on the VPS, not a deployed DON workflow.
 
 ## Flow
 
-1. Create an event through `factory.createAutomatedEvent(stakeAmount, registrationDeadline, eventDate, maxParticipant, receiver, settleAt)`. Creation and automation registration happen atomically, before any deposit can occur. Start time is `eventDate`.
-2. Organizer calls `receiver.requestStart(vault)`, or start time passes. The manual request closes registration immediately. CRE reads finalized contract state and submits a signed report through KeystoneForwarder.
-3. The receiver validates the report and calls `depositToYieldSource()`, depositing assets into the configured ERC-4626 vault.
-4. Organizer calls `receiver.requestSettlement(vault)`, or settlement time passes. The earliest cutoff is authoritative. The backend freezes attendance for that cutoff.
-5. CRE fetches that snapshot through authenticated HTTP with identical consensus. It validates the event domain, attendee ordering and digest, then submits a settlement report. The receiver checks deposited membership and calls `settleEvent(attendees)`.
-6. The event vault redeems all yield shares and allocates claims. Both transaction status and receiver execution must succeed. Envio should index confirmed lifecycle, settlement and claim events.
+1. `factory.createEvent(stakeAmount, registrationDeadline, eventDate, maxParticipant, settleAt)` creates a registered vault with immutable lifecycle authorization.
+2. The organizer calls `vault.requestStart()`, or its scheduled start becomes due. CRE reads finalized state. Organizer requests close registration immediately.
+3. CRE delivers its report through the forwarder to **that vault's `onReport`**. The vault validates it and deposits the pooled USDC into its configured ERC-4626 yield vault.
+4. The organizer calls `vault.requestSettlement()`, or its settlement deadline becomes due. The earliest authoritative cutoff is used to freeze attendance through the Go API.
+5. CRE validates the immutable attendance snapshot with identical consensus, then delivers a settlement report to the vault. The vault redeems its shares, allocates claims and transfers platform revenue.
+6. Participants claim through `vault.claimReward()`. Envio indexes confirmed events for event pages and user profiles.
 
-The log trigger reacts to finalized organizer requests. Cron runs every minute, rotating across two events per invocation, including newly registered events. A stable registry of N events takes approximately `ceil(N/2)` minutes to sweep, plus finality and execution latency. This is a bounded demo design; increase throughput or partition the registry for a larger service.
+Only the original organizer can request lifecycle changes. Financial execution is only through authorized reports. Factory `LifecycleRequested` logs feed a finalized EVM log trigger; a one-minute cron sweeps two vaults per invocation. With N vaults, a complete sweep takes approximately ceil(N/2) minutes plus finality and execution latency.
 
-## Build
+## Receiver security
 
-For the local start/settle/claim simulation, run `pnpm --filter @commitpass/cre local` from the repository root. See [the local runner](local/README.md) for its fixture boundary and assertions. It requires CLI authentication but no DON deployment access.
+`contracts/src/cre/ReceiverTemplate.sol` is an abstract consumer base inherited by each vault. It is not an additional deployment. It adapts Chainlink's receiver pattern with immutable authorization.
 
-Install Bun 1.3.8+, CRE CLI 1.30+ and root pnpm dependencies.
+Standard DON execution checks the production forwarder and the actual workflow ID in 64-byte metadata. CLI broadcast mode uses the official Monad MockForwarder plus a payload signature bound to chain 10143 and the destination vault. The public mock alone is not sufficient authorization. No DON workflow identity is fabricated.
+
+Standard CRE can deliver reports without a confidential wallet inside the workflow. Confidential Workflows become relevant when computation over private data or keys must be protected from operators; direct EVM writes alone do not require them.
+
+## Build and simulation
 
 ```sh
 # Repository root
 pnpm --filter @commitpass/shared build
 pnpm --filter @commitpass/cre typecheck
 pnpm --filter @commitpass/cre compile:wasm
+
+# CRE project root; receiver-free real HTTP health check, no writes
+cd cre
+cre workflow simulate commitpass --target local-simulation --non-interactive --trigger-index 0
+
+# Full local Anvil lifecycle from repository root
+pnpm cre:local
 ```
 
-Ordinary monorepo builds typecheck CRE. Explicit WASM compilation produces `cre/dist/commitpass.wasm` through Javy. A build is not workflow execution evidence.
+The receiver-free target fetches public API health using the native HTTP capability. It does not prove settlement. The Anvil runner exercises the financial lifecycle using an explicitly local forwarder fixture and real vault bytecode.
 
-## Monad testnet simulation
+## Monad testnet configuration
 
-The VPS cron runs `node scripts/simulate-testnet.mjs --broadcast` with a prebuilt
-WASM, the public Monad testnet RPC, reachable HTTPS attendance API and private
-signing credentials in its environment. It processes organizer requests and
-scheduled events using the same callback logic. A deployment access grant is not
-required for CLI simulation; the authenticated CLI is required.
+Copy `commitpass/config.testnet.example.json` to its ignored runtime config. Set the current **factory**, HTTPS attendance API and gas limit. The zero example factory deliberately fails validation. Secret files contain references; CLI/systemd consume their environment values without committing credentials.
 
-For a read-only check, `pnpm --filter @commitpass/cre simulate` omits broadcast
-and retains the empty-registry guard to avoid freezing attendance by accident.
-An empty-registry sweep proves only trigger/read execution. Financial writes
-require successful onchain receipts and receiver execution, recorded separately.
-
-After receiver signature changes, run `forge build` in `contracts`, then `node packages/shared/tools/export-automation-abi.mjs` from the root and format its output. The ABI comes from the Solidity compiler artifact.
-
-## Configuration and activation
-
-1. Prepare testnet assets, factory and receiver using `contracts/script/DeployTestnet.s.sol`. It requires chain 10143, an explicit treasury and the trusted Monad testnet **deployed-workflow KeystoneForwarder**. Verify that forwarder in the official directory for the selected CRE environment.
-2. Copy `commitpass/config.testnet.example.json` to `commitpass/config.testnet.json`. Set the receiver address, reachable HTTPS attendance API and gas limit. The zero receiver deliberately fails validation.
-3. Copy `secrets.example.yaml` to `secrets.yaml`. Supply `ATTENDANCE_API_TOKEN_ALL` through the environment for simulation. Deployed workflows use the Vault DON secrets mechanism.
-4. Register/deploy the workflow with this receiver address. Record its resulting workflow ID. The receiver deployer calls `configureWorkflow(workflowId)` exactly once, then activates the workflow. Events cannot attach automation before configuration. An update changing the workflow ID requires a new receiver; there is no permission bypass for existing events.
-5. Use `createAutomatedEvent` and find its vault via `factory.vaultByEventId(id)`. The legacy two-step `createEvent` plus `setAutomation` path can be interrupted by a deposit and should not be used by the application.
-
-From `cre`, after configuration and working CLI authentication:
+The active manifest and code hash must match the direct vault contract model before the testnet wrapper broadcasts. Run the configured wrapper explicitly:
 
 ```sh
-# No broadcast flag; trigger 0 is cron.
-cre workflow simulate commitpass --target testnet-settings --trigger-index 0 --non-interactive
-# Trigger 1 consumes a finalized organizer request log.
-cre workflow simulate commitpass --target testnet-settings --trigger-index 1 --evm-tx-hash <request-tx> --evm-event-index <log-index> --non-interactive
+# No broadcast; wrapper refuses nonempty registries to avoid snapshot mutations.
+node scripts/simulate-testnet.mjs
+# Authorized testnet writes; not DON activation.
+node scripts/simulate-testnet.mjs --broadcast
 ```
 
-The receiver validates its forwarder and workflow ID in **64-byte production KeystoneForwarder metadata**. Simulation reports do not establish deployed DON identity. The local runner uses an explicit Anvil-only forwarder fixture with a local workflow ID while leaving the receiver unchanged. A local simulation is separate evidence from a deployed DON write.
+The VPS timer invokes the second command. For a finalized organizer log, select trigger 1 with `--evm-tx-hash` and `--evm-event-index`. For a future DON migration, obtain deployment access and the real workflow identity, then deploy a factory using the production forwarder and that identity. Existing vault permissions cannot be silently switched.
+
+After contract changes run `forge build`, then `pnpm contracts:abi` from the repository root. ABI exports come from compiler artifacts.
 
 ## Attendance API contract
 
@@ -97,53 +83,6 @@ Backend requirements:
 
 Failed HTTP requests, malformed data, unknown fields, digest mismatch and consensus disagreement defer settlement. They never mean nobody attended. A successfully frozen, validated empty snapshot is an explicit zero-attendance refund. The receiver cannot independently prove physical presence or DB immutability; those remain organizer/backend responsibilities.
 
-## Current boundaries
+## Boundaries
 
-- The factory, signed simulation receiver and mock yield vault are deployed on Monad testnet; see `contracts/DEPLOYMENT.md`. A single-attendee Privy-authorized frontend journey completed creation, commitment, check-in, CRE broadcast start/settlement and claim; see [the recorded receipts and accounting](evidence/frontend-monad-broadcast-2026-10-01.json). Hosted simulation config points at the HTTPS Go API. DON deployment and browser coverage of cancellation, zero attendance and the no-show split remain unverified.
-- Testnet uses Circle USDC on Monad (`0x534b2f3A21130d7a60830c2Df862319e593943A3`, 6 decimals) and a mock yield vault. It has no mainnet Clearstar connection or organic yield; token donations can model yield.
-- A valid empty attendance snapshot refunds all commitments plus recovered surplus without a platform fee. Owner cancellation before start opens principal refunds directly onchain. Redemption failure or principal shortfall reverts atomically, leaving settlement pending.
-- Claim allocations include deterministic remainder distribution in registration order. Platform revenue is 50% of no-show principal only when attendance is nonzero; no yield fee applies.
-- Privy authentication does not change participant identity: claims belong to the depositing wallet.
-
-References: [receiver contracts](https://docs.chain.link/cre/guides/workflow/using-evm-client/onchain-write/building-consumer-contracts), [EVM writes](https://docs.chain.link/cre/guides/workflow/using-evm-client/onchain-write/overview-ts), [secrets](https://docs.chain.link/cre/guides/workflow/secrets/using-secrets-simulation-ts).
-
-## Signed testnet broadcast
-
-`pnpm --filter @commitpass/cre simulate:broadcast` runs the cron handler with
-`--broadcast`. The preflight confirms chain 10143, the deployed receiver bytecode,
-MockForwarder, signing account and testnet MON balance. Signing credentials live
-in the VPS environment, never in workflow config or Git. Without `--broadcast`,
-the original empty-registry/read guard remains in place.
-
-The simulation report wraps the existing lifecycle payload as `(bytes payload,
-bytes signature)`. Its EIP-712 domain is `CommitPass CRE simulation`, version `1`,
-chain 10143 and the deployed simulation receiver. The signed type is
-`SimulationReport(bytes payload)`. Existing lifecycle, cutoff, membership, expiry,
-snapshot and one-time accounting checks execute after signature validation.
-
-The user's [EcoRound CRE workflow](https://github.com/eco-round/cre/tree/771eb69dbc8d092975104421bb21ca6c276ff5a6)
-informs `GenerateReport`/`WriteReport` plus `simulate --broadcast`. That reference
-uses a Tenderly Base fork. CommitPass targets the public Monad testnet RPC.
-See Chainlink's [simulation consumer requirements](https://docs.chain.link/cre/guides/workflow/using-evm-client/onchain-write/building-consumer-contracts#4-working-with-simulation)
-and [CLI broadcast option](https://docs.chain.link/cre/reference/cli/workflow).
-
-## Scaffold provenance
-
-The official project was generated with CRE CLI 1.34.0:
-
-```sh
-cre init --project-name cre --workflow-name lifecycle --template hello-world-ts --deployment-registry private --rpc-url monad-testnet=https://testnet-rpc.monad.xyz --non-interactive
-```
-
-The generated project/workflow layout is adopted here, with the existing financial
-workflow retained. Generated Sepolia sample RPCs were replaced with Monad testnet;
-the private registry field is configuration only, with no workflow deployment.
-
-The generated workflow directory was subsequently renamed from `lifecycle/` to
-`commitpass/`. Workflow names now use `commitpass-testnet`, `commitpass-local` and
-`commitpass-interactive`; the repository project root stays `cre/`. For a fresh
-standalone project with both names set to CommitPass, use:
-
-```sh
-cre init --project-name commitpass --workflow-name commitpass --template hello-world-ts --deployment-registry private --rpc-url monad-testnet=https://testnet-rpc.monad.xyz --non-interactive
-```
+Public execution is signed CLI broadcast simulation, not DON execution. Circle USDC is the actual Monad testnet asset; the ERC-4626 yield source remains a mock. Attendance remains organizer-attested. Local financial tests and public browser receipts are recorded separately under `evidence/`.

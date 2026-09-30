@@ -8,7 +8,5 @@ export const chainClient = createPublicClient({
 });
 export const factoryAddress = activeDeployment.contracts.CommitPassFactory
   .address as Address;
-export const automationAddress = activeDeployment.contracts.CommitPassAutomation
-  .address as Address;
 export const assetAddress = activeDeployment.contracts.USDC.address as Address;
 export const explorer = activeChain.blockExplorers.default.url;

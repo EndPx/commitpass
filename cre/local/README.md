@@ -15,7 +15,7 @@ Prerequisites: pnpm dependencies, Bun, a logged-in CRE CLI, and Foundry. Windows
 
 ## What runs
 
-1. Deploy the actual factory, event vault implementation, receiver and mock ERC-4626 assets to a fresh local chain.
+1. Deploy the actual factory, event vault consumer and mock ERC-4626 assets to a fresh local chain.
 2. Create an event and deposit 10 mock USDC from each of two ephemeral participants.
 3. Execute CRE's EVM-log trigger for an organizer start request; assert funds entered the yield vault.
 4. Repeat the request; assert no second deposit occurred.
@@ -31,7 +31,7 @@ Each CRE invocation uses a generated project configuration containing only `http
 
 `contracts/test/fixtures/LocalCREForwarder.sol` implements the simulator-facing `report` and transmission-status ABI. The runner installs its code at the simulator's Monad forwarder address using `anvil_setCode` after confirming it is connected to Anvil.
 
-The fixture accepts only the ephemeral local relayer. It substitutes a fixed **local fixture workflow ID** into the 64-byte metadata passed to the unmodified receiver. This allows execution of the receiver's forwarder, workflow-ID, expiry, chain, schedule and snapshot checks while using CLI reports. It does not validate DON signatures or prove real workflow identity. Never deploy this fixture on a public network or use its identity to configure the public receiver.
+The fixture accepts only the ephemeral local relayer. It substitutes a fixed **local fixture workflow ID** into the 64-byte metadata passed to the vault consumer. This allows execution of the receiver's forwarder, workflow-ID, expiry, chain, schedule and snapshot checks while using CLI reports. It does not validate DON signatures or prove real workflow identity. Never deploy this fixture on a public network or use its identity to configure the public vaults.
 
 The ABI/header layout follows Chainlink's [MockKeystoneForwarder](https://github.com/smartcontractkit/chainlink-evm/blob/develop/contracts/cre/src/dev/MockKeystoneForwarder.sol) and [IRouter](https://github.com/smartcontractkit/chainlink-evm/blob/develop/contracts/cre/src/v1/interfaces/IRouter.sol).
 

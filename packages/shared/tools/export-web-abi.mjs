@@ -4,7 +4,7 @@ const contracts = [
   [
     "CommitPassFactory",
     "factoryAbi",
-    ["createAutomatedEvent", "VaultCreated", "isVault"],
+    ["createEvent", "VaultCreated", "isVault", "isConfigured", "getBatch", "LifecycleRequested"],
   ],
   [
     "CommitPassVault",
@@ -22,25 +22,19 @@ const contracts = [
       "eventSettled",
       "USDC_TOKEN",
       "owner",
-      "automation",
+      "factory",
       "eventDate",
       "cancelEvent",
       "settlementOutcome",
       "protocolRevenue",
       "totalAllocated",
       "totalClaimed",
-    ],
-  ],
-  [
-    "CommitPassAutomation",
-    "eventAutomationAbi",
-    [
-      "workflowId",
       "isConfigured",
       "requestStart",
       "requestSettlement",
-      "schedules",
+      "getSchedule",
       "getState",
+      "onReport",
     ],
   ],
 ];

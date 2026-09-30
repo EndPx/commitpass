@@ -210,10 +210,8 @@ async function main() {
   });
   const assetAbi = compiled("MockYieldVault.sol", "MockUSDC");
   const forwarderAbi = compiled("LocalCREForwarder.sol", "LocalCREForwarder");
-  const receiverAbi = compiled(
-    "CommitPassAutomation.sol",
-    "CommitPassAutomation",
-  );
+  const factoryAbi = compiled("CommitPassFactory.sol", "CommitPassFactory");
+  const vaultAbi = compiled("CommitPassVault.sol", "CommitPassVault");
   const forwarder = "0xB9F79d863261869B234c481D1f9A7af84AeAd192";
   const fixture = await deploy(forwarderAbi, [owner.address]);
   await client.request({
@@ -225,24 +223,18 @@ async function main() {
     compiled("MockYieldVault.sol", "MockYieldVault"),
     [asset],
   );
-  const factory = await deploy(
-    compiled("CommitPassFactory.sol", "CommitPassFactory"),
-    [yieldVault, treasury.address],
-  );
-  const receiver = await deploy(receiverAbi, [forwarder, factory]);
   const workflowId = await client.readContract({
     address: forwarder,
     abi: forwarderAbi.abi,
     functionName: "WORKFLOW_ID",
   });
-  await confirmed(
-    await wallet.writeContract({
-      address: receiver,
-      abi: receiverAbi.abi,
-      functionName: "configureWorkflow",
-      args: [workflowId],
-    }),
-  );
+  const factory = await deploy(factoryAbi, [
+    yieldVault,
+    treasury.address,
+    forwarder,
+    workflowId,
+    "0x0000000000000000000000000000000000000000",
+  ]);
   const manifest = {
     environment: "local-anvil",
     runId,
@@ -252,7 +244,6 @@ async function main() {
       USDC: { address: asset },
       MockYieldVault: { address: yieldVault },
       CommitPassFactory: { address: factory },
-      CommitPassAutomation: { address: receiver },
     },
   };
   const manifestPath = fileURLToPath(new URL("deployment.json", local));
@@ -265,7 +256,7 @@ async function main() {
     new URL("config.json", local),
     JSON.stringify(
       {
-        receiver,
+        factory,
         attendanceApi: "http://127.0.0.1:8080",
         attendanceSecretId: "ATTENDANCE_API_TOKEN",
         gasLimit: "5000000",
@@ -283,7 +274,6 @@ async function main() {
     MONAD_RPC_URL: rpc,
     ATTENDANCE_API_TOKEN: attendanceToken,
     ENVIO_FACTORY_ADDRESS: factory,
-    ENVIO_AUTOMATION_ADDRESS: receiver,
     ENVIO_START_BLOCK: "1",
     ENVIO_RPC_URL: rpc,
     ENVIO_PG_SCHEMA: `envio_local_${runId}`,
@@ -403,18 +393,17 @@ async function main() {
       requireLocalTarget();
       await requireAnvil();
       const vaults = await client.readContract({
-        address: receiver,
-        abi: receiverAbi.abi,
+        address: factory,
+        abi: factoryAbi.abi,
         functionName: "getBatch",
         args: [BigInt(Math.floor(Date.now() / 60000))],
       });
       const states = await Promise.all(
         vaults.map((vault) =>
           client.readContract({
-            address: receiver,
-            abi: receiverAbi.abi,
+            address: vault,
+            abi: vaultAbi.abi,
             functionName: "getState",
-            args: [vault],
           }),
         ),
       );

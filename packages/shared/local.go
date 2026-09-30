@@ -11,7 +11,7 @@ import (
 func LocalSchemas() (app, indexer string, err error) {
 	if os.Getenv("COMMITPASS_LOCAL") != "1" {
 		if schema := os.Getenv("COMMITPASS_INDEXER_SCHEMA"); schema != "" {
-			if schema != "envio_hosted" && schema != "envio_usdc" && schema != "envio_usdc_simulation" {
+			if schema != "envio_hosted" && schema != "envio_usdc" && schema != "envio_usdc_simulation" && schema != "envio_usdc_vault" {
 				return "", "", fmt.Errorf("invalid hosted indexer namespace")
 			}
 			return "app", schema, nil
@@ -40,7 +40,7 @@ func ActiveDeployment() (Deployment, error) {
 	if result.ChainID != 10143 {
 		return result, fmt.Errorf("unexpected local simulation chain ID")
 	}
-	for _, name := range []string{"CommitPassFactory", "CommitPassAutomation"} {
+	for _, name := range []string{"CommitPassFactory", "USDC"} {
 		if !regexp.MustCompile(`^0x[0-9a-fA-F]{40}$`).MatchString(result.Contracts[name].Address) {
 			return result, fmt.Errorf("invalid local contract address")
 		}

@@ -4,13 +4,12 @@ import Link from "next/link";
 import { usePrivy, useSendTransaction, useWallets } from "@privy-io/react-auth";
 import { encodeFunctionData, type Hash } from "viem";
 import {
-  eventAutomationAbi,
   eventVaultAbi,
   MONAD_TESTNET,
   type EventSummary,
 } from "@commitpass/shared";
 import { ArrowUpRight, Check, Clock3, Play, Square } from "lucide-react";
-import { automationAddress, chainClient, explorer } from "@/lib/chain";
+import { chainClient, explorer } from "@/lib/chain";
 import { amount, statusLabel, jsonRequest } from "@/lib/events";
 import { EditorDialog, DialogActions } from "./editor-dialog";
 import { HostTools } from "./host-tools";
@@ -123,7 +122,7 @@ export function HostManagement({
       localStorage.removeItem(`${key}:ready`);
       await wallet.switchChain(MONAD_TESTNET.chainId);
       let data: `0x${string}`;
-      const to = action === "cancel" ? event.vault : automationAddress;
+      const to = event.vault;
       if (action === "cancel") {
         await chainClient.simulateContract({
           address: to,
@@ -140,15 +139,13 @@ export function HostManagement({
           action === "start" ? "requestStart" : "requestSettlement";
         await chainClient.simulateContract({
           address: to,
-          abi: eventAutomationAbi,
+          abi: eventVaultAbi,
           functionName,
-          args: [event.vault],
           account: wallet.address as `0x${string}`,
         });
         data = encodeFunctionData({
-          abi: eventAutomationAbi,
+          abi: eventVaultAbi,
           functionName,
-          args: [event.vault],
         });
       }
       setMessage("Confirm this request in your wallet.");

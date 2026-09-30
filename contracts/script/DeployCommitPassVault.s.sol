@@ -1,36 +1,26 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
 
 import {Script, console} from "forge-std/Script.sol";
-import {CommitPassVault} from "../src/CommitPassVault.sol";
+import {CommitPassFactory} from "../src/CommitPassFactory.sol";
 
+/// @notice Creates an event through the canonical factory; never a standalone vault.
 contract DeployCommitPassVault is Script {
-    CommitPassVault public commitPassVault;
-
-    function run() external returns (address) {
-        uint256 privateKey = vm.envUint("PRIVATE_KEY");
-
-        vm.startBroadcast(privateKey);
-        console.log("Deployer:", msg.sender);
-
-        uint256 stakeAmount = 1 * 10**6; // 1 asset unit for a token with 6 decimals
-        uint256 registrationDeadline = block.timestamp + 1 days;
-        uint256 eventDate = block.timestamp + 2 days;
-
-        commitPassVault = new CommitPassVault(
-            1, // eventId
-            vm.envAddress("ORGANIZER"),
-            stakeAmount,
-            registrationDeadline,
-            eventDate,
-            10, // maxParticipant
-            vm.envAddress("YIELD_VAULT"),
-            vm.envAddress("TREASURY")
+    function run() external returns (address vault) {
+        require(block.chainid == 10143, "Monad testnet only");
+        CommitPassFactory factory = CommitPassFactory(vm.envAddress("FACTORY_ADDRESS"));
+        require(address(factory).code.length > 0 && factory.isConfigured(), "Factory not configured");
+        uint256 id = factory.eventIdCounter();
+        vm.startBroadcast(vm.envAddress("ORGANIZER"));
+        factory.createEvent(
+            vm.envUint("STAKE_AMOUNT"),
+            vm.envUint("REGISTRATION_DEADLINE"),
+            vm.envUint("EVENT_DATE"),
+            vm.envUint("MAX_PARTICIPANTS"),
+            vm.envUint("SETTLE_AT")
         );
-        console.log("CommitPassVault deployed at:", address(commitPassVault));
-
         vm.stopBroadcast();
-
-        return address(commitPassVault);
+        vault = factory.vaultByEventId(id);
+        console.log("Event vault / CRE receiver", vault);
     }
 }
