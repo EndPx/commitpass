@@ -253,15 +253,13 @@ a compact financial strip. Activity is the initial view and its heading/first
 rows appear above the fold; charts live under Analytics. Keep the existing light
 palette and typography. Remove the settlement explanation beneath the activity.
 
-Header Faucet opens a dialog with fixed USDC/Monad testnet and a verified linked
-wallet. The trigger has a 1px border, white surface, 10px corners, and an always
-visible accent-colored water icon; hover uses accent-soft. Desktop shows its
-Faucet label; mobile keeps a 44px icon button.
-Prefer Privy's embedded wallet. No wallet means an explicit create-wallet
-action, then refresh verification before using its address. Multiple wallets can
-be selected. The current Circle form did not honor the tested network/address URL
-parameters; show honest instructions, copy the address, and open the official
-faucet. Never claim the external form was autofilled or submit a faucet request.
+Header Faucet opens a simple dialog with two 44px links: Faucet USDC opens
+https://faucet.circle.com/ and Faucet MON opens https://faucet.monad.xyz/ in a new
+tab. Both choices are immediately available without wallet setup or sign-in.
+Keep only the two choices and the dialog's close control. The trigger has a 1px
+border, white surface, 10px corners, and an always visible accent-colored water
+icon; hover uses accent-soft. Desktop shows its Faucet label; mobile keeps a
+44px icon button.
 
 Events and Discover are different browsing surfaces. The supplied Luma events
 screenshot is the reference for the personal list: a 900px content measure,

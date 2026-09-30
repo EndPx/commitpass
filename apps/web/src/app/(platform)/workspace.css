@@ -1520,68 +1520,17 @@
   background: var(--accent-soft);
   border-color: var(--accent);
 }
-.faucet-fields {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 24px;
-}
-.faucet-fields label {
-  display: grid;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  min-width: 0;
-}
-.faucet-fields label:last-child {
-  grid-column: 1 / -1;
-}
-.faucet-fields input,
-.faucet-fields select {
-  width: 100%;
-  min-width: 0;
-  min-height: 44px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 0 12px;
-  color: var(--ink);
-  background: var(--editor-input);
-  font: inherit;
-}
-.faucet-fields label:last-child input,
-.faucet-fields select {
-  font-family: ui-monospace, monospace;
-  font-size: 12px;
-}
-.faucet-info {
-  font-size: 13px;
-  color: var(--muted);
-  line-height: 1.7;
-  margin-top: 18px;
-}
-.faucet-info strong {
-  color: var(--ink);
-  font-weight: 550;
-}
 .faucet-actions {
-  display: flex;
-  align-items: center;
+  display: grid;
   gap: 10px;
   margin-top: 24px;
 }
 .faucet-actions .button {
-  flex: 1;
-  padding: 0 12px;
-  font-size: 12px;
-}
-.faucet-continue {
   width: 100%;
-  margin-top: 20px;
-}
-.faucet-status {
-  font-size: 12px;
-  color: var(--green);
-  margin-top: 12px;
+  min-height: 44px;
+  justify-content: space-between;
+  padding: 0 16px;
+  font-size: 14px;
 }
 @media (max-width: 649px) {
   .workspace-faucet-link {
@@ -1589,8 +1538,5 @@
   }
   .workspace-faucet-link > span {
     display: none;
-  }
-  .faucet-actions {
-    flex-wrap: wrap;
   }
 }
