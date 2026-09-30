@@ -1,32 +1,50 @@
+.platform-surface,
+.theme-preview {
+  --page-gradient:
+    radial-gradient(ellipse at 50% 0%, var(--theme-sky), transparent 65%),
+    radial-gradient(ellipse at 0% 85%, var(--theme-wash), transparent 65%),
+    radial-gradient(ellipse at 100% 65%, var(--theme-mist), transparent 70%);
+}
 .platform-surface {
   min-height: 100svh;
   background-color: var(--canvas);
   color: var(--ink);
 }
 .theme-minimal {
-  background-image: none;
+  background-image: var(--page-gradient);
 }
 .theme-aurora {
   background-image:
     radial-gradient(ellipse at 10% 18%, var(--theme-glow), transparent 52%),
-    radial-gradient(ellipse at 85% 70%, #80bfc522, transparent 58%);
+    radial-gradient(ellipse at 85% 70%, #80bfc522, transparent 58%),
+    var(--page-gradient);
   background-attachment: fixed;
 }
 .theme-confetti {
   background-image:
     radial-gradient(circle at 20% 30%, var(--theme-glow) 2px, transparent 3px),
     radial-gradient(circle at 70% 65%, #c19bb62e 3px, transparent 4px),
-    radial-gradient(circle at 40% 88%, #d6aa6126 2px, transparent 3px);
+    radial-gradient(circle at 40% 88%, #d6aa6126 2px, transparent 3px),
+    var(--page-gradient);
   background-size:
     90px 100px,
     130px 140px,
-    170px 120px;
+    170px 120px,
+    100% 100%,
+    100% 100%,
+    100% 100%;
 }
 .theme-grid {
   background-image:
     linear-gradient(var(--line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--line) 1px, transparent 1px);
-  background-size: 40px 40px;
+    linear-gradient(90deg, var(--line) 1px, transparent 1px),
+    var(--page-gradient);
+  background-size:
+    40px 40px,
+    40px 40px,
+    100% 100%,
+    100% 100%,
+    100% 100%;
 }
 .platform-surface .workspace-header.is-scrolled {
   background: var(--header-surface);

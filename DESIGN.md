@@ -25,6 +25,11 @@ The surrounding page stays quiet. Never invent live events, users, or testimonia
 
 Canvas #faf9f6; white #ffffff; ink #252622; muted #686963; border #e5e5de;
 accent #b9462d; accent-soft #fae6db; green #315c45; green-soft #e5eee4.
+Workspace backgrounds use broad, static pastel gradients: a pale sky wash at
+the top and two softer accent-colored washes around the lower edges. Keep the
+center quiet for form readability. Derive these colors from the canvas and event
+accent (sky 16%, accent 14%/6% in Light; 6%, 24%/12% in Dark). Layer Grid and
+Confetti patterns above the same gradient; Aurora adds its existing glow.
 Poster-only inks/papers: #ec6848, #fae0b1, #dceb8c, #235443, #ccd9ee,
 #334b86, #efb8c4, #743345, #dcc8b9, #6c422e. Posters may use derived
 transparent shades for artwork. Core text always uses contrast-safe ink.
