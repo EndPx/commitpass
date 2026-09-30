@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { ArrowUpRight, Droplets } from "lucide-react";
 import { EditorDialog } from "./editor-dialog";
+import { WalletAddress } from "./wallet-address";
 
 export function Faucet() {
   const [open, setOpen] = useState(false);
@@ -23,6 +24,7 @@ export function Faucet() {
           icon={<Droplets size={24} />}
           onClose={() => setOpen(false)}
         >
+          <WalletAddress />
           <div className="faucet-actions">
             <a
               className="button"

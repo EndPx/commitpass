@@ -1,8 +1,16 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { createPublicClient, http, isAddress } from "viem";
+import {
+  createPublicClient,
+  http,
+  isAddress,
+  keccak256,
+  parseAbi,
+  parseEther,
+} from "viem";
 
+const broadcast = process.argv.includes("--broadcast");
 const root = new URL("../", import.meta.url);
 const cwd = fileURLToPath(root);
 const wasm = fileURLToPath(new URL("dist/lifecycle.wasm", root));
@@ -46,13 +54,63 @@ const vaultCount = await rpc.readContract({
   ],
   functionName: "vaultCount",
 });
-if (vaultCount !== 0n)
+if (!broadcast && vaultCount !== 0n)
   throw new Error(
     "Public receiver has events. Use an explicit manual simulation after reviewing possible attendance snapshot writes.",
   );
 
-console.log("Monad testnet 10143 confirmed; receiver has no events.");
-console.log("Running one cron simulation without --broadcast.");
+if (broadcast) {
+  if (
+    deployment.execution?.mode !== "cre-cli-simulation-broadcast" ||
+    !config.simulationSigningSecretId
+  )
+    throw new Error(
+      "Broadcast requires the signed simulation deployment/config",
+    );
+  if (
+    keccak256(code).toLowerCase() !==
+    deployment.contracts.CommitPassAutomation.runtimeCodeHash.toLowerCase()
+  )
+    throw new Error("Receiver bytecode differs from the deployment manifest");
+  const { privateKeyToAccount } = await import("viem/accounts");
+  const key = process.env.CRE_ETH_PRIVATE_KEY;
+  if (
+    !key ||
+    !/^0x[0-9a-fA-F]{64}$/.test(key) ||
+    process.env.SIMULATION_SIGNING_KEY_ALL !== key
+  )
+    throw new Error(
+      "Broadcast/signing credentials are unavailable or inconsistent",
+    );
+  const sender = privateKeyToAccount(key).address;
+  const [signer, forwarder] = await Promise.all([
+    rpc.readContract({
+      address: config.receiver,
+      abi: parseAbi([
+        "function simulationReportSigner() view returns (address)",
+      ]),
+      functionName: "simulationReportSigner",
+    }),
+    rpc.readContract({
+      address: config.receiver,
+      abi: parseAbi(["function forwarder() view returns (address)"]),
+      functionName: "forwarder",
+    }),
+  ]);
+  if (
+    signer.toLowerCase() !== sender.toLowerCase() ||
+    forwarder.toLowerCase() !== "0xb9f79d863261869b234c481d1f9a7af84aead192"
+  )
+    throw new Error("Simulation signer/forwarder mismatch");
+  if ((await rpc.getBalance({ address: sender })) < parseEther("0.02"))
+    throw new Error("Simulation sender needs testnet MON for gas");
+}
+console.log(`Monad testnet 10143 confirmed; ${vaultCount} registered events.`);
+console.log(
+  broadcast
+    ? "Running signed CRE CLI simulation with --broadcast."
+    : "Running one cron simulation without --broadcast.",
+);
 const result = spawnSync(
   process.platform === "win32" ? "cre.exe" : "cre",
   [
@@ -66,6 +124,7 @@ const result = spawnSync(
     "--wasm",
     wasm,
     "--non-interactive",
+    ...(broadcast ? ["--broadcast"] : []),
   ],
   { cwd, stdio: "inherit", windowsHide: true },
 );

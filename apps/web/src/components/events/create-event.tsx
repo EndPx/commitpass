@@ -11,7 +11,6 @@ import {
   decodeEventLog,
   encodeFunctionData,
   parseUnits,
-  zeroHash,
   type Address,
   type Hash,
 } from "viem";
@@ -135,10 +134,10 @@ export function CreateEvent() {
       .readContract({
         address: automationAddress,
         abi: eventAutomationAbi,
-        functionName: "workflowId",
+        functionName: "isConfigured",
       })
       .then((id) => {
-        if (active) setPublishReady(id !== zeroHash);
+        if (active) setPublishReady(id);
       })
       .catch(() => {
         if (active) {
@@ -284,9 +283,9 @@ export function CreateEvent() {
       const workflow = await chainClient.readContract({
         address: automationAddress,
         abi: eventAutomationAbi,
-        functionName: "workflowId",
+        functionName: "isConfigured",
       });
-      if (workflow === zeroHash)
+      if (!workflow)
         throw new Error(
           "Event automation is not configured on this test network yet. Save your draft for now.",
         );
@@ -706,10 +705,6 @@ export function CreateEvent() {
               </button>
             )}
           </div>
-          <p className="field-note">
-            {isLocal ? "Local Anvil" : "Monad testnet"} · USDC has no monetary
-            value. Creating an event requires testnet MON for gas.
-          </p>
         </div>
       </form>
       {editor && editor !== "cover" && editor !== "theme" && (

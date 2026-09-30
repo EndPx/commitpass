@@ -288,6 +288,9 @@ Keep only the two choices and the dialog's close control. The trigger has a 1px
 border, white surface, 10px corners, and an always visible accent-colored water
 icon; hover uses accent-soft. Desktop shows its Faucet label; mobile keeps a
 44px icon button.
+The Faucet dialog also shows the full verified preferred wallet address in the
+same bordered copy row as the account menu, above the two direct faucet links.
+The create-event form omits the network/token/gas footnote beneath its actions.
 
 Events and Discover are different browsing surfaces. The supplied Luma events
 screenshot is the reference for the personal list: a 900px content measure,

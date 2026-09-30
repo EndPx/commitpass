@@ -1,4 +1,4 @@
-// Generated from the compiled shared ABI snapshots by scripts/export-web-abi.mjs.
+// Generated from the compiled shared ABI snapshots by packages/shared/tools/export-web-abi.mjs.
 export const factoryAbi = [
   {
     type: "function",
@@ -391,6 +391,19 @@ export const eventAutomationAbi = [
         name: "cutoff",
         type: "uint256",
         internalType: "uint256",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "isConfigured",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "bool",
+        internalType: "bool",
       },
     ],
     stateMutability: "view",

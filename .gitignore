@@ -32,3 +32,7 @@ cre/.interactive/
 Thumbs.db
 
 .deploy-local/
+
+# Local operational folders (build tooling lives in its owning module)
+/deploy/
+/scripts/

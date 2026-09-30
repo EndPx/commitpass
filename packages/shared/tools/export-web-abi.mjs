@@ -1,5 +1,5 @@
 import { readFile, writeFile } from "node:fs/promises";
-const root = new URL("../", import.meta.url);
+const root = new URL("../../../", import.meta.url);
 const contracts = [
   [
     "CommitPassFactory",
@@ -36,6 +36,7 @@ const contracts = [
     "eventAutomationAbi",
     [
       "workflowId",
+      "isConfigured",
       "requestStart",
       "requestSettlement",
       "schedules",
@@ -44,7 +45,7 @@ const contracts = [
   ],
 ];
 let source =
-  "// Generated from the compiled shared ABI snapshots by scripts/export-web-abi.mjs.\n";
+  "// Generated from the compiled shared ABI snapshots by packages/shared/tools/export-web-abi.mjs.\n";
 for (const [name, variable, names] of contracts) {
   const abi = JSON.parse(
     await readFile(new URL(`packages/shared/abi/${name}.json`, root), "utf8"),

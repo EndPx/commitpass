@@ -2,7 +2,7 @@
 
 Original artwork generated with the built-in GPT Image tool on 28 September 2026.
 Final PNGs are kept here; delivery URLs are in `src/lib/brand-media.json`. Run the
-root `scripts/upload-brand-media.mjs` utility to upload these assets to Cloudinary.
+locally retained Cloudinary upload utility to upload these assets to Cloudinary.
 The Workshop option reuses the existing generated community workshop photograph.
 
 ## Together

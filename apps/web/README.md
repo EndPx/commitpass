@@ -108,7 +108,7 @@ Metadata failures are separate from missing metadata; service failures are not
 presented as empty lists. Go still authorizes every metadata and check-in write.
 
 Factory/vault/automation ABI subsets are generated from the shared compiled ABI
-snapshots by `node scripts/export-web-abi.mjs` (also called by `contracts:abi`).
+snapshots by `node packages/shared/tools/export-web-abi.mjs` (also called by `contracts:abi`).
 The client uses the shared deployment manifest and chain configuration. Wallet
 transactions require explicit user actions and Privy's confirmation UI. Reservation
 checks current contract state, balance and allowance; claims use current onchain
@@ -217,7 +217,7 @@ that could still be referenced elsewhere. Cover images are public.
 Images use Cloudinary `f_auto,q_auto,c_limit,w_...` delivery variants and `srcset`.
 The landing workshop illustration is hosted as
 `commitpass/brand/community-workshop`; its versioned URL is recorded in
-`src/lib/brand-media.json`. `node scripts/upload-brand-media.mjs` uploads that
+`src/lib/brand-media.json`. The locally retained Cloudinary upload utility uploads that
 project asset without overwriting an existing image and refreshes the manifest.
 
 Reference: [Cloudinary uploads](https://cloudinary.com/documentation/upload_images)

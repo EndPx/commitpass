@@ -24,7 +24,7 @@ dependency, so web consumers do not need to import unrelated chain definitions.
 
 `src/events.ts` defines web/API event wire types. `src/event-abi.ts` contains typed
 ABI subsets generated from the compiled ABI snapshots in `abi/`; regenerate with
-`node scripts/export-web-abi.mjs` and format the generated file before committing.
+`node packages/shared/tools/export-web-abi.mjs` and format the generated file before committing.
 
 - Keep browser-safe constants, pure types, and public contract data here. Secrets, database clients, and signing keys belong in the relevant service.
 - Consumers declare `workspace:*`; do not import another app's source through relative paths.

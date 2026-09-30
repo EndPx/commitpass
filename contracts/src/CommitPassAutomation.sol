@@ -43,7 +43,7 @@ contract CommitPassAutomation is IReportReceiver, IERC165, ReentrancyGuard {
     }
 
     // Set once after CRE registration resolves the workflow ID for this receiver's config.
-    function configureWorkflow(bytes32 expectedWorkflowId) external {
+    function configureWorkflow(bytes32 expectedWorkflowId) external virtual {
         require(msg.sender == configurator && workflowId == bytes32(0), "Configuration locked");
         require(expectedWorkflowId != bytes32(0), "Invalid workflow");
         workflowId = expectedWorkflowId;
@@ -55,7 +55,7 @@ contract CommitPassAutomation is IReportReceiver, IERC165, ReentrancyGuard {
     }
 
     function registerEvent(address vault, uint256 settleAt) external {
-        require(workflowId != bytes32(0), "Workflow not configured");
+        require(_isConfigured(), "Workflow not configured");
         require(factory.isVault(vault), "Unknown vault");
         CommitPassVault eventVault = CommitPassVault(vault);
         require(msg.sender == vault, "Vault only");
@@ -127,11 +127,20 @@ contract CommitPassAutomation is IReportReceiver, IERC165, ReentrancyGuard {
         }
     }
 
-    function onReport(bytes calldata metadata, bytes calldata report) external nonReentrant {
+    function isConfigured() external view returns (bool) { return _isConfigured(); }
+
+    function _isConfigured() internal view virtual returns (bool) { return workflowId != bytes32(0); }
+
+    function _validatedPayload(bytes calldata metadata, bytes calldata report) internal view virtual returns (bytes memory) {
         require(msg.sender == forwarder, "Forwarder only");
         require(workflowId != bytes32(0) && metadata.length == 64 && bytes32(metadata[:32]) == workflowId, "Invalid workflow metadata");
+        return report;
+    }
+
+    function onReport(bytes calldata metadata, bytes calldata report) external nonReentrant {
+        bytes memory payload = _validatedPayload(metadata, report);
         (uint256 chainId, address vault, uint8 action, uint256 validUntil, uint256 cutoff, bytes32 snapshotHash, address[] memory attendees) =
-            abi.decode(report, (uint256, address, uint8, uint256, uint256, bytes32, address[]));
+            abi.decode(payload, (uint256, address, uint8, uint256, uint256, bytes32, address[]));
         require(chainId == block.chainid, "Wrong chain");
         require(block.timestamp <= validUntil && validUntil <= block.timestamp + 10 minutes, "Invalid expiry");
         Schedule storage schedule = schedules[vault];

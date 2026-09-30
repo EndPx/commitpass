@@ -16,6 +16,7 @@ import {
   type Runtime,
 } from "@chainlink/cre-sdk";
 import { EVM_PB } from "@chainlink/cre-sdk/pb";
+import { secp256k1 } from "@noble/curves/secp256k1";
 import {
   bytesToHex,
   decodeEventLog,
@@ -23,6 +24,7 @@ import {
   encodeAbiParameters,
   encodeFunctionData,
   getAddress,
+  hashTypedData,
   keccak256,
   toEventSelector,
   zeroAddress,
@@ -63,6 +65,7 @@ const configSchema = z
       ),
     attendanceSecretId: z.string().min(1),
     gasLimit: z.string().regex(/^[1-9][0-9]*$/),
+    simulationSigningSecretId: z.string().min(1).optional(),
   })
   .strict();
 type Config = z.infer<typeof configSchema>;
@@ -214,7 +217,7 @@ function processEvent(
   ]);
   const report = runtime
     .report({
-      encodedPayload: hexToBase64(payload),
+      encodedPayload: hexToBase64(signSimulationPayload(runtime, payload)),
       ...EVM_DEFAULT_REPORT_ENCODER,
     })
     .result();
@@ -236,6 +239,40 @@ function processEvent(
   }
   runtime.log(`Lifecycle action ${action} confirmed for ${vault}`);
   return "confirmed";
+}
+
+function signSimulationPayload(runtime: Runtime<Config>, payload: Hex): Hex {
+  if (!runtime.config.simulationSigningSecretId) return payload;
+  const key = runtime
+    .getSecret({ id: runtime.config.simulationSigningSecretId })
+    .result().value;
+  if (!/^0x[0-9a-fA-F]{64}$/.test(key))
+    throw new Error("Simulation signing key unavailable");
+  const digest = hashTypedData({
+    domain: {
+      name: "CommitPass CRE simulation",
+      version: "1",
+      chainId: MONAD_TESTNET.chainId,
+      verifyingContract: runtime.config.receiver,
+    },
+    types: { SimulationReport: [{ name: "payload", type: "bytes" }] },
+    primaryType: "SimulationReport",
+    message: { payload },
+  });
+  try {
+    const signature = secp256k1.sign(digest.slice(2), key.slice(2), {
+      lowS: true,
+    });
+    if (signature.recovery > 1) throw new Error("Unsupported recovery ID");
+    const encoded =
+      `0x${signature.toCompactHex()}${(signature.recovery + 27).toString(16)}` as Hex;
+    return encodeAbiParameters(
+      [{ type: "bytes" }, { type: "bytes" }],
+      [payload, encoded],
+    );
+  } catch {
+    throw new Error("Could not sign simulation report");
+  }
 }
 
 function onCron(runtime: Runtime<Config>) {

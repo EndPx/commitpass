@@ -2,10 +2,13 @@
 
 Target: **Monad testnet (10143)**. SDK 1.22.0. Shared receiver ABI and wire formats live in `@commitpass/shared`.
 
-**Current execution choice:** local CRE simulation. DON deployment and its access
-process are deferred. Use `pnpm cre:local` at the repository root. The Anvil runner
-is described in [local/README.md](local/README.md); public activation instructions
-below are retained for a later deployment and are not required for the local run.
+**Current execution choice:** CRE CLI simulation with explicit `--broadcast`
+on Monad testnet, run by the VPS service. DON deployment remains deferred.
+The simulation receiver uses the official Monad MockForwarder and requires a
+receiver/chain-bound EIP-712 signature on every payload from an immutable operator
+signer. The public mock forwarder alone is not financial authorization. No DON
+workflow ID is fabricated; `isConfigured()` describes receiver readiness.
+The production `CommitPassAutomation` keeps its forwarder/workflow validation.
 
 ## Flow
 
@@ -33,29 +36,20 @@ pnpm --filter @commitpass/cre compile:wasm
 
 Ordinary monorepo builds typecheck CRE. Explicit WASM compilation produces `cre/dist/lifecycle.wasm` through Javy. A build is not workflow execution evidence.
 
-## Monad testnet cron simulation
+## Monad testnet simulation
 
-Run `pnpm --filter @commitpass/cre simulate` from the repository root after setting
-`lifecycle/config.testnet.json` to the receiver in the shared Monad testnet
-deployment manifest. The command builds the shared package and WASM, confirms
-chain ID 10143 and receiver bytecode through the public Monad testnet RPC, then
-runs one cron trigger without `--broadcast`. It uses an absolute WASM path so the
-CRE CLI works from Windows workspace paths containing spaces.
+The VPS cron runs `node scripts/simulate-testnet.mjs --broadcast` with a prebuilt
+WASM, the public Monad testnet RPC, reachable HTTPS attendance API and private
+signing credentials in its environment. It processes organizer requests and
+scheduled events using the same callback logic. A deployment access grant is not
+required for CLI simulation; the authenticated CLI is required.
 
-This command currently requires `vaultCount() == 0`. That guard prevents a future
-due event from freezing attendance through the backend during a supposedly
-read-only check. A `sweep completed` result with zero registered events proves
-the configured trigger and read path execute against Monad testnet; it does not
-prove an event start, settlement, receiver call, or deployed DON execution.
-For the complete start and settlement simulation, use `pnpm cre:local` against
-Anvil. Chainlink's [trigger overview](https://docs.chain.link/cre/capabilities/triggers)
-explains that simulation selects a trigger immediately, whereas deployed DONs
-watch for triggers continuously. Its [handler guide](https://docs.chain.link/cre/guides/workflow/using-triggers/overview)
-maps each trigger to a callback. The [EVM log trigger guide](https://docs.chain.link/cre/guides/workflow/using-triggers/evm-log-trigger-ts)
-documents the finalized confidence level and base64 address/topic filters used
-by this workflow.
+For a read-only check, `pnpm --filter @commitpass/cre simulate` omits broadcast
+and retains the empty-registry guard to avoid freezing attendance by accident.
+An empty-registry sweep proves only trigger/read execution. Financial writes
+require successful onchain receipts and receiver execution, recorded separately.
 
-After receiver signature changes, run `forge build` in `contracts`, then `node scripts/export-automation-abi.mjs` from the root and format its output. The ABI comes from the Solidity compiler artifact.
+After receiver signature changes, run `forge build` in `contracts`, then `node packages/shared/tools/export-automation-abi.mjs` from the root and format its output. The ABI comes from the Solidity compiler artifact.
 
 ## Configuration and activation
 
@@ -105,10 +99,30 @@ Failed HTTP requests, malformed data, unknown fields, digest mismatch and consen
 
 ## Current boundaries
 
-- The receiver and mock-asset contracts are deployed on Monad testnet; see `contracts/DEPLOYMENT.md`. No deployed DON execution or completed public event lifecycle is claimed. Local testnet config points at the Go API on loopback; deployed workflows require a reachable HTTPS endpoint. A real Privy-authorized check-in/snapshot run is still pending.
+- The receiver and mock-asset contracts are deployed on Monad testnet; see `contracts/DEPLOYMENT.md`. No deployed DON execution or completed public event lifecycle is claimed. Hosted simulation config points at the HTTPS Go API. A full Privy-authorized browser check-in journey remains a separate milestone.
 - Testnet uses Circle USDC on Monad (`0x534b2f3A21130d7a60830c2Df862319e593943A3`, 6 decimals) and a mock yield vault. It has no mainnet Clearstar connection or organic yield; token donations can model yield.
 - A valid empty attendance snapshot refunds all commitments plus recovered surplus without a platform fee. Owner cancellation before start opens principal refunds directly onchain. Redemption failure or principal shortfall reverts atomically, leaving settlement pending.
 - Claim allocations include deterministic remainder distribution in registration order. Platform revenue is 50% of no-show principal only when attendance is nonzero; no yield fee applies.
 - Privy/Mera login choices do not change participant identity: claims belong to the depositing wallet.
 
 References: [receiver contracts](https://docs.chain.link/cre/guides/workflow/using-evm-client/onchain-write/building-consumer-contracts), [EVM writes](https://docs.chain.link/cre/guides/workflow/using-evm-client/onchain-write/overview-ts), [secrets](https://docs.chain.link/cre/guides/workflow/secrets/using-secrets-simulation-ts).
+
+## Signed testnet broadcast
+
+`pnpm --filter @commitpass/cre simulate:broadcast` runs the cron handler with
+`--broadcast`. The preflight confirms chain 10143, the deployed receiver bytecode,
+MockForwarder, signing account and testnet MON balance. Signing credentials live
+in the VPS environment, never in workflow config or Git. Without `--broadcast`,
+the original empty-registry/read guard remains in place.
+
+The simulation report wraps the existing lifecycle payload as `(bytes payload,
+bytes signature)`. Its EIP-712 domain is `CommitPass CRE simulation`, version `1`,
+chain 10143 and the deployed simulation receiver. The signed type is
+`SimulationReport(bytes payload)`. Existing lifecycle, cutoff, membership, expiry,
+snapshot and one-time accounting checks execute after signature validation.
+
+The user's [EcoRound CRE workflow](https://github.com/eco-round/cre/tree/771eb69dbc8d092975104421bb21ca6c276ff5a6)
+informs `GenerateReport`/`WriteReport` plus `simulate --broadcast`. That reference
+uses a Tenderly Base fork. CommitPass targets the public Monad testnet RPC.
+See Chainlink's [simulation consumer requirements](https://docs.chain.link/cre/guides/workflow/using-evm-client/onchain-write/building-consumer-contracts#4-working-with-simulation)
+and [CLI broadcast option](https://docs.chain.link/cre/reference/cli/workflow).

@@ -50,7 +50,7 @@ profile links to the event's existing claim flow, which reads current chain stat
 
 The VPS uses `COMMITPASS_INDEXER_SCHEMA=envio_usdc` to read the USDC
 indexer namespace. Historical `envio` and `envio_hosted` schemas are preserved.
-Both `envio_hosted` and `envio_usdc` are accepted hosted overrides. [Hosted deployment](../deploy/README.md).
+Both `envio_hosted` and `envio_usdc` are accepted hosted overrides.
 
 These routes report Envio's indexed state, which may be delayed and can roll back after a reorg. They do not independently prove finality.
 
