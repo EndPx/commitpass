@@ -5,10 +5,10 @@ import {Test} from "forge-std/Test.sol";
 import {CommitPassVault} from "../src/CommitPassVault.sol";
 import {CommitPassFactory} from "../src/CommitPassFactory.sol";
 import {CommitPassAutomation} from "../src/CommitPassAutomation.sol";
-import {MockAUSD, MockYieldVault} from "../src/mocks/MockYieldVault.sol";
+import {MockUSDC, MockYieldVault} from "../src/mocks/MockYieldVault.sol";
 
 contract SettlementPolicyTest is Test {
-    MockAUSD internal asset;
+    MockUSDC internal asset;
     MockYieldVault internal yieldVault;
     CommitPassVault internal vault;
     address internal treasury = address(0xBEEF);
@@ -17,7 +17,7 @@ contract SettlementPolicyTest is Test {
     address internal carol = address(0x103);
 
     function setUp() public {
-        asset = new MockAUSD();
+        asset = new MockUSDC();
         yieldVault = new MockYieldVault(asset);
         vault = new CommitPassVault(1, address(this), 10e6, block.timestamp + 1 hours, block.timestamp + 2 hours, 3, address(yieldVault), treasury);
         asset.faucet();

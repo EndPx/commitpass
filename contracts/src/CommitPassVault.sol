@@ -5,6 +5,7 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 
@@ -16,7 +17,7 @@ interface IEventAutomation {
 contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
-    IERC20 public immutable ASSET_TOKEN;
+    IERC20 public immutable USDC_TOKEN;
     IERC4626 public immutable yieldVault;
     address public immutable treasury;
     address public immutable factory;
@@ -112,7 +113,9 @@ contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
 
         require(_yieldVault.code.length > 0 && _treasury != address(0), "Invalid yield configuration");
         yieldVault = IERC4626(_yieldVault);
-        ASSET_TOKEN = IERC20(yieldVault.asset());
+        address usdc = yieldVault.asset();
+        require(usdc.code.length > 0 && IERC20Metadata(usdc).decimals() == 6, "Invalid USDC asset");
+        USDC_TOKEN = IERC20(usdc);
         treasury = _treasury;
     }
 
@@ -129,7 +132,7 @@ contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
         require(!eventSettled, "Event already settled");
         require(participantAddresses.length < maxParticipant, "Max participants reached");
 
-        ASSET_TOKEN.safeTransferFrom(msg.sender, address(this), stakeAmount);
+        USDC_TOKEN.safeTransferFrom(msg.sender, address(this), stakeAmount);
         _mint(msg.sender, stakeAmount);
         user.hasDeposited = true;
         participantAddresses.push(msg.sender);
@@ -142,12 +145,12 @@ contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
      */
     function depositToYieldSource() external onlyLifecycleExecutor nonReentrant {
         require(!depositedToYield && !eventSettled, "Event not startable");
-        uint256 amountToDeposit = ASSET_TOKEN.balanceOf(address(this));
+        uint256 amountToDeposit = USDC_TOKEN.balanceOf(address(this));
         require(amountToDeposit > 0, "No assets to deposit");
-        ASSET_TOKEN.forceApprove(address(yieldVault), amountToDeposit);
+        USDC_TOKEN.forceApprove(address(yieldVault), amountToDeposit);
         uint256 shares = yieldVault.deposit(amountToDeposit, address(this));
         require(shares > 0, "No yield shares received");
-        ASSET_TOKEN.forceApprove(address(yieldVault), 0);
+        USDC_TOKEN.forceApprove(address(yieldVault), 0);
         totalDepositedToYield = amountToDeposit;
         depositedToYield = true;
         registrationClosed = true;
@@ -174,7 +177,7 @@ contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
         }
         _withdrawAllFromYieldSource();
         uint256 principal = stakeAmount * participantAddresses.length;
-        uint256 balance = ASSET_TOKEN.balanceOf(address(this));
+        uint256 balance = USDC_TOKEN.balanceOf(address(this));
         require(balance >= principal, "Principal shortfall");
         // All recovered surplus belongs to participants; there is no yield fee.
         totalYieldEarned = balance - principal;
@@ -186,7 +189,7 @@ contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
         eventSettled = true;
         eventSettlementTime = block.timestamp;
         _allocate(balance - protocolRevenue, attendedCount == 0);
-        if (protocolRevenue > 0) ASSET_TOKEN.safeTransfer(treasury, protocolRevenue);
+        if (protocolRevenue > 0) USDC_TOKEN.safeTransfer(treasury, protocolRevenue);
         emit EventSettled(totalYieldEarned, protocolRevenue);
         emit SettlementFinalized(settlementOutcome, noShowPrincipal, protocolRevenue, totalAllocated);
     }
@@ -197,7 +200,7 @@ contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
         require(block.timestamp < eventDate, "Event start time passed");
         require(automation == address(0) || IEventAutomation(automation).canCancel(address(this)), "Start already requested");
         uint256 principal = stakeAmount * participantAddresses.length;
-        require(ASSET_TOKEN.balanceOf(address(this)) >= principal, "Principal shortfall");
+        require(USDC_TOKEN.balanceOf(address(this)) >= principal, "Principal shortfall");
         registrationClosed = true;
         eventSettled = true;
         settlementOutcome = 3;
@@ -253,7 +256,7 @@ contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
             _withdrawAllFromYieldSource();
         }
 
-        ASSET_TOKEN.safeTransfer(msg.sender, rewardAmount);
+        USDC_TOKEN.safeTransfer(msg.sender, rewardAmount);
 
         emit RewardClaimed(msg.sender, rewardAmount);
     }
@@ -263,13 +266,13 @@ contract CommitPassVault is ERC20, Ownable, ReentrancyGuard {
         if (depositedToYield) {
             if (eventSettled) {
                 // After settlement: actual balance is accurate (protocol fee already deducted)
-                return ASSET_TOKEN.balanceOf(address(this));
+                return USDC_TOKEN.balanceOf(address(this));
             } else {
                 // Before settlement: show gross assets (deposited + earned yield)
-                return ASSET_TOKEN.balanceOf(address(this)) + yieldVault.convertToAssets(yieldVault.balanceOf(address(this)));
+                return USDC_TOKEN.balanceOf(address(this)) + yieldVault.convertToAssets(yieldVault.balanceOf(address(this)));
             }
         }
-        return ASSET_TOKEN.balanceOf(address(this));
+        return USDC_TOKEN.balanceOf(address(this));
     }
 
     function maxDeposit(address) public view returns (uint256) {
