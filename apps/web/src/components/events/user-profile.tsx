@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePrivy } from "@privy-io/react-auth";
-import { ArrowUpRight, RefreshCw, UserRound } from "lucide-react";
+import { ArrowUpRight, Copy, RefreshCw, UserRound } from "lucide-react";
 import { erc20Abi, type Address } from "viem";
 import type {
   ProfilePage,
@@ -34,6 +34,8 @@ export function UserProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [kind, setKind] = useState("all");
+  const [view, setView] = useState("activity");
+  const [copiedWallet, setCopiedWallet] = useState("");
   const [after, setAfter] = useState("");
   const [attempt, setAttempt] = useState(0);
   const [balance, setBalance] = useState<{
@@ -89,7 +91,7 @@ export function UserProfile() {
       }
     })();
     return () => controller.abort();
-  }, [accountId, kind, after, attempt, getAccessToken]);
+  }, [accountId, wallets, kind, after, attempt, getAccessToken]);
   useEffect(() => {
     if (!accountId) return;
     let active = true;
@@ -167,6 +169,50 @@ export function UserProfile() {
             </button>
           </div>
         )}
+        <div
+          className="profile-view-tabs"
+          role="tablist"
+          aria-label="Profile sections"
+        >
+          {[
+            { id: "activity", name: "Activity" },
+            { id: "analytics", name: "Analytics" },
+          ].map((section) => (
+            <button
+              key={section.id}
+              id={`profile-tab-${section.id}`}
+              role="tab"
+              data-view={section.id}
+              aria-selected={view === section.id}
+              aria-controls={`profile-panel-${section.id}`}
+              tabIndex={view === section.id ? 0 : -1}
+              onClick={() => setView(section.id)}
+              onKeyDown={(event) => {
+                if (
+                  !["ArrowLeft", "ArrowRight", "Home", "End"].includes(
+                    event.key,
+                  )
+                )
+                  return;
+                event.preventDefault();
+                const next =
+                  event.key === "Home"
+                    ? "activity"
+                    : event.key === "End"
+                      ? "analytics"
+                      : view === "activity"
+                        ? "analytics"
+                        : "activity";
+                setView(next);
+                event.currentTarget.parentElement
+                  ?.querySelector<HTMLButtonElement>(`[data-view="${next}"]`)
+                  ?.focus();
+              }}
+            >
+              {section.name}
+            </button>
+          ))}
+        </div>
         <section className="profile-funds" aria-label="Your USDC funds">
           <Fund
             label="Wallet balance"
@@ -184,142 +230,95 @@ export function UserProfile() {
           <Fund
             label="Committed"
             value={amount(page.summary.committedAmount)}
-            note="Locked in active events"
           />
           <Fund
             label="To collect"
             value={amount(page.summary.claimableAmount)}
-            note="Available after settlement"
             highlight={BigInt(page.summary.claimableAmount) > 0n}
           />
-          <Fund
-            label="Received"
-            value={amount(page.summary.receivedAmount)}
-            note="Confirmed claims"
-          />
+          <Fund label="Received" value={amount(page.summary.receivedAmount)} />
         </section>
-        <section
-          className="profile-participation"
-          aria-label="Your participation"
-        >
-          <div>
-            <strong>{page.summary.eventsJoined}</strong>
-            <span>Events joined</span>
+        {view === "analytics" ? (
+          <div
+            role="tabpanel"
+            id="profile-panel-analytics"
+            aria-labelledby="profile-tab-analytics"
+          >
+            <ProfileCharts summary={page.summary} />
           </div>
-          <div>
-            <strong>{page.summary.eventsHosted}</strong>
-            <span>Events hosted</span>
-          </div>
-          <div>
-            <strong>
-              {page.summary.settledEvents
-                ? `${Math.round((page.summary.eventsAttended / page.summary.settledEvents) * 100)}%`
-                : "—"}
-            </strong>
-            <span>Attendance</span>
-            <small>
-              {page.summary.settledEvents
-                ? `${page.summary.eventsAttended} of ${page.summary.settledEvents} settled events`
-                : "Recorded after settlement"}
-            </small>
-          </div>
-        </section>
-        <ProfileCharts summary={page.summary} />
-        <section aria-labelledby="profile-activity-heading">
-          <div className="profile-activity-heading">
-            <h2 id="profile-activity-heading">Your activity</h2>
-            <div className="plans-role-filter" aria-label="Activity filter">
-              {[
-                { id: "all", name: "All" },
-                { id: "claimable", name: "To collect" },
-                { id: "received", name: "Received" },
-              ].map((filter) => (
-                <button
-                  key={filter.id}
-                  aria-pressed={kind === filter.id}
-                  className={kind === filter.id ? "selected" : ""}
-                  onClick={() => {
-                    setKind(filter.id);
-                    setAfter("");
-                  }}
-                >
-                  {filter.name}
-                </button>
-              ))}
+        ) : (
+          <section
+            role="tabpanel"
+            id="profile-panel-activity"
+            aria-labelledby="profile-tab-activity"
+          >
+            <div className="profile-activity-heading">
+              <h2 id="profile-activity-heading">Your activity</h2>
+              <div className="plans-role-filter" aria-label="Activity filter">
+                {[
+                  { id: "all", name: "All" },
+                  { id: "claimable", name: "To collect" },
+                  { id: "received", name: "Received" },
+                ].map((filter) => (
+                  <button
+                    key={filter.id}
+                    aria-pressed={kind === filter.id}
+                    className={kind === filter.id ? "selected" : ""}
+                    onClick={() => {
+                      setKind(filter.id);
+                      setAfter("");
+                    }}
+                  >
+                    {filter.name}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-          {!positions || (loading && !positions.length) ? (
-            <p className="profile-loading" role="status">
-              Loading activity…
-            </p>
-          ) : positions.length ? (
-            <div className="profile-positions">
-              {positions.map((position) => (
-                <Position key={position.id} position={position} />
-              ))}
-            </div>
-          ) : (
-            <div className="profile-activity-empty">
-              <p>
-                {kind === "claimable"
-                  ? "No returns to collect right now."
-                  : kind === "received"
-                    ? "Your received returns will appear here."
-                    : "Your commitments and returns will appear here."}
+            {!positions || (loading && !positions.length) ? (
+              <p className="profile-loading" role="status">
+                Loading activity…
               </p>
-              {kind === "all" && (
-                <Link className="button button--small" href="/discover">
-                  Discover events <ArrowUpRight size={15} />
-                </Link>
-              )}
-            </div>
-          )}
-          {page.nextCursor && current?.kind === kind && (
-            <div className="plans-pagination">
-              <button
-                className="button"
-                disabled={loading}
-                onClick={() => setAfter(page.nextCursor!)}
-              >
-                {loading ? "Loading…" : "Load more activity"}
-              </button>
-            </div>
-          )}
-        </section>
-        <p className="profile-settlement-note">
-          After an event settles, collect your return on its event page. Funds
-          reach your wallet when the claim confirms. Activity may take a moment
-          to update.
-        </p>
-        {!!session?.wallets.length && (
-          <div className="profile-wallets">
-            <span>Your linked wallets</span>
-            {session.wallets.map((wallet) => (
-              <a
-                href={`${explorer}/address/${wallet}`}
-                key={wallet}
-                target="_blank"
-                rel="noreferrer"
-              >
-                {shorten(wallet)} <ArrowUpRight size={13} />
-              </a>
-            ))}
-          </div>
+            ) : positions.length ? (
+              <div className="profile-positions">
+                {positions.map((position) => (
+                  <Position key={position.id} position={position} />
+                ))}
+              </div>
+            ) : (
+              <div className="profile-activity-empty">
+                <p>
+                  {kind === "claimable"
+                    ? "No returns to collect right now."
+                    : kind === "received"
+                      ? "Your received returns will appear here."
+                      : "Your commitments and returns will appear here."}
+                </p>
+                {kind === "all" && (
+                  <Link className="button button--small" href="/discover">
+                    Discover events <ArrowUpRight size={15} />
+                  </Link>
+                )}
+              </div>
+            )}
+            {page.nextCursor && current?.kind === kind && (
+              <div className="plans-pagination">
+                <button
+                  className="button"
+                  disabled={loading}
+                  onClick={() => setAfter(page.nextCursor!)}
+                >
+                  {loading ? "Loading…" : "Load more activity"}
+                </button>
+              </div>
+            )}
+          </section>
         )}
       </>
     );
   return (
     <main className="workspace-content profile-page" id="workspace-main">
       <div className="profile-heading">
-        <div className="profile-identity">
-          <span className="profile-avatar" aria-hidden="true">
-            {name[0]?.toUpperCase()}
-          </span>
-          <div>
-            <h1>{authenticated ? name : "Profile"}</h1>
-            {authenticated && email && <p>{email}</p>}
-          </div>
-        </div>
+        <h1>Profile</h1>
         {authenticated && (
           <button
             className="profile-refresh"
@@ -331,6 +330,80 @@ export function UserProfile() {
           </button>
         )}
       </div>
+      {authenticated && (
+        <section
+          className="profile-overview"
+          aria-label="Your profile overview"
+        >
+          <div className="profile-identity">
+            <span className="profile-avatar" aria-hidden="true">
+              {name[0]?.toUpperCase()}
+            </span>
+            <div>
+              <h2>{name}</h2>
+              {authenticated && email && <p>{email}</p>}
+              <div className="profile-wallet-line">
+                <span>Wallet</span>
+                {session?.wallets[0] ? (
+                  <>
+                    <a
+                      href={`${explorer}/address/${session.wallets[0]}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      title={session.wallets[0]}
+                    >
+                      {shorten(session.wallets[0])}
+                    </a>
+                    <button
+                      aria-label="Copy wallet address"
+                      title={
+                        copiedWallet === session.wallets[0]
+                          ? "Copied"
+                          : "Copy address"
+                      }
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(
+                            session.wallets[0]!,
+                          );
+                          setCopiedWallet(session.wallets[0]!);
+                        } catch {
+                          setCopiedWallet("");
+                        }
+                      }}
+                    >
+                      <Copy size={13} />
+                    </button>
+                    {copiedWallet === session.wallets[0] && (
+                      <small role="status">Copied</small>
+                    )}
+                  </>
+                ) : (
+                  <small>{connecting ? "Loading…" : "Not set up yet"}</small>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="profile-metrics" aria-label="Your participation">
+            <Metric
+              label="Events joined"
+              value={page ? String(page.summary.eventsJoined) : "—"}
+            />
+            <Metric
+              label="Attendance"
+              value={
+                page?.summary.settledEvents
+                  ? `${Math.round((page.summary.eventsAttended / page.summary.settledEvents) * 100)}%`
+                  : "—"
+              }
+            />
+            <Metric
+              label="Events hosted"
+              value={page ? String(page.summary.eventsHosted) : "—"}
+            />
+          </div>
+        </section>
+      )}
       {content}
     </main>
   );
@@ -338,13 +411,11 @@ export function UserProfile() {
 function Fund({
   label,
   value,
-  note,
   token = true,
   highlight = false,
 }: {
   label: string;
   value: string;
-  note?: string;
   token?: boolean;
   highlight?: boolean;
 }) {
@@ -353,7 +424,14 @@ function Fund({
       <span>{label}</span>
       <strong>{value}</strong>
       {token && <small>USDC</small>}
-      {note && <p>{note}</p>}
+    </div>
+  );
+}
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="profile-metric">
+      <span>{label}</span>
+      <strong>{value}</strong>
     </div>
   );
 }

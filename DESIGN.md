@@ -239,6 +239,18 @@ Add an attendance ring and a six-month registration bar chart. Use full-history
 Envio aggregates and exact distinct-event counts; deduplicate multiple linked
 wallets at their first event commitment. Calendar buckets use UTC. SVG/CSS marks
 are static, with text values and captions, and show honest zero-data states.
+The supplied Axis portfolio screenshot informs compact hierarchy: identity and
+three metric tiles share a desktop row, followed by Activity/Analytics tabs and
+a compact financial strip. Activity is the initial view and its heading/first
+rows appear above the fold; charts live under Analytics. Keep the existing light
+palette and typography. Remove the settlement explanation beneath the activity.
+
+Header Faucet opens a dialog with fixed USDC/Monad testnet and a verified linked
+wallet (prefer Privy's embedded wallet). No wallet means an explicit create-wallet
+action, then refresh verification before using its address. Multiple wallets can
+be selected. The current Circle form did not honor the tested network/address URL
+parameters; show honest instructions, copy the address, and open the official
+faucet. Never claim the external form was autofilled or submit a faucet request.
 
 Events and Discover are different browsing surfaces. The supplied Luma events
 screenshot is the reference for the personal list: a 900px content measure,

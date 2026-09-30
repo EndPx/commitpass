@@ -9,6 +9,7 @@ import { Brand } from "@/components/landing/brand";
 import { AccountProvider } from "./account-context";
 import { PageThemeProvider } from "./page-theme";
 import { LocalRuntimeNotice } from "./local-runtime";
+import { Faucet } from "./faucet";
 import { isLocal } from "@/lib/runtime-network";
 
 export default function PlatformRuntime({ children }: { children: ReactNode }) {
@@ -99,6 +100,7 @@ function Navigation() {
           </Link>
         </nav>
         <div className="workspace-header-actions">
+          <Faucet />
           {clock && (
             <time className="workspace-clock" dateTime={clock.datetime}>
               {clock.label}
