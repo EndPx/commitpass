@@ -32,4 +32,4 @@ forge verify-contract <address> <source.sol:Contract> \
 
 The contracts are deployed. The CRE receiver's `workflowId` remains zero until a real registered workflow ID is available. CRE deployment access and the authenticated frozen-attendance API remain prerequisites for activating the automated lifecycle. Do not configure a fabricated workflow ID or a simulation forwarder to bypass these checks.
 
-The indexer launcher consumes this deployment manifest by default and resumes from stored progress. Its public-RPC queries are capped below the provider's 100-block range limit. API and indexer processes currently run locally; they are not a hosted application. No event has been created or settled as part of this deployment.
+The indexer launcher consumes this deployment manifest by default and resumes from stored progress. Its public-RPC queries are capped below the provider's 100-block range limit. API and indexer processes are now hosted on the VPS; see [hosting evidence](../deploy/README.md). No public event has been created or settled as part of this contract deployment.

@@ -15,6 +15,13 @@ check-in → settlement → claim through Privy, Go/Neon, Envio and CRE CLI on A
 See [the recorded local application flow](cre/evidence/interactive-local-2026-09-28.json).
 Use `pnpm local:app` to run it; the public testnet deployment is unchanged.
 
+The frontend is now hosted at [commitpass-kappa.vercel.app](https://commitpass-kappa.vercel.app).
+The Go API, Envio indexer and recurring CRE read simulation run on the Hostinger
+VPS, with [HTTPS API](https://commitpass-api.endpx.cloud/health). Google sign-in
+and the deployed account workspace were checked in the browser. Envio's initial
+backfill is still in progress, and public event publishing remains blocked by the
+unconfigured CRE receiver. See [hosting evidence and operations](deploy/README.md).
+
 ## Repository layout
 
 ```text

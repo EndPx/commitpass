@@ -35,6 +35,10 @@ no authorization to write event metadata or attendance.
 
 `INDEXER_DATABASE_URL` must target `commitpass_indexer`. Connections default to read-only transactions, with two connections and bounded query timeouts. Connection and SQL errors are not exposed to callers. Missing configuration or schema yields 503; an unindexed event detail yields 404.
 
+The VPS uses `COMMITPASS_INDEXER_SCHEMA=envio_hosted` to read the new hosted
+indexer without resetting the earlier `envio` schema. This is the only accepted
+hosted override. [Hosted deployment](../deploy/README.md).
+
 These routes report Envio's indexed state, which may be delayed and can roll back after a reorg. They do not independently prove finality.
 
 ## Privy authentication
