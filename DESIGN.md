@@ -230,11 +230,16 @@ grouped in the viewer's timezone. Personal badges use only the verified role
 and indexed lifecycle state; guest counts use participantCount. No invented
 approval states, profile photos, attendee faces, or live example events.
 
-Discover uses a 1080px content measure, a wide search input, date/format/open-spot
-filters, and a responsive three/two/one-column poster grid. Search filters loaded
+Events and Discover share the same 900px content measure, 32px heading, top
+spacing, and Upcoming/Past control. Desktop app navigation aligns with that
+content's left edge; both links have equal visual weight and active state rules.
+Discover has one compact toolbar: a search input, an event count, and Filters.
+Format, Next 7 days, and open-spot options live in a dismissible filter popover.
+No subtitle, duplicate host action, or extra results heading above the events.
+Discover uses a responsive three/two/one-column poster grid. Search filters loaded
 event titles and locations, with pagination still available. Reset is present
-when filters produce no matches. Its empty state uses existing original cover
-art as decoration and explicitly says no published events are available. Document
+when filters produce no matches. Both routes share the same restrained empty
+state structure, explicitly describing the missing events and a relevant action. Document
 scroll owns both routes; the existing header remains sticky. Mobile timelines
 place dates above cards, use 84px posters, and keep all controls reachable at
 44px minimum height. Cards wrap long titles and locations without overflow.

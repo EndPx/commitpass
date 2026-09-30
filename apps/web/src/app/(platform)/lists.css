@@ -1,13 +1,9 @@
-.workspace-content.events-page {
+.workspace-content.events-page,
+.workspace-content.discover-page {
   width: min(100%, 944px);
   padding: 40px 24px 48px;
 }
-.workspace-content.discover-page {
-  width: min(100%, 1128px);
-  padding: 44px 24px 56px;
-}
-.plans-heading,
-.discover-heading {
+.plans-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -314,45 +310,20 @@
   color: var(--muted);
   text-align: center;
 }
-.discover-heading {
-  align-items: flex-end;
-  margin-bottom: 28px;
-}
-.discover-heading h1 {
-  font-size: 40px;
-  font-weight: 600;
-  letter-spacing: -0.045em;
-  line-height: 1.2;
-}
-.discover-heading p {
-  color: var(--muted);
-  font-size: 16px;
-  line-height: 1.65;
-  margin-top: 8px;
-}
-.discover-host-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  min-height: 44px;
-  font-size: 14px;
-  padding: 0 12px;
-  border-radius: 9px;
-  flex-shrink: 0;
-}
-.discover-host-link:hover {
-  background: rgb(37 38 34 / 4%);
+.discover-toolbar {
+  gap: 12px;
 }
 .discover-search {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  width: min(360px, 100%);
+  min-width: 0;
   border: 1px solid var(--line);
   background: var(--white);
-  border-radius: 12px;
-  min-height: 56px;
-  padding: 0 16px;
+  border-radius: 9px;
+  min-height: 44px;
+  padding: 0 12px;
   color: var(--muted);
 }
 .discover-search > input {
@@ -363,8 +334,8 @@
   background: transparent;
   color: var(--ink);
   font: inherit;
-  font-size: 16px;
-  min-height: 54px;
+  font-size: 14px;
+  min-height: 42px;
 }
 .discover-search > input::-webkit-search-cancel-button {
   display: none;
@@ -380,7 +351,7 @@
   place-items: center;
   flex-shrink: 0;
   width: 44px;
-  height: 44px;
+  min-height: 44px;
   background: transparent;
   color: var(--muted);
   border: 0;
@@ -390,31 +361,86 @@
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
-.discover-filters {
+.discover-toolbar-actions {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
-  margin-top: 14px;
+  gap: 16px;
+  flex-shrink: 0;
+}
+.event-list-count {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.discover-filter-menu {
+  position: relative;
+}
+.discover-filter-menu > summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  list-style: none;
+  font-size: 13px;
+  cursor: pointer;
+}
+.discover-filter-menu > summary::-webkit-details-marker {
+  display: none;
+}
+.discover-filter-menu > summary.selected {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.discover-filter-menu > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.filter-count {
+  font-size: 11px;
+  font-weight: 600;
+}
+.discover-filters {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 45;
+  width: 240px;
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgb(37 38 34 / 8%);
+}
+.discover-filters > strong {
+  font-size: 13px;
+  font-weight: 550;
+  margin-bottom: 4px;
 }
 .discover-filters > label,
 .discover-filters > button {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   min-height: 44px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 8px;
   background: transparent;
   color: var(--muted);
-  padding: 0 12px;
+  padding: 0 10px;
   font: inherit;
   font-size: 13px;
 }
 .discover-filters select {
   min-height: 42px;
   min-width: 0;
-  max-width: 100%;
+  width: 100%;
   border: 0;
   color: var(--ink);
   background: transparent;
@@ -432,24 +458,7 @@
 }
 .discover-filters > button.filter-reset {
   border: 0;
-  padding: 0 10px;
-}
-.discover-results-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin: 36px 0 22px;
-}
-.discover-results-heading h2 {
-  font-size: 20px;
-  letter-spacing: -0.025em;
-  font-weight: 550;
-}
-.discover-results-heading > span {
-  color: var(--muted);
-  font-size: 13px;
-  white-space: nowrap;
+  justify-content: center;
 }
 .discover-grid {
   display: grid;
@@ -521,56 +530,6 @@
   color: var(--muted);
   font-weight: 400;
   font-size: 12px;
-}
-.discover-empty {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  text-align: center;
-  padding: 36px 20px 56px;
-}
-.discover-empty-art {
-  height: 184px;
-  width: 300px;
-  max-width: 100%;
-  position: relative;
-  margin-bottom: 28px;
-}
-.discover-empty-art > img {
-  position: absolute;
-  width: 124px;
-  height: 150px;
-  object-fit: cover;
-  border-radius: 12px;
-  top: 16px;
-  border: 5px solid var(--white);
-  box-shadow: 0 6px 16px rgb(37 38 34 / 6%);
-}
-.discover-empty-art > img:nth-child(1) {
-  left: 12px;
-  transform: rotate(-12deg);
-}
-.discover-empty-art > img:nth-child(2) {
-  left: 88px;
-  top: 0;
-  z-index: 1;
-  transform: rotate(2deg);
-}
-.discover-empty-art > img:nth-child(3) {
-  right: 12px;
-  transform: rotate(13deg);
-}
-.discover-empty h2 {
-  font-size: 24px;
-  letter-spacing: -0.035em;
-  font-weight: 500;
-}
-.discover-empty p {
-  max-width: 380px;
-  font-size: 14px;
-  color: var(--muted);
-  line-height: 1.75;
-  margin: 12px 0 24px;
 }
 .plans-skeletons {
   display: grid;
@@ -705,41 +664,18 @@
   .plans-skeletons {
     padding-left: 0;
   }
-  .discover-heading {
-    flex-wrap: wrap;
+  .discover-toolbar-actions {
     gap: 8px;
-    align-items: flex-start;
-    margin-bottom: 22px;
   }
-  .discover-heading h1 {
-    font-size: 32px;
-  }
-  .discover-heading p {
-    font-size: 14px;
-  }
-  .discover-host-link {
-    padding-left: 0;
+  .event-list-count {
+    display: none;
   }
   .discover-search {
-    min-height: 52px;
-    padding-inline: 12px;
+    flex: 1;
+    padding-inline: 10px;
   }
   .discover-search > input {
-    min-height: 50px;
-  }
-  .discover-filters {
-    gap: 8px;
-  }
-  .discover-filters > label,
-  .discover-filters > button {
-    padding-inline: 10px;
-    font-size: 12px;
-  }
-  .discover-results-heading {
-    margin-top: 28px;
-  }
-  .discover-results-heading h2 {
-    font-size: 18px;
+    font-size: 13px;
   }
   .discover-grid {
     grid-template-columns: minmax(0, 1fr);
@@ -747,12 +683,6 @@
   }
   .discover-card .plan-card-info h2 {
     font-size: 20px;
-  }
-  .discover-empty {
-    padding: 24px 0 36px;
-  }
-  .discover-empty h2 {
-    font-size: 22px;
   }
   .workspace-empty.plans-empty {
     padding: 44px 0;

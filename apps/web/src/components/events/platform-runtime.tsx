@@ -83,6 +83,7 @@ function Navigation() {
         <nav aria-label="App navigation">
           <Link
             className={path.startsWith("/events") ? "active" : ""}
+            aria-current={path.startsWith("/events") ? "page" : undefined}
             href="/events"
           >
             <CalendarDays size={17} />
@@ -90,6 +91,7 @@ function Navigation() {
           </Link>
           <Link
             className={path === "/discover" ? "active" : ""}
+            aria-current={path === "/discover" ? "page" : undefined}
             href="/discover"
           >
             <Compass size={17} />

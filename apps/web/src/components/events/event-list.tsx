@@ -1,12 +1,11 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePrivy } from "@privy-io/react-auth";
 import {
   ArrowRight,
   CalendarDays,
   Compass,
-  Plus,
   Search,
   SlidersHorizontal,
   Ticket,
@@ -14,8 +13,6 @@ import {
 } from "lucide-react";
 import type { EventPage, EventSummary } from "@commitpass/shared";
 import { dateLabel, eventTitle, jsonRequest } from "@/lib/events";
-import brandMedia from "@/lib/brand-media.json";
-import { coverImageUrl } from "@/lib/media";
 import { useAccount } from "./account-context";
 import { EventListCard, eventFormat, hasOpenSpots } from "./event-list-card";
 
@@ -34,6 +31,26 @@ export function EventList({ personal = false }: { personal?: boolean }) {
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
   const [now, setNow] = useState(Date.now);
+  const filterMenu = useRef<HTMLDetailsElement>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  useEffect(() => {
+    if (!filtersOpen) return;
+    const dismiss = (event: PointerEvent) => {
+      if (!filterMenu.current?.contains(event.target as Node))
+        filterMenu.current?.removeAttribute("open");
+    };
+    const escape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      filterMenu.current?.removeAttribute("open");
+      filterMenu.current?.querySelector("summary")?.focus();
+    };
+    document.addEventListener("pointerdown", dismiss);
+    document.addEventListener("keydown", escape);
+    return () => {
+      document.removeEventListener("pointerdown", dismiss);
+      document.removeEventListener("keydown", escape);
+    };
+  }, [filtersOpen]);
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 60000);
     return () => window.clearInterval(timer);
@@ -110,7 +127,9 @@ export function EventList({ personal = false }: { personal?: boolean }) {
     const day = new Date(Number(event.startAt) * 1000).toDateString();
     groups.set(day, [...(groups.get(day) ?? []), event]);
   }
-  const filtered = !!search || format !== "all" || openOnly || tab === "week";
+  const extraFilterCount =
+    Number(format !== "all") + Number(openOnly) + Number(tab === "week");
+  const filtered = !!search || extraFilterCount > 0;
   const resetFilters = () => {
     setSearch("");
     setFormat("all");
@@ -246,23 +265,32 @@ export function EventList({ personal = false }: { personal?: boolean }) {
       id="workspace-main"
       className={`workspace-content ${personal ? "events-page" : "discover-page"}`}
     >
+      <div className="plans-heading">
+        <h1>{personal ? "Events" : "Discover"}</h1>
+        <div className="segmented" aria-label="Event dates">
+          {["upcoming", "past"].map((value) => (
+            <button
+              key={value}
+              aria-pressed={
+                value === "upcoming" ? tab !== "past" : tab === "past"
+              }
+              className={
+                (value === "upcoming" ? tab !== "past" : tab === "past")
+                  ? "selected"
+                  : ""
+              }
+              onClick={() => {
+                setTab(value);
+                if (value === "past") setOpenOnly(false);
+              }}
+            >
+              {value === "upcoming" ? "Upcoming" : "Past"}
+            </button>
+          ))}
+        </div>
+      </div>
       {personal ? (
         <>
-          <div className="plans-heading">
-            <h1>Events</h1>
-            <div className="segmented" aria-label="Event dates">
-              {["upcoming", "past"].map((value) => (
-                <button
-                  key={value}
-                  aria-pressed={tab === value}
-                  className={tab === value ? "selected" : ""}
-                  onClick={() => setTab(value)}
-                >
-                  {value === "upcoming" ? "Upcoming" : "Past"}
-                </button>
-              ))}
-            </div>
-          </div>
           <div className="plans-controls">
             <div className="plans-role-filter" aria-label="Your role">
               {["all", "hosting", "going"].map((value) => (
@@ -298,92 +326,83 @@ export function EventList({ personal = false }: { personal?: boolean }) {
         </>
       ) : (
         <>
-          <div className="discover-heading">
-            <div>
-              <h1>Discover</h1>
-              <p>Find your people. Make a plan worth keeping.</p>
+          <div className="plans-controls discover-toolbar">
+            <div className="discover-search">
+              <Search size={17} />
+              <input
+                type="search"
+                aria-label="Search loaded events by name or place"
+                placeholder="Search events or places"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+              />
+              {search && (
+                <button
+                  type="button"
+                  aria-label="Clear search"
+                  onClick={() => setSearch("")}
+                >
+                  <X size={17} />
+                </button>
+              )}
             </div>
-            <Link href="/events/new" className="discover-host-link">
-              <Plus size={16} /> Host an event
-            </Link>
-          </div>
-          <label className="discover-search">
-            <Search size={20} />
-            <input
-              type="search"
-              aria-label="Search loaded events by name or place"
-              placeholder="Search events or places"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-            />
-            {search && (
-              <button
-                type="button"
-                aria-label="Clear search"
-                onClick={() => setSearch("")}
+            <div className="discover-toolbar-actions">
+              {!loading && !error && (
+                <span className="event-list-count" aria-live="polite">
+                  {visible.length}
+                  {cursor ? "+" : ""}{" "}
+                  {visible.length === 1 ? "event" : "events"}
+                </span>
+              )}
+              <details
+                className="discover-filter-menu"
+                ref={filterMenu}
+                onToggle={(event) => setFiltersOpen(event.currentTarget.open)}
               >
-                <X size={17} />
-              </button>
-            )}
-          </label>
-          <div className="discover-filters">
-            <label>
-              <CalendarDays size={16} />
-              <select
-                aria-label="Event dates"
-                value={tab}
-                onChange={(event) => {
-                  setTab(event.target.value);
-                  if (event.target.value === "past") setOpenOnly(false);
-                }}
-              >
-                <option value="upcoming">Upcoming</option>
-                <option value="week">Next 7 days</option>
-                <option value="past">Past events</option>
-              </select>
-            </label>
-            <label>
-              <Compass size={16} />
-              <select
-                aria-label="Event format"
-                value={format}
-                onChange={(event) => setFormat(event.target.value)}
-              >
-                <option value="all">Any format</option>
-                <option value="in-person">In person</option>
-                <option value="online">Online</option>
-              </select>
-            </label>
-            <button
-              aria-pressed={openOnly}
-              disabled={tab === "past"}
-              className={openOnly ? "selected" : ""}
-              onClick={() => setOpenOnly((value) => !value)}
-            >
-              <SlidersHorizontal size={16} /> Spots available
-            </button>
-            {filtered && (
-              <button className="filter-reset" onClick={resetFilters}>
-                Reset
-              </button>
-            )}
-          </div>
-          <div className="discover-results-heading">
-            <h2>
-              {search
-                ? "Search results"
-                : tab === "past"
-                  ? "Past gatherings"
-                  : tab === "week"
-                    ? "Happening soon"
-                    : "Plans to look forward to"}
-            </h2>
-            {!loading && !error && (
-              <span aria-live="polite">
-                {visible.length}
-                {cursor ? "+" : ""} {visible.length === 1 ? "event" : "events"}
-              </span>
-            )}
+                <summary className={extraFilterCount > 0 ? "selected" : ""}>
+                  <SlidersHorizontal size={16} /> Filters
+                  {extraFilterCount > 0 && (
+                    <span className="filter-count">{extraFilterCount}</span>
+                  )}
+                </summary>
+                <div className="discover-filters">
+                  <strong>Filter events</strong>
+                  <label>
+                    <Compass size={16} />
+                    <select
+                      aria-label="Event format"
+                      value={format}
+                      onChange={(event) => setFormat(event.target.value)}
+                    >
+                      <option value="all">Any format</option>
+                      <option value="in-person">In person</option>
+                      <option value="online">Online</option>
+                    </select>
+                  </label>
+                  <button
+                    aria-pressed={tab === "week"}
+                    disabled={tab === "past"}
+                    className={tab === "week" ? "selected" : ""}
+                    onClick={() => setTab(tab === "week" ? "upcoming" : "week")}
+                  >
+                    <CalendarDays size={16} /> Next 7 days
+                  </button>
+                  <button
+                    aria-pressed={openOnly}
+                    disabled={tab === "past"}
+                    className={openOnly ? "selected" : ""}
+                    onClick={() => setOpenOnly((value) => !value)}
+                  >
+                    <Ticket size={16} /> Spots available
+                  </button>
+                  {filtered && (
+                    <button className="filter-reset" onClick={resetFilters}>
+                      Reset
+                    </button>
+                  )}
+                </div>
+              </details>
+            </div>
           </div>
         </>
       )}
@@ -404,31 +423,21 @@ export function EventList({ personal = false }: { personal?: boolean }) {
 
 function DiscoverEmpty({ past }: { past: boolean }) {
   return (
-    <div className="discover-empty">
-      <div className="discover-empty-art" aria-hidden="true">
-        {brandMedia.templates.slice(0, 3).map((cover) => (
-          <img
-            key={cover.url}
-            src={coverImageUrl(cover.url, 320)}
-            alt=""
-            loading="lazy"
-          />
-        ))}
-      </div>
-      <h2>
-        {past
+    <EmptyEvents
+      icon={<Compass size={30} strokeWidth={1.4} />}
+      title={
+        past
           ? "Every good plan leaves a memory."
-          : "Good plans start with someone."}
-      </h2>
-      <p>
-        {past
+          : "Good plans start with someone."
+      }
+      description={
+        past
           ? "Past events will appear here once they’ve finished."
-          : "There are no published events here yet. Bring your community together and create the first one."}
-      </p>
-      <Link className="button" href="/events/new">
-        Host a gathering <ArrowRight size={16} />
-      </Link>
-    </div>
+          : "No published events yet. Bring your people together and create the first one."
+      }
+      href="/events/new"
+      action="Create an event"
+    />
   );
 }
 
@@ -437,16 +446,18 @@ export function EmptyEvents({
   description,
   href,
   action,
+  icon,
 }: {
   title: string;
   description: string;
   href: string;
   action: string;
+  icon?: ReactNode;
 }) {
   return (
     <div className="workspace-empty plans-empty">
       <div className="plans-empty-icon" aria-hidden="true">
-        <Ticket size={30} strokeWidth={1.4} />
+        {icon ?? <Ticket size={30} strokeWidth={1.4} />}
       </div>
       <h2>{title}</h2>
       <p>{description}</p>
