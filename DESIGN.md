@@ -231,6 +231,9 @@ scroll owns both routes; the existing header remains sticky. Mobile timelines
 place dates above cards, use 84px posters, and keep all controls reachable at
 44px minimum height. Cards wrap long titles and locations without overflow.
 Skeletons follow the final geometry; failed reads keep a visible retry action.
+The discovery grid follows the [StyleGallery card-grid pattern](https://github.com/changeroa/StyleGallery/blob/main/patterns/grid-repetition/card-grid.md):
+repeating media cards share column tracks and use document scrolling rather than
+independent scrolling panels.
 
 Event detail keeps the cover/host column and editorial title, dates, venue/map,
 reservation panel and description. Read current contract state before offering

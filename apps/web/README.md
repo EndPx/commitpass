@@ -246,7 +246,8 @@ feedback, while genuinely empty results have a distinct invitation to host.
 
 Browser checks on 30 September 2026 used local API response fixtures to inspect
 populated views without publishing sample events. Three/two/one-column discovery
-and the personal timeline were reviewed at desktop, tablet and phone widths;
+was reviewed at desktop, tablet and phone widths; the personal timeline was
+reviewed at desktop and phone widths;
 375px views had no horizontal overflow. Search, online filtering, full-event
 exclusion, filter clearing and repeated active-role selection were exercised.
 Interception and viewport overrides were removed afterward, and real empty API

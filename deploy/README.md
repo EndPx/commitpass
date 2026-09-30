@@ -1,6 +1,8 @@
 # Hosted CommitPass
 
-Recorded on 30 September 2026. Runtime source: `dcb8366ae336dd148ff497d0bdca98411fa50bb5`.
+Recorded on 30 September 2026. API/VPS runtime source:
+`dcb8366ae336dd148ff497d0bdca98411fa50bb5`. Frontend source after the Events and
+Discover redesign: `f807b1c50730be9725a887691e35df29ae8fc36c`.
 
 | Component | Location                            | Runtime                                                            |
 | --------- | ----------------------------------- | ------------------------------------------------------------------ |
@@ -41,7 +43,7 @@ data remains in `app`. No indexer reset was performed.
 
 ## Vercel
 
-The current production deployment is `dpl_2hqejLhg1wFqMa73U8cchACcNq2B`.
+The current production deployment is `dpl_3XfT3ALy1cJsrkcySvFy27GmQ84j`.
 Builds first compile the shared workspace, then Next.js. `.vercelignore` excludes
 the root Go/contract/indexer/CRE workspaces and local credentials while retaining
 the Next.js `/api` route handlers.
