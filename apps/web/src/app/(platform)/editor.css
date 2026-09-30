@@ -81,6 +81,13 @@
 .platform-surface .draft-link {
   background: var(--editor-panel);
 }
+.platform-surface .account-popover .account-sign-out {
+  background: #b42318;
+  color: #ffffff;
+}
+.platform-surface .account-popover .account-sign-out:hover:not(:disabled) {
+  background: #912018;
+}
 .platform-surface .create-date-rows::before {
   border-color: var(--line);
 }

@@ -138,6 +138,7 @@ function Navigation() {
                   <UserRound size={15} /> My profile
                 </Link>
                 <button
+                  className="account-sign-out"
                   disabled={busy}
                   onClick={async () => {
                     setBusy(true);

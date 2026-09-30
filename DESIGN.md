@@ -147,6 +147,8 @@ Create event, account menu. No dashboard KPI cards. Empty states use an original
 oversized ticket illustration, useful next action, and honest copy.
 Account popovers use 16px padding and adjacent 44px action rows with no extra
 top margin between My profile and Sign out.
+Sign out uses a solid red #b42318 background with white text/icons and a darker
+#912018 hover state in both Light and Dark themes.
 
 Workspace header follows the supplied Luma reference: 64px desktop / 56px phone,
 symbol-only home link at left, centered navigation, local clock and actions at
