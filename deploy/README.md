@@ -1,16 +1,16 @@
 # Hosted CommitPass
 
-Recorded on 30 September 2026. API runtime source:
-`b25a24020dcd514c58f593472015189775da700a`. Indexer/CRE runtime source remains
-`dcb8366ae336dd148ff497d0bdca98411fa50bb5`. Frontend source including the private
-Envio profile and participation charts: `1092ad5246f907c4d7d986389ef7ac9b50c07e07`.
+Recorded on 30 September 2026. API, indexer, CRE runtime source, and frontend:
+`77187b5e1559cb25979af3062247936855d9a605`. Public commitments now use Circle's
+native Monad testnet USDC, address `0x534b2f3A21130d7a60830c2Df862319e593943A3`
+(6 decimals). [Deployment and verification](../contracts/DEPLOYMENT.md).
 
-| Component | Location                            | Runtime                                                            |
-| --------- | ----------------------------------- | ------------------------------------------------------------------ |
-| Frontend  | https://commitpass-kappa.vercel.app | Vercel project `commitpass`, root `apps/web`, Node 24              |
-| API       | https://commitpass-api.endpx.cloud  | Hostinger VPS `1330754`, loopback port 8095 behind Nginx HTTPS     |
-| Indexer   | Same VPS                            | Envio 3.12.1, public Monad testnet RPC, Neon schema `envio_hosted` |
-| CRE       | Same VPS                            | CLI 1.34.0, one guarded cron simulation per minute                 |
+| Component | Location                            | Runtime                                                          |
+| --------- | ----------------------------------- | ---------------------------------------------------------------- |
+| Frontend  | https://commitpass-kappa.vercel.app | Vercel project `commitpass`, root `apps/web`, Node 24            |
+| API       | https://commitpass-api.endpx.cloud  | Hostinger VPS `1330754`, loopback port 8095 behind Nginx HTTPS   |
+| Indexer   | Same VPS                            | Envio 3.12.1, public Monad testnet RPC, Neon schema `envio_usdc` |
+| CRE       | Same VPS                            | CLI 1.34.0, one guarded cron simulation per minute               |
 
 The API subdomain was absent from DNS and Nginx before creation. No frontend
 custom domain was added. The Let's Encrypt API certificate renews automatically.
@@ -20,8 +20,10 @@ Existing VPS services use their previous ports and configurations.
 
 Source is extracted to `/opt/commitpass/releases/<commit>`. Indexer and CRE use
 the `/opt/commitpass/current` symlink. The API service points directly to its newer
-release directory, built from a Go-only archive of `api`, `packages/shared`, and
-`go.work` with CGO disabled. Services run as the dedicated `commitpass` user:
+release directory, built on Linux with CGO disabled. The USDC release includes
+the shared manifest and regenerated indexer code. Services run as the dedicated
+`commitpass` user. CRE lifecycle TypeScript did not change; its previously built
+WASM was retained with the updated receiver configuration:
 
 ```sh
 systemctl status commitpass-api commitpass-indexer commitpass-cre.timer
@@ -32,20 +34,20 @@ curl --fail https://commitpass-api.endpx.cloud/v1/events
 ```
 
 `/health` reports the deployed `RELEASE_COMMIT` and process liveness. Indexer
-readiness is checked separately from `envio_hosted.envio_chains` in Neon.
+readiness is checked separately from `envio_usdc.envio_chains` in Neon.
 The services in this folder are installed under `/etc/systemd/system`.
 Nginx listens publicly on 443 and proxies only to `127.0.0.1:8095`.
 
-The root-readable environment files are `/etc/commitpass/api.env`,
-`indexer.env`, and `cre.env`, with mode 600. The API uses
-`COMMITPASS_INDEXER_SCHEMA=envio_hosted`; Envio uses
-`ENVIO_PG_SCHEMA=envio_hosted`. This new schema preserves the earlier `envio`
-schema and its indexed data after an ABI/schema mismatch was detected. Application
-data remains in `app`. No indexer reset was performed.
+Active root-readable environment files are `/etc/commitpass/api-usdc.env`,
+`indexer-usdc.env`, and `cre.env`, with mode 600. The API uses
+`COMMITPASS_INDEXER_SCHEMA=envio_usdc`; Envio uses `ENVIO_PG_SCHEMA=envio_usdc`.
+The new namespace preserves `envio` and `envio_hosted` and keeps earlier mockAUSD
+data out of USDC totals. Application data remains in `app`. No historical schema
+was reset; the earlier environment files also remain available for rollback.
 
 ## Vercel
 
-The current production deployment is `dpl_AHhYqvquNTch7gZDjtFTriQqfzfb`.
+The current production deployment is `dpl_EnHTy4GaSCjpz4cQVPnBHrrZBHy6`.
 Builds first compile the shared workspace, then Next.js. `.vercelignore` excludes
 the root Go/contract/indexer/CRE workspaces and local credentials while retaining
 the Next.js `/api` route handlers.
@@ -71,6 +73,10 @@ deployment succeeded independently of that connection.
 - Frontend `/`, `/signin`, `/health`, and `/api/events` returned 200.
 - Google sign-in completed, the Go session check passed, and the Events workspace
   loaded in the deployed browser. The event editor also loaded.
+- The USDC release showed `Commitment 5 USDC` in the hosted editor and USDC labels
+  in the profile. Builds passed for contracts, shared types, Go API, and Next.js.
+  All three migration deployments returned successful receipts and Etherscan
+  verification; RPC reads confirmed native USDC as the vault asset.
 - Cover shuffle changes the cover and complete appearance together. The deployed
   editor showed the new grid/blue/mono preset after a click; local draft saving
   and reload preserved a workshop/aurora/green/dark preset.
@@ -93,18 +99,19 @@ deployment succeeded independently of that connection.
   Claim execution remains on the existing event page; settlement allocates funds
   and individual `claimReward()` calls transfer participants' returns.
 - The frontend `/api/session` and VPS `/v1/me` rejected missing tokens with 401.
-- API and indexer services are enabled and active. Envio is backfilling from the
-  public deployment block. At 12:25 WIB, its checkpoint was 66,275,925 with a
-  source block of 66,885,133 and zero processed events; catch-up was incomplete.
+- API and indexer services are enabled and active. The USDC indexer starts at
+  block 66,933,185 and reported readiness/realtime mode in its service logs.
+  Event and wallet-summary endpoints returned valid empty Envio data for 10143.
 - The authenticated VPS CRE CLI repeatedly returned `sweep completed`. The
   timer omits `--broadcast`, validates Monad testnet chain ID 10143, and rejects
   a nonempty receiver before running. This proves a recurring trigger/read
   simulation, not an active DON or public lifecycle write.
-- The deployed public factory/receiver still use the earlier contract version
-  and have no configured workflow ID. Publishing is visibly unavailable on the
-  hosted editor; drafts remain usable. New refund/50-50 policy proof remains in
-  the separate local evidence. No blockchain deployment or transaction was
-  performed by this hosting task.
+- The current USDC factory/receiver contain the refund/50-50 policy and were
+  deployed and verified, with native USDC confirmed as the yield vault's asset.
+  The receiver has no configured workflow ID. Publishing remains unavailable;
+  drafts are usable. This migration broadcast three deployments, with no public
+  event creation, commitment, settlement, or participant claim. Funded execution
+  of the policy remains an end-to-end milestone.
 
 CRE account credentials reside in `/var/lib/commitpass/.cre` under the service
 user, with mode 600. The existing authenticated local session was used for the
