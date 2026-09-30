@@ -1,8 +1,8 @@
 # Hosted CommitPass
 
 Recorded on 30 September 2026. API/indexer/CRE runtime source:
-`77187b5e1559cb25979af3062247936855d9a605`. Frontend source after the account wallet menu update:
-`a041914f28854dfc2ce08edb244071a2cce0fe08`. Public commitments use Circle's
+`77187b5e1559cb25979af3062247936855d9a605`. Frontend source after simplifying the faucet links:
+`7da37ade56fc266e19dcdee106aa87e92f99307e`. Public commitments use Circle's
 native Monad testnet USDC, address `0x534b2f3A21130d7a60830c2Df862319e593943A3`
 (6 decimals). [Deployment and verification](../contracts/DEPLOYMENT.md).
 
@@ -48,7 +48,7 @@ was reset; the earlier environment files also remain available for rollback.
 
 ## Vercel
 
-The current production deployment is `dpl_2qcEPXbcWcAUb5QcWHqYtSsQDRjJ`.
+The current production deployment is `dpl_64C2prKFeADqegRGhZkbpwoWshNw`.
 Builds first compile the shared workspace, then Next.js. `.vercelignore` excludes
 the root Go/contract/indexer/CRE workspaces and local credentials while retaining
 the Next.js `/api` route handlers.
@@ -104,12 +104,9 @@ deployment succeeded independently of that connection.
   Local inspection put the activity heading at y=493 in a 1280x720 viewport and
   y=637 at 375x812, without horizontal overflow. The settlement paragraph was
   removed; tab keyboard navigation and verified-wallet copying were inspected.
-- Header Faucet shows fixed USDC/Monad testnet and a verified linked wallet.
-  Local signed-in inspection showed the correct recipient and copy confirmation.
-  Circle's current form ignored the tested network/address URL parameters;
-  the app copies the wallet and opens the official faucet with instructions to
-  choose Monad Testnet and paste it. No Circle request was submitted, and no
-  wallet was created during verification.
+- Header Faucet opens a simple two-link dialog: Faucet USDC points to Circle,
+  Faucet MON points to the official Monad faucet. Both open directly in a new
+  tab, without an authentication gate, wallet setup, or recipient form.
 - The account dropdown shows the full verified wallet address beneath the email,
   preferring the embedded wallet, with a copy button and accessible confirmation.
   Signed-in production inspection confirmed the full 42-character address and
