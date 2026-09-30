@@ -3,7 +3,7 @@
 Recorded on 30 September 2026. API/VPS runtime source:
 `dcb8366ae336dd148ff497d0bdca98411fa50bb5`. Frontend source after the compact,
 aligned Events/Discover update, coordinated shuffle, and soft gradients:
-`a0209ad107c90a1a63c29bfc214e6f11f3dd22f6`.
+`0bffbfe95e70529e891e2694f4a583984b021185`.
 
 | Component | Location                            | Runtime                                                            |
 | --------- | ----------------------------------- | ------------------------------------------------------------------ |
@@ -44,7 +44,7 @@ data remains in `app`. No indexer reset was performed.
 
 ## Vercel
 
-The current production deployment is `dpl_EsYDFgdVj6Vweu8qFngBEjEKiEkV`.
+The current production deployment is `dpl_97uSy8j33LJ5GsS1pcudgpr5aVba`.
 Builds first compile the shared workspace, then Next.js. `.vercelignore` excludes
 the root Go/contract/indexer/CRE workspaces and local credentials while retaining
 the Next.js `/api` route handlers.
