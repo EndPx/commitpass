@@ -407,16 +407,6 @@ export function EventList({ personal = false }: { personal?: boolean }) {
         </>
       )}
       {content}
-      {personal && authenticated && (
-        <Link className="plans-host-prompt" href="/events/new">
-          <CalendarDays size={18} />
-          <span>
-            Bring your people together.
-            <small>Create an event or pick up your saved draft.</small>
-          </span>
-          <ArrowRight size={17} />
-        </Link>
-      )}
     </main>
   );
 }

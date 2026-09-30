@@ -278,6 +278,7 @@ pages preserves horizontal alignment. Header tracks use container width.
 Discover has one compact toolbar: a search input, an event count, and Filters.
 Format, Next 7 days, and open-spot options live in a dismissible filter popover.
 No subtitle, duplicate host action, or extra results heading above the events.
+Events does not show the bottom create-event/draft promotional row.
 Discover uses a responsive three/two/one-column poster grid. Search filters loaded
 event titles and locations, with pagination still available. Reset is present
 when filters produce no matches. Both routes share the same restrained empty

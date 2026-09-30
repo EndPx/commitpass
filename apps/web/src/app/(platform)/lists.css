@@ -228,29 +228,6 @@
   line-height: 1.5;
   margin-top: 8px;
 }
-.plans-host-prompt {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 20px 0;
-  margin-top: 28px;
-  border-top: 1px solid var(--line);
-  font-size: 14px;
-}
-.plans-host-prompt > svg:first-child {
-  color: var(--accent);
-}
-.plans-host-prompt > svg:last-child {
-  margin-left: auto;
-  flex-shrink: 0;
-}
-.plans-host-prompt small {
-  display: block;
-  color: var(--muted);
-  margin-top: 4px;
-  font-size: 12px;
-  line-height: 1.5;
-}
 .plans-empty-icon {
   display: grid;
   place-items: center;
