@@ -1,0 +1,16 @@
+[Unit]
+Description=CommitPass Monad testnet CRE read simulation
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=commitpass
+Group=commitpass
+WorkingDirectory=/opt/commitpass/current/cre
+Environment=HOME=/var/lib/commitpass
+EnvironmentFile=/etc/commitpass/cre.env
+ExecStart=/usr/bin/node /opt/commitpass/current/cre/scripts/simulate-testnet.mjs
+TimeoutStartSec=120
+NoNewPrivileges=true
+PrivateTmp=true

@@ -1,0 +1,14 @@
+.git/
+.deploy-local/
+**/node_modules/
+**/.next/
+**/dist/
+**/.env
+**/.env.*
+**/*.log
+**/*.tsbuildinfo
+.turbo/
+api/
+contracts/
+cre/
+indexer/

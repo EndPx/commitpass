@@ -42,14 +42,14 @@ func main() {
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(map[string]any{
-			"status": "ok", "service": "api", "project": project,
+			"status": "ok", "service": "api", "project": project, "release": os.Getenv("RELEASE_COMMIT"),
 		}); err != nil {
 			log.Printf("health response: %v", err)
 		}
 	})
 
 	server := &http.Server{
-		Addr:              net.JoinHostPort("", port),
+		Addr:              net.JoinHostPort(os.Getenv("LISTEN_HOST"), port),
 		Handler:           application.CORS(mux, os.Getenv("CORS_ALLOWED_ORIGINS")),
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       10 * time.Second,

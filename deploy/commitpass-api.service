@@ -1,0 +1,20 @@
+[Unit]
+Description=CommitPass Go API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=commitpass
+Group=commitpass
+WorkingDirectory=/opt/commitpass/current/api
+EnvironmentFile=/etc/commitpass/api.env
+ExecStart=/opt/commitpass/current/api/dist/server
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

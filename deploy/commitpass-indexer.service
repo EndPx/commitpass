@@ -1,0 +1,18 @@
+[Unit]
+Description=CommitPass Envio indexer
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=commitpass
+Group=commitpass
+WorkingDirectory=/opt/commitpass/current/indexer
+EnvironmentFile=/etc/commitpass/indexer.env
+ExecStart=/usr/bin/node /opt/commitpass/current/indexer/scripts/envio.mjs start
+Restart=on-failure
+RestartSec=10
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

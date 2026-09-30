@@ -1,0 +1,10 @@
+[Unit]
+Description=Repeat CommitPass CRE simulation against Monad testnet
+
+[Timer]
+OnBootSec=60
+OnUnitInactiveSec=60
+Unit=commitpass-cre.service
+
+[Install]
+WantedBy=timers.target
