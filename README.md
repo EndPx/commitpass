@@ -149,16 +149,16 @@ Privy is the primary account and wallet integration. Mera is deferred until we h
 
 ## Live frontend execution evidence
 
-A one-attendee happy path completed on Monad testnet through the live frontend
+The current direct-vault model completed a one-attendee happy path on Monad testnet through the live frontend
 and the authorized Privy wallet: create → approve 0.1 USDC → deposit → host start
 request → CRE simulation broadcast start → host check-in → end request → CRE
 simulation broadcast settlement → claim. The wallet's funded 1 USDC balance
 returned to 1 USDC after claiming. Allocation and claimed amount were both
 100,000 units; protocol revenue and realized yield were zero for this scenario.
 
-[Structured receipts, frozen snapshot and final accounting](cre/evidence/frontend-monad-broadcast-2026-10-01.json)
+[Structured receipts, frozen snapshot and final accounting](cre/evidence/frontend-direct-vault-2026-10-01.json)
 record the scope. This confirms the single-attendee normal flow; it does not
 claim a public DON, organic yield, or browser coverage of every no-show/refund
-scenario. The VPS uses the isolated `envio_usdc_simulation` indexer namespace;
+scenario. The VPS uses the isolated `envio_usdc_vault` indexer namespace;
 previous namespaces are preserved. Operational `deploy/` and root `scripts/`
 folders remain local; module-owned tooling is committed for reproducible builds.

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import {Test, console} from "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {CommitPassFactory} from "../src/CommitPassFactory.sol";
 import {CommitPassVault} from "../src/CommitPassVault.sol";
 
@@ -9,7 +9,6 @@ import {MockUSDC, MockYieldVault} from "../src/mocks/MockYieldVault.sol";
 
 contract CommitPassFactoryTest is Test {
     CommitPassFactory public factory;
-    CommitPassVault public testVault;
 
     // Test event data
     uint256 constant TEST_STAKE_AMOUNT = 100 * 1e6; // 100 USDC (6 decimals)

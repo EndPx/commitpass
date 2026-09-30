@@ -44,7 +44,9 @@
       "feeWei": "557042952000000000",
       "verification": {
         "provider": "etherscan",
-        "status": "Pending"
+        "status": "Pass - Verified",
+        "guid": "besyl64u2cnegzfdpvqjdskxwrgpc7qmcenag1sbibiujan8af",
+        "url": "https://testnet.monadscan.com/address/0x94f7408816cc9eAB7e5043E92bdDdDAFf3A9931F#code"
       }
     }
   },

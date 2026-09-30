@@ -49,5 +49,6 @@ remains organizer-attested; omission of all check-ins results in the refund poli
 
 For local use, restart `pnpm local:app` to deploy fresh contracts and a fresh Envio
 schema containing participant `allocatedAmount`. Old sessions are not upgraded.
-Public deployment remains out of scope; do not point the new UI at old contracts
-expecting cancellation/new getters to work. Historical evidence remains historical.
+The active Monad testnet deployment uses direct vault receivers. Do not point the
+new UI at historical contracts expecting the new getters to work. See DEPLOYMENT.md
+for the current factory and separately recorded public browser evidence.
