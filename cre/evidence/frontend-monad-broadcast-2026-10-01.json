@@ -117,5 +117,17 @@
     ]
   },
   "frontendDeployment": "dpl_Ck46YGdzdJBy3KSDe2pz2WSxBJQV",
-  "donExecution": false
+  "donExecution": false,
+  "frontendProfile": {
+    "eventsJoined": 1,
+    "eventsHosted": 1,
+    "attendance": "100%",
+    "walletBalanceUSDC": "1",
+    "committedUSDC": "0",
+    "toCollectUSDC": "0",
+    "receivedUSDC": "0.1",
+    "activity": "Attended / Received"
+  },
+  "verifiedDeployment": "dpl_34Lr6Ww6pXYGWrNjbCkh612JccSd",
+  "runtimeSource": "ae57700572526650cb4009909103e16eadb9df16"
 }

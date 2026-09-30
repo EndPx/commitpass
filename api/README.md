@@ -48,9 +48,9 @@ profile links to the event's existing claim flow, which reads current chain stat
 
 `INDEXER_DATABASE_URL` must target `commitpass_indexer`. Connections default to read-only transactions, with two connections and bounded query timeouts. Connection and SQL errors are not exposed to callers. Missing configuration or schema yields 503; an unindexed event detail yields 404.
 
-The VPS uses `COMMITPASS_INDEXER_SCHEMA=envio_usdc` to read the USDC
+The VPS uses `COMMITPASS_INDEXER_SCHEMA=envio_usdc_simulation` to read the USDC
 indexer namespace. Historical `envio` and `envio_hosted` schemas are preserved.
-Both `envio_hosted` and `envio_usdc` are accepted hosted overrides.
+`envio_hosted`, `envio_usdc`, and `envio_usdc_simulation` are accepted hosted overrides.
 
 These routes report Envio's indexed state, which may be delayed and can roll back after a reorg. They do not independently prove finality.
 
