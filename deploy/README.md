@@ -1,9 +1,9 @@
 # Hosted CommitPass
 
-Recorded on 30 September 2026. API/VPS runtime source:
-`dcb8366ae336dd148ff497d0bdca98411fa50bb5`. Frontend source after the compact,
-aligned Events/Discover update, coordinated shuffle, and soft gradients:
-`0bffbfe95e70529e891e2694f4a583984b021185`.
+Recorded on 30 September 2026. API runtime source:
+`b25a24020dcd514c58f593472015189775da700a`. Indexer/CRE runtime source remains
+`dcb8366ae336dd148ff497d0bdca98411fa50bb5`. Frontend source including the private
+Envio profile and participation charts: `1092ad5246f907c4d7d986389ef7ac9b50c07e07`.
 
 | Component | Location                            | Runtime                                                            |
 | --------- | ----------------------------------- | ------------------------------------------------------------------ |
@@ -18,9 +18,10 @@ Existing VPS services use their previous ports and configurations.
 
 ## Release and services
 
-Source is extracted to `/opt/commitpass/releases/<commit>`; the active release is
-the `/opt/commitpass/current` symlink. API binaries are built on Linux. Services
-run as the dedicated `commitpass` user:
+Source is extracted to `/opt/commitpass/releases/<commit>`. Indexer and CRE use
+the `/opt/commitpass/current` symlink. The API service points directly to its newer
+release directory, built from a Go-only archive of `api`, `packages/shared`, and
+`go.work` with CGO disabled. Services run as the dedicated `commitpass` user:
 
 ```sh
 systemctl status commitpass-api commitpass-indexer commitpass-cre.timer
@@ -44,7 +45,7 @@ data remains in `app`. No indexer reset was performed.
 
 ## Vercel
 
-The current production deployment is `dpl_97uSy8j33LJ5GsS1pcudgpr5aVba`.
+The current production deployment is `dpl_AHhYqvquNTch7gZDjtFTriQqfzfb`.
 Builds first compile the shared workspace, then Next.js. `.vercelignore` excludes
 the root Go/contract/indexer/CRE workspaces and local credentials while retaining
 the Next.js `/api` route handlers.
@@ -80,6 +81,17 @@ deployment succeeded independently of that connection.
   date controls. Local inspection covered both pages at desktop and 375px mobile;
   filters update their active count and dismiss on Escape or an outside click.
   The mobile filter panel stayed within the viewport with no horizontal overflow.
+- Profile endpoints return Envio summaries and paginated wallet positions for
+  chain 10143. Financial amounts remain integer strings; public chain queries
+  are parameterized and read-only. The private frontend derives its wallet filter
+  from authenticated `/v1/me` and does not accept a client-selected wallet.
+  Local signed-in inspection showed real zero-data charts, RPC wallet balance,
+  the claimable filter, account-menu link, and a 375px layout without overflow.
+  The signed-in production profile loaded its own identity and no-wallet state;
+  `/api/profile` rejected missing authentication with 401. These checks exercise
+  empty/read paths, not funded settlement or claim execution.
+  Claim execution remains on the existing event page; settlement allocates funds
+  and individual `claimReward()` calls transfer participants' returns.
 - The frontend `/api/session` and VPS `/v1/me` rejected missing tokens with 401.
 - API and indexer services are enabled and active. Envio is backfilling from the
   public deployment block. At 12:25 WIB, its checkpoint was 66,275,925 with a
