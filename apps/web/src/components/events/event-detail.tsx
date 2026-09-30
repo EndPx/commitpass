@@ -60,6 +60,7 @@ export function EventDetail({
   manage?: boolean;
 }) {
   const { timezone } = usePreferences();
+  const { authenticated } = usePrivy();
   const [indexedEvent, setEvent] = useState<EventSummary | null>(null);
   const live = useEventState(vault as Address);
   const event =
@@ -143,9 +144,12 @@ export function EventDetail({
     : startOffset;
   return (
     <main className="workspace-content detail-workspace" id="workspace-main">
-      <Link className="back-link" href="/events">
+      <Link
+        className="back-link"
+        href={authenticated ? "/events" : "/discover"}
+      >
         <ArrowLeft size={16} />
-        Events
+        {authenticated ? "Events" : "Discover"}
       </Link>
       <div className="detail-grid">
         <aside className="detail-aside">
@@ -600,15 +604,17 @@ function ReservationPanel({
           </span>
         </div>
         <p>
-          {participation?.[2]
-            ? "Your return has been claimed."
-            : claimable
-              ? `${amount(participation![3].toString())} USDC is available to claim.`
-              : deposited
-                ? live?.settled && live?.outcome === 1
-                  ? "No attendance was confirmed. Your commitment was forfeited: 50% to CommitPass and 50% to attendees."
-                  : "You’re on the list. Your host will confirm your attendance at the event."
-                : "A refundable commitment. Show up, check in, and claim it back after settlement."}
+          {!authenticated
+            ? "Sign in to join this event and reserve your spot."
+            : participation?.[2]
+              ? "Your return has been claimed."
+              : claimable
+                ? `${amount(participation![3].toString())} USDC is available to claim.`
+                : deposited
+                  ? live?.settled && live?.outcome === 1
+                    ? "No attendance was confirmed. Your commitment was forfeited: 50% to CommitPass and 50% to attendees."
+                    : "You’re on the list. Your host will confirm your attendance at the event."
+                  : "A refundable commitment. Show up, check in, and claim it back after settlement."}
         </p>
         {!authenticated ? (
           <Link

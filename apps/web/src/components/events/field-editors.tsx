@@ -35,7 +35,8 @@ type Props = {
   value: string;
   timezone: string;
   start: string;
-  onConfirm: (value: string) => void;
+  matchStart?: boolean;
+  onConfirm: (value: string, matchStart?: boolean) => void;
   onClose: () => void;
   anchor?: HTMLElement | null;
   error?: string;
@@ -147,11 +148,13 @@ function ValueEditor({
   field,
   value,
   start,
+  matchStart = false,
   onConfirm,
   onClose,
   error: parentError,
 }: Props) {
   const [candidate, setCandidate] = useState(value);
+  const [useStart, setUseStart] = useState(field === "deadline" && matchStart);
   const [error, setError] = useState("");
   const config =
     field === "description"
@@ -178,8 +181,7 @@ function ValueEditor({
           : field === "commitment"
             ? {
                 title: "Refundable commitment",
-                description:
-                  "Attendees reclaim this amount after settlement. No-show commitments are split 50% to CommitPass and 50% to attendees. Cancelled events and zero-attendance settlements refund all commitments without a fee.",
+                description: undefined,
                 icon: <Ticket size={25} />,
               }
             : {
@@ -209,7 +211,10 @@ function ValueEditor({
       setError("Enter a positive amount with up to 6 decimal places.");
       return;
     }
-    onConfirm(candidate.trim());
+    onConfirm(
+      (field === "deadline" && useStart ? start : candidate).trim(),
+      field === "deadline" ? useStart : undefined,
+    );
   }
   return (
     <EditorDialog
@@ -244,7 +249,8 @@ function ValueEditor({
           <div className="editor-input-wrap">
             <input
               id="editor-value"
-              autoFocus
+              autoFocus={!(field === "deadline" && useStart)}
+              disabled={field === "deadline" && useStart}
               className="editor-input"
               value={candidate}
               onChange={(event) => setCandidate(event.target.value)}
@@ -283,18 +289,20 @@ function ValueEditor({
         )}
         {field === "deadline" && (
           <>
-            <button
-              type="button"
-              className="editor-match-start"
-              onClick={() => {
-                setCandidate(start);
-                setError("");
-              }}
-            >
-              <Clock3 size={15} /> Same as start time
+            <label className="editor-match-start">
+              <input
+                type="checkbox"
+                checked={useStart}
+                onChange={(event) => {
+                  setUseStart(event.target.checked);
+                  if (event.target.checked) setCandidate(start);
+                  setError("");
+                }}
+              />{" "}
+              Same as start time
               <span>{timeText(start)}</span>
-            </button>
-            {candidate === start && (
+            </label>
+            {useStart && (
               <p className="editor-help">
                 Registration closes 1 second before the event starts.
               </p>

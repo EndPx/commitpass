@@ -468,7 +468,7 @@
   flex-direction: column;
   padding: 8px 12px;
   border-radius: 9px;
-  background: rgb(255 255 255 / 96%);
+  background: var(--white);
   color: var(--ink);
   line-height: 1.4;
 }

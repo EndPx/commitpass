@@ -47,9 +47,7 @@ export default function Home() {
       <header className="site-header">
         <Brand />
         <nav aria-label="Main navigation">
-          <a href="#how-it-works">How it works</a>
-          <a href="#for-hosts">For hosts</a>
-          <a href="#questions">Questions</a>
+          <a href="/discover">Discover</a>
         </nav>
         <a className="button button--small" href="/signin">
           Sign in <ArrowUpRight size={16} />

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { Brand } from "@/components/landing/brand";
 import { SignIn } from "@/components/auth/sign-in";
 import "./signin.css";
@@ -21,12 +21,16 @@ export default function SignInPage() {
       <header className="auth-header">
         <Brand href="/" />
         <nav aria-label="Sign-in navigation">
-          <Link className="auth-about-link" href="/#how-it-works">
-            How it works
+          <Link className="auth-about-link" href="/discover">
+            Discover
           </Link>
-          <Link className="button button--small" href="/">
-            <ArrowLeft size={14} /> Back home
-          </Link>
+          <a
+            className="button button--small"
+            href="#signin-main"
+            aria-current="page"
+          >
+            Sign in <ArrowUpRight size={14} />
+          </a>
         </nav>
       </header>
       <main className="auth-main" id="signin-main">

@@ -144,7 +144,7 @@ export function CreateEvent() {
         if (active) {
           setPublishReady(false);
           setError(
-            "Could not check publishing availability. Your draft can still be saved.",
+            "Could not check event creation availability. Your draft can still be saved.",
           );
         }
       })
@@ -228,7 +228,7 @@ export function CreateEvent() {
     );
   }
 
-  async function publish(event: FormEvent<HTMLFormElement>) {
+  async function createEvent(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy || editor) return;
     setError("");
@@ -236,7 +236,7 @@ export function CreateEvent() {
     setBusy(true);
     try {
       if (!session || !wallet)
-        throw new Error("Connect your account before publishing.");
+        throw new Error("Connect your account before creating your event.");
       if (pending) {
         await finishCreation(pending);
         return;
@@ -288,7 +288,7 @@ export function CreateEvent() {
       });
       if (workflow === zeroHash)
         throw new Error(
-          "Publishing is not available on this test network yet. Save your draft for now.",
+          "Event automation is not configured on this test network yet. Save your draft for now.",
         );
       localStorage.setItem(draftKey, JSON.stringify(draft));
       await wallet.switchChain(MONAD_TESTNET.chainId);
@@ -370,7 +370,7 @@ export function CreateEvent() {
     if (field === "theme") setThemePreview({ ...draft.appearance });
     setEditor(field);
   }
-  function applyField(field: FieldEditor, value: string) {
+  function applyField(field: FieldEditor, value: string, matchStart = false) {
     setEditorError("");
     try {
       if (field === "timezone") {
@@ -393,7 +393,9 @@ export function CreateEvent() {
           ? value + "T" + (time || "18:00")
           : date + "T" + value;
         eventTimestamp(next, draft.timezone);
-        update(key, next);
+        if (key === "start" && draft.deadlineFollowsStart)
+          setDraft({ ...draft, start: next, deadline: next });
+        else update(key, next);
       } else if (field === "deadline") {
         const timestamp = registrationCutoff(
           value,
@@ -407,7 +409,11 @@ export function CreateEvent() {
           throw new Error(
             "Choose a future registration deadline no later than the start time.",
           );
-        update("deadline", value);
+        setDraft({
+          ...draft,
+          deadline: value,
+          deadlineFollowsStart: matchStart,
+        });
       } else update(field, value);
       setEditor(null);
       setMessage("");
@@ -435,7 +441,7 @@ export function CreateEvent() {
   return (
     <main id="workspace-main" className="workspace-content create-workspace">
       <h1 className="sr-only">Create an event</h1>
-      <form onSubmit={publish} className="create-grid">
+      <form onSubmit={createEvent} className="create-grid">
         <aside>
           <button
             className="cover-choice-trigger"
@@ -611,13 +617,13 @@ export function CreateEvent() {
             <div className="publish-notice">
               <strong>
                 {checking
-                  ? "Checking publishing availability…"
-                  : "Save your idea. Publish when ready."}
+                  ? "Checking event creation availability…"
+                  : "Event creation is not available yet."}
               </strong>
               <p>
                 {checking
                   ? "This only reads the network; no transaction is sent."
-                  : "Publishing is not available on this test network yet. Your draft can be saved on this device."}
+                  : "Event automation is not configured on this test network yet. Your draft can be saved on this device."}
               </p>
               {!checking && (
                 <button
@@ -671,7 +677,7 @@ export function CreateEvent() {
                 className="button button--dark"
                 href="/signin?next=%2Fevents%2Fnew"
               >
-                Sign in to publish
+                Sign in to create
                 <ArrowRight size={16} />
               </Link>
             ) : !wallet ? (
@@ -695,14 +701,14 @@ export function CreateEvent() {
                   ? "Please wait…"
                   : pending
                     ? "Check transaction & save details"
-                    : "Publish event"}
+                    : "Create"}
                 <ArrowRight size={16} />
               </button>
             )}
           </div>
           <p className="field-note">
             {isLocal ? "Local Anvil" : "Monad testnet"} · USDC has no monetary
-            value. Publishing requires testnet MON for gas.
+            value. Creating an event requires testnet MON for gas.
           </p>
         </div>
       </form>
@@ -713,9 +719,12 @@ export function CreateEvent() {
           value={fieldValue(editor)}
           timezone={draft.timezone}
           start={draft.start}
+          matchStart={draft.deadlineFollowsStart}
           anchor={editor === "location" ? locationAnchor.current : undefined}
           error={editorError}
-          onConfirm={(value) => applyField(editor, value)}
+          onConfirm={(value, matchStart) =>
+            applyField(editor, value, matchStart)
+          }
           onClose={() => setEditor(null)}
         />
       )}

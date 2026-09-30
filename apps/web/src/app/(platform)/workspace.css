@@ -202,6 +202,91 @@
   color: var(--muted);
   line-height: 1.6;
 }
+.settings-zone-field {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+}
+.settings-zone-menu summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+  cursor: pointer;
+}
+.settings-zone-menu summary::-webkit-details-marker {
+  display: none;
+}
+.settings-zone-menu summary > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.settings-zone-menu summary > svg {
+  flex-shrink: 0;
+}
+.settings-zone-panel {
+  margin-top: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--white);
+}
+.settings-zone-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--line);
+}
+.settings-zone-search input {
+  min-width: 0;
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+}
+.settings-zone-options {
+  max-height: 180px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px;
+}
+.settings-zone-options button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  border-radius: 4px;
+  padding: 8px;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  font: inherit;
+  font-size: 13px;
+}
+.settings-zone-options button[aria-selected="true"],
+.settings-zone-options button:hover {
+  background: var(--accent-soft);
+}
+.settings-zone-options button > svg {
+  flex-shrink: 0;
+}
+.settings-zone-empty {
+  padding: 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
 .account-popover p {
   font-size: 12px;
   line-height: 1.6;

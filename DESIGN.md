@@ -168,6 +168,17 @@ Store validated non-sensitive preferences locally; update across browser tabs.
 SDK-confirmed authenticated landing visitors are redirected to `/events` with
 replace navigation. Load the session gate asynchronously without hiding the
 public landing while authentication initializes.
+Guest app navigation contains only Discover and Sign in. Public discovery and
+event detail routes remain accessible; other app routes replace to /discover
+after the SDK resolves an unauthenticated session, without mounting private
+screens. Guest reservation actions say Sign in to join and explain the login
+requirement. Sign-in header links to Discover and labels its current page Sign in.
+Settings timezone options open beneath the field in a searchable, keyboard
+accessible list, with an explicit current UTC offset for every city and Automatic.
+Registration deadline has a persistent Same as start time checkbox. Checked
+means the date input is disabled and the deadline follows later start changes.
+Unchecked restores manual input. Keep the contract's 1-second cutoff conversion.
+Commitment editing omits the long payout explanation. Creation actions use Create.
 Sign out uses a solid red #b42318 background with white text/icons and a darker
 #912018 hover state in both Light and Dark themes.
 

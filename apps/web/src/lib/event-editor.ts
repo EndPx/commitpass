@@ -26,6 +26,7 @@ export type EventDraft = EventMetadata & {
   start: string;
   end: string;
   deadline: string;
+  deadlineFollowsStart: boolean;
   commitment: string;
   capacity: string;
   timezone: string;
@@ -146,6 +147,7 @@ export function freshDraft(): EventDraft {
     start: format(start),
     end: format(start.add({ hours: 1 })),
     deadline: format(start.subtract({ minutes: 15 })),
+    deadlineFollowsStart: false,
     commitment: "5",
     capacity: "30",
     timezone,
@@ -175,5 +177,9 @@ export function restoreDraft(value: unknown): EventDraft {
   base.appearance = normalizeAppearance(
     record.appearance as Partial<EventAppearance>,
   );
+  base.deadlineFollowsStart =
+    record.deadlineFollowsStart === true ||
+    (record.deadlineFollowsStart === undefined && base.deadline === base.start);
+  if (base.deadlineFollowsStart) base.deadline = base.start;
   return base;
 }

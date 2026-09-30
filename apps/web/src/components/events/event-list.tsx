@@ -428,6 +428,8 @@ export function EventList({ personal = false }: { personal?: boolean }) {
 }
 
 function DiscoverEmpty({ past }: { past: boolean }) {
+  const { ready, authenticated } = usePrivy();
+  const signedIn = ready && authenticated;
   return (
     <EmptyEvents
       icon={<Compass size={30} strokeWidth={1.4} />}
@@ -439,10 +441,12 @@ function DiscoverEmpty({ past }: { past: boolean }) {
       description={
         past
           ? "Past events will appear here once they’ve finished."
-          : "No published events yet. Bring your people together and create the first one."
+          : signedIn
+            ? "No published events yet. Bring your people together and create the first one."
+            : "New events will appear here. Check back soon to find your next plan."
       }
-      href="/events/new"
-      action="Create an event"
+      href={signedIn ? "/events/new" : "/signin?next=%2Fdiscover"}
+      action={signedIn ? "Create an event" : "Sign in"}
     />
   );
 }
