@@ -233,6 +233,8 @@ approval states, profile photos, attendee faces, or live example events.
 Events and Discover share the same 900px content measure, 32px heading, top
 spacing, and Upcoming/Past control. Desktop app navigation aligns with that
 content's left edge; both links have equal visual weight and active state rules.
+Reserve a stable document scrollbar gutter so switching between short and long
+pages preserves horizontal alignment. Header tracks use container width.
 Discover has one compact toolbar: a search input, an event count, and Filters.
 Format, Next 7 days, and open-spot options live in a dismissible filter popover.
 No subtitle, duplicate host action, or extra results heading above the events.

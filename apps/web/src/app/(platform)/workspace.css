@@ -5,10 +5,9 @@
 .workspace-header {
   min-height: 64px;
   display: grid;
-  grid-template-columns: max(44px, calc((100vw - 944px) / 2 - 20px)) minmax(
-      0,
-      1fr
-    ) auto;
+  grid-template-columns:
+    max(44px, calc((100% - 944px) / 2)) minmax(0, 1fr)
+    auto;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
