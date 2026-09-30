@@ -1,8 +1,8 @@
 # Hosted CommitPass
 
 Recorded on 30 September 2026. API/indexer/CRE runtime source:
-`77187b5e1559cb25979af3062247936855d9a605`. Frontend source after removing the Events promotional row:
-`9ae26c50ff53d24bf9122e262b905466272cbb9f`. Public commitments use Circle's
+`77187b5e1559cb25979af3062247936855d9a605`. Frontend source after the combined landing and display-settings update:
+`2013e164d8250cbef82070b62ff8065fe4acee4c`. Public commitments use Circle's
 native Monad testnet USDC, address `0x534b2f3A21130d7a60830c2Df862319e593943A3`
 (6 decimals). [Deployment and verification](../contracts/DEPLOYMENT.md).
 
@@ -48,7 +48,7 @@ was reset; the earlier environment files also remain available for rollback.
 
 ## Vercel
 
-The current production deployment is `dpl_6qtB5m5n416niMfkP3K89JDuhE2X`.
+The current production deployment is `dpl_9tZeQ5Wcp2EEN7dJkxeSY1KpzNBF`.
 Builds first compile the shared workspace, then Next.js. `.vercelignore` excludes
 the root Go/contract/indexer/CRE workspaces and local credentials while retaining
 the Next.js `/api` route handlers.
@@ -62,7 +62,7 @@ Deployment currently uses the authenticated CLI:
 
 ```sh
 # Repository root, after linking project commitpass.
-vercel deploy --prod --yes
+pnpm dlx vercel@61.1.0 deploy --prod --yes --scope openclaws-projects-4eb1d9c1
 ```
 
 Automatic GitHub deployment is not connected. Vercel's linked GitHub identity
@@ -104,9 +104,40 @@ deployment succeeded independently of that connection.
   Local inspection put the activity heading at y=493 in a 1280x720 viewport and
   y=637 at 375x812, without horizontal overflow. The settlement paragraph was
   removed; tab keyboard navigation and verified-wallet copying were inspected.
-- Header Faucet opens a simple two-link dialog: Faucet USDC points to Circle,
+- The landing header uses equal outer grid tracks to center navigation. Compact
+  screens animate three posters into a reservation on scroll without pinning;
+  reduced motion keeps the artwork static. Local inspection observed poster
+  transforms/opacity changing and the reservation reaching opacity 1 at 375px.
+- Account Settings persist validated browser-local appearance/background and
+  IANA timezone preferences. Local inspection changed the clock to UTC-04:00
+  for New York, applied Dark/Plain, and confirmed those preferences after reload.
+  The wallet address is enclosed in a theme border; the default clock follows
+  the browser zone with 24-hour time and a numeric UTC offset. Lists, details,
+  passes, deadlines and profile activity use the viewer timezone; event editor
+  timestamps and the host's event appearance are preserved.
+- The landing asynchronously checks the Privy SDK session. A signed-in local
+  browser automatically moved from / to /events. The separate anonymous local
+  origin remained on the landing. No session was created during these checks.
+- Guest app navigation exposes Discover and Sign in. Public event detail routes
+  remain accessible; other app routes redirect after SDK session resolution.
+  Local anonymous inspection confirmed /profile redirected to /discover with
+  only those navigation actions. Sign-in header uses Discover and Sign in.
+  Guest reservation actions say Sign in to join; indexed public event data is
+  currently empty, so a populated public reservation page was not exercised.
+- Settings timezone selection is a searchable list below the field, with explicit
+  UTC offsets. Local inspection found Asia/Jakarta UTC+07:00 and measured the
+  options panel below its trigger. Registration deadline uses a persistent
+  checkbox: local interaction confirmed checking disabled the datetime input
+  and unchecking restored editing. Matching deadlines follow later start edits;
+  the existing contract cutoff remains one second before start.
+  The commitment modal no longer contains the long payout description.
+- The event creation button says Create. Fresh RPC reads confirmed chain ID
+  10143 and an all-zero receiver workflow ID. The onchain registerEvent guard
+  rejects automated creation until workflow configuration exists. UI changes
+  preserve that guard; no arbitrary workflow ID or manual fallback was applied.
+- Header Faucet, shown to signed-in users, opens a simple two-link dialog: Faucet USDC points to Circle,
   Faucet MON points to the official Monad faucet. Both open directly in a new
-  tab, without an authentication gate, wallet setup, or recipient form.
+  tab, without wallet setup or a recipient form.
 - The account dropdown shows the full verified wallet address beneath the email,
   preferring the embedded wallet, with a copy button and accessible confirmation.
   Signed-in production inspection confirmed the full 42-character address and
@@ -122,7 +153,7 @@ deployment succeeded independently of that connection.
   simulation, not an active DON or public lifecycle write.
 - The current USDC factory/receiver contain the refund/50-50 policy and were
   deployed and verified, with native USDC confirmed as the yield vault's asset.
-  The receiver has no configured workflow ID. Publishing remains unavailable;
+  The receiver has no configured workflow ID. Automated creation remains unavailable;
   drafts are usable. This migration broadcast three deployments, with no public
   event creation, commitment, settlement, or participant claim. Funded execution
   of the policy remains an end-to-end milestone.
