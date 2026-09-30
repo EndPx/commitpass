@@ -33,10 +33,22 @@ monetary value. The current vault code contains cancellation refunds,
 zero-attendance refunds, and the immutable 50% split of no-show principal.
 Participants collect allocated funds through `claimReward()`.
 
-The CRE receiver stays unactivated until a genuine workflow ID is available.
-The recurring public simulation remains a guarded read path without broadcast;
-no fabricated workflow ID or simulation forwarder was installed. No event,
-commitment, settlement, or participant claim was broadcast in this migration.
+The original DON receiver remains unconfigured and is preserved in the
+[DON manifest](../packages/shared/src/deployments/monad-testnet-don-unconfigured.json).
+The active application uses a separate Monad-testnet-only
+`CommitPassSimulationAutomation` at `0x6edf064f8cb13d5295182e452925628582f03a98`.
+Its deployment transaction is
+[0x7490…582bf](https://testnet.monadscan.com/tx/0x7490fbd7c438edebbc2bc9dd12a2d011a84b2722ee0aaacb71b21aa516a582bf).
+It validates the official Monad simulation MockForwarder
+`0xB9F79d863261869B234c481D1f9A7af84AeAd192` and a receiver/chain/payload-bound
+EIP-712 signature from the immutable operator signer. It does not fabricate a
+DON workflow ID. The parent receiver retains production workflow authorization;
+schedule, membership, cutoff, snapshot, expiry and accounting checks are shared.
+
+Live frontend/Privy creation, commitment, check-in, CRE start/settlement broadcast
+and claim completed for one attendee. See
+[receipt and accounting evidence](../cre/evidence/frontend-monad-broadcast-2026-10-01.json).
+This is a VPS-operated CRE CLI simulation, not deployed DON execution.
 
 ## Source verification
 

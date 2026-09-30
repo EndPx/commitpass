@@ -126,3 +126,15 @@ informs `GenerateReport`/`WriteReport` plus `simulate --broadcast`. That referen
 uses a Tenderly Base fork. CommitPass targets the public Monad testnet RPC.
 See Chainlink's [simulation consumer requirements](https://docs.chain.link/cre/guides/workflow/using-evm-client/onchain-write/building-consumer-contracts#4-working-with-simulation)
 and [CLI broadcast option](https://docs.chain.link/cre/reference/cli/workflow).
+
+## Scaffold provenance
+
+The official project was generated with CRE CLI 1.34.0:
+
+```sh
+cre init --project-name cre --workflow-name lifecycle --template hello-world-ts --deployment-registry private --rpc-url monad-testnet=https://testnet-rpc.monad.xyz --non-interactive
+```
+
+The generated project/workflow layout is adopted here, with the existing financial
+workflow retained. Generated Sepolia sample RPCs were replaced with Monad testnet;
+the private registry field is configuration only, with no workflow deployment.

@@ -1,3 +1,5 @@
+# CRE project layout initialized with cre init (hello-world-ts).
+# CLI simulation targets Monad testnet; deployment is not activated.
 testnet-settings:
   rpcs:
     - chain-name: monad-testnet
@@ -10,3 +12,8 @@ interactive-settings:
   rpcs:
     - chain-name: monad-testnet
       url: http://127.0.0.1:8547
+
+staging-settings:
+  rpcs:
+    - chain-name: monad-testnet
+      url: https://testnet-rpc.monad.xyz

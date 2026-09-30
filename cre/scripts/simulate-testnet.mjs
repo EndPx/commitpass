@@ -1,14 +1,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import {
-  createPublicClient,
-  http,
-  isAddress,
-  keccak256,
-  parseAbi,
-  parseEther,
-} from "viem";
+import { createPublicClient, http, isAddress, keccak256, parseAbi } from "viem";
 
 const broadcast = process.argv.includes("--broadcast");
 const root = new URL("../", import.meta.url);
@@ -102,8 +95,13 @@ if (broadcast) {
     forwarder.toLowerCase() !== "0xb9f79d863261869b234c481d1f9a7af84aead192"
   )
     throw new Error("Simulation signer/forwarder mismatch");
-  if ((await rpc.getBalance({ address: sender })) < parseEther("0.02"))
-    throw new Error("Simulation sender needs testnet MON for gas");
+  const block = await rpc.getBlock();
+  const requiredGasBalance =
+    BigInt(config.gasLimit) * ((block.baseFeePerGas ?? 0n) * 2n + 1n);
+  if ((await rpc.getBalance({ address: sender })) < requiredGasBalance)
+    throw new Error(
+      "Simulation sender needs enough testnet MON for the configured gas ceiling",
+    );
 }
 console.log(`Monad testnet 10143 confirmed; ${vaultCount} registered events.`);
 console.log(

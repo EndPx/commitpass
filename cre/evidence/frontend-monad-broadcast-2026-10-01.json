@@ -1,0 +1,121 @@
+{
+  "status": "complete",
+  "chainId": 10143,
+  "wallet": "0x256c80e80fc91da7509a3acd77c4e17da00c7bf6",
+  "vault": "0x900Ef7F431C1D2344CF07E67A018B252DF60Ce63",
+  "commitmentUSDC": "0.1",
+  "steps": {
+    "create": "0xe39a877162e371a84fc26782e754c2a963433ba555ba586d2cae35ffb276eb41",
+    "approve": "0xa289d3716fee38e25a084c077c2931befedcca93e49fce0dd2b00bf8d766e573",
+    "deposit": "0xc08a11cbdf5dfacd51e6fd8495eba96cf1809b40da8703cb192bb1a99f998ae8",
+    "requestStart": "0xfd4496cab77d4f934a5edb23e45f04d7a0412a47cc343edd61ec0a543e20be90",
+    "requestSettlement": "0x410d3bc82f844a7f7dd4ba0bc15cb37f8f81c5d7718a12c635420fa2a69419f5",
+    "creStart": "0x043fc16fd3c5ddb698c626dc346e12645fc0263037278462335906ef12eaafa0",
+    "creSettlement": "0x9d409d87e4dffa3c6dd6a8f3b006e999687c659c9214cc320409fdfbbc84bb14",
+    "claim": "0x4b0435b834d8c30cedace6e9882aad19a3f8264014ab9ffd3ce994f7754134b9"
+  },
+  "findings": [
+    "Public RPC 429 during unbatched reads; added verified Monad Multicall3 batching.",
+    "Broadcaster required enough MON for configured 5M gas ceiling; topped up testnet MON and confirmed CRE start.",
+    "Host guest outcomes were stale after live settlement; added lifecycle-driven refresh and indexed-status labels."
+  ],
+  "receipts": {
+    "create": {
+      "hash": "0xe39a877162e371a84fc26782e754c2a963433ba555ba586d2cae35ffb276eb41",
+      "status": "success",
+      "blockNumber": "67012456",
+      "gasUsed": "2651144",
+      "feeWei": "270416688000000000"
+    },
+    "approve": {
+      "hash": "0xa289d3716fee38e25a084c077c2931befedcca93e49fce0dd2b00bf8d766e573",
+      "status": "success",
+      "blockNumber": "67021238",
+      "gasUsed": "87643",
+      "feeWei": "8939586000000000"
+    },
+    "deposit": {
+      "hash": "0xc08a11cbdf5dfacd51e6fd8495eba96cf1809b40da8703cb192bb1a99f998ae8",
+      "status": "success",
+      "blockNumber": "67021722",
+      "gasUsed": "259779",
+      "feeWei": "26497458000000000"
+    },
+    "requestStart": {
+      "hash": "0xfd4496cab77d4f934a5edb23e45f04d7a0412a47cc343edd61ec0a543e20be90",
+      "status": "success",
+      "blockNumber": "67022869",
+      "gasUsed": "94066",
+      "feeWei": "9594732000000000"
+    },
+    "requestSettlement": {
+      "hash": "0x410d3bc82f844a7f7dd4ba0bc15cb37f8f81c5d7718a12c635420fa2a69419f5",
+      "status": "success",
+      "blockNumber": "67025237",
+      "gasUsed": "74341",
+      "feeWei": "7582782000000000"
+    },
+    "creStart": {
+      "hash": "0x043fc16fd3c5ddb698c626dc346e12645fc0263037278462335906ef12eaafa0",
+      "status": "success",
+      "blockNumber": "67024186",
+      "gasUsed": "5000000",
+      "feeWei": "510000000000000000"
+    },
+    "creSettlement": {
+      "hash": "0x9d409d87e4dffa3c6dd6a8f3b006e999687c659c9214cc320409fdfbbc84bb14",
+      "status": "success",
+      "blockNumber": "67025389",
+      "gasUsed": "5000000",
+      "feeWei": "510000000000000000"
+    },
+    "claim": {
+      "hash": "0x4b0435b834d8c30cedace6e9882aad19a3f8264014ab9ffd3ce994f7754134b9",
+      "status": "success",
+      "blockNumber": "67027623",
+      "gasUsed": "138627",
+      "feeWei": "14139954000000000"
+    }
+  },
+  "final": {
+    "deposited": true,
+    "attended": true,
+    "claimed": true,
+    "allocation": "100000",
+    "walletUSDC": "1000000",
+    "walletMON": "0.6628288",
+    "totalAllocated": "100000",
+    "totalClaimed": "100000",
+    "protocolRevenue": "0",
+    "settlementOutcome": "1"
+  },
+  "scope": "One attendee, happy path through live frontend and Privy; CRE VPS simulation broadcasts; no DON execution",
+  "snapshot": {
+    "version": 1,
+    "chainId": "10143",
+    "vault": "0x900Ef7F431C1D2344CF07E67A018B252DF60Ce63",
+    "eventId": "1",
+    "cutoff": "1790787596",
+    "frozen": true,
+    "attendees": ["0x256C80e80Fc91DA7509A3acd77c4E17DA00c7bf6"],
+    "snapshotHash": "0xb02e2ffff4f4ea0bbcbd1cc2dd07608b1a55d9d6bc9d4302676cca55fdaa9d36"
+  },
+  "indexer": {
+    "schema": "envio_usdc_simulation",
+    "confirmedKinds": [
+      "CREATED",
+      "DEPOSITED",
+      "START_REQUESTED",
+      "STARTED",
+      "SETTLEMENT_REQUESTED",
+      "ATTENDANCE_SETTLED",
+      "CLAIM_ALLOCATED",
+      "SETTLED",
+      "ALLOCATION_FINALIZED",
+      "CRE_EXECUTED",
+      "CLAIMED"
+    ]
+  },
+  "frontendDeployment": "dpl_Ck46YGdzdJBy3KSDe2pz2WSxBJQV",
+  "donExecution": false
+}

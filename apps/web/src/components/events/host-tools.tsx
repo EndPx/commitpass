@@ -28,6 +28,7 @@ export function HostTools({
   const [checked, setChecked] = useState<string[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [indexedStatus, setIndexedStatus] = useState<string>("");
   const [busy, setBusy] = useState(false);
   const [coverUploading, setCoverUploading] = useState(false);
   const [error, setError] = useState("");
@@ -38,7 +39,16 @@ export function HostTools({
     const guest = new URLSearchParams(window.location.search).get("guest");
     if (guest && /^0x[\da-f]{40}$/i.test(guest)) setSearch(guest);
     void loadGuests();
-  }, [event.vault]);
+  }, [event.vault, event.status]);
+  useEffect(() => {
+    if (
+      !["SETTLED", "CANCELLED", "REFUNDED"].includes(event.status) ||
+      indexedStatus === event.status
+    )
+      return;
+    const timer = window.setTimeout(() => void loadGuests(), 4000);
+    return () => window.clearTimeout(timer);
+  }, [event.vault, event.status, indexedStatus, participants]);
   const visibleGuests = participants.filter((person) =>
     person.wallet.toLowerCase().includes(search.trim().toLowerCase()),
   );
@@ -47,6 +57,11 @@ export function HostTools({
     setError("");
     try {
       const token = await getAccessToken();
+      // Read the indexed event first so terminal labels use a committed indexer
+      // state before fetching its participant outcomes.
+      const indexed = await jsonRequest<EventSummary>(
+        `/api/events/${event.vault}`,
+      );
       const [people, checkIns] = await Promise.all([
         jsonRequest<{ data: IndexedParticipant[]; nextCursor: string | null }>(
           `/api/events/${event.vault}/participants?after=${encodeURIComponent(after)}`,
@@ -64,6 +79,7 @@ export function HostTools({
         checkIns.checkIns.map((record) => record.wallet.toLowerCase()),
       );
       setLoaded(true);
+      setIndexedStatus(indexed.status);
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "Could not load guests.",
@@ -208,15 +224,18 @@ export function HostTools({
             <span title={person.wallet}>
               {shorten(person.wallet)}
               <small>
-                {person.claimed
-                  ? "Return claimed"
-                  : ["CANCELLED", "REFUNDED"].includes(event.status)
-                    ? "Refund available"
-                    : person.attended
-                      ? "Attendance settled"
-                      : event.status === "SETTLED"
-                        ? "No-show · no refund"
-                        : "Commitment confirmed"}
+                {["SETTLED", "CANCELLED", "REFUNDED"].includes(event.status) &&
+                indexedStatus !== event.status
+                  ? "Updating settlement…"
+                  : person.claimed
+                    ? "Return claimed"
+                    : ["CANCELLED", "REFUNDED"].includes(event.status)
+                      ? "Refund available"
+                      : person.attended
+                        ? "Attendance settled"
+                        : event.status === "SETTLED"
+                          ? "No-show · no refund"
+                          : "Commitment confirmed"}
               </small>
               <button
                 className="guest-copy"

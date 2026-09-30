@@ -2,6 +2,7 @@ packages:
   - apps/*
   - api
   - cre
+  - cre/lifecycle
   - indexer
   - packages/*
   - contracts

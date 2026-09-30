@@ -1,6 +1,8 @@
+# CRE workflow layout from cre init; validated lifecycle handlers retained.
 testnet-settings:
   user-workflow:
     workflow-name: commitpass-lifecycle-testnet
+    deployment-registry: private
   workflow-artifacts:
     workflow-path: ./main.ts
     config-path: ./config.testnet.json
@@ -19,3 +21,12 @@ interactive-settings:
     workflow-path: ./main.ts
     config-path: ../.interactive/config.json
     secrets-path: ../secrets.example.yaml
+
+staging-settings:
+  user-workflow:
+    workflow-name: commitpass-lifecycle-testnet
+    deployment-registry: private
+  workflow-artifacts:
+    workflow-path: ./main.ts
+    config-path: ./config.testnet.json
+    secrets-path: ../secrets.yaml

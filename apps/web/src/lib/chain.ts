@@ -1,8 +1,9 @@
 import { createPublicClient, http, type Address } from "viem";
-import { activeChain, activeDeployment } from "./runtime-network";
+import { activeChain, activeDeployment, isLocal } from "./runtime-network";
 
 export const chainClient = createPublicClient({
   chain: activeChain,
+  batch: { multicall: isLocal ? false : { wait: 20, batchSize: 4096 } },
   transport: http(undefined, { timeout: 15000, retryCount: 1 }),
 });
 export const factoryAddress = activeDeployment.contracts.CommitPassFactory
