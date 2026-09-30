@@ -213,6 +213,25 @@ and capacity 1–500; do not offer unsupported Free/Unlimited/Approval modes.
 
 ## Participant pass and host workspace
 
+Events and Discover are different browsing surfaces. The supplied Luma events
+screenshot is the reference for the personal list: a 900px content measure,
+32px heading with Upcoming/Past on the same row, grouped calendar dates at left,
+a dotted timeline rail, quiet white cards with 16px padding and 112px square
+posters at right. Event title is 20px; host/location/time are 14px. Dates are
+grouped in the viewer's timezone. Personal badges use only the verified role
+and indexed lifecycle state; guest counts use participantCount. No invented
+approval states, profile photos, attendee faces, or live example events.
+
+Discover uses a 1080px content measure, a wide search input, date/format/open-spot
+filters, and a responsive three/two/one-column poster grid. Search filters loaded
+event titles and locations, with pagination still available. Reset is present
+when filters produce no matches. Its empty state uses existing original cover
+art as decoration and explicitly says no published events are available. Document
+scroll owns both routes; the existing header remains sticky. Mobile timelines
+place dates above cards, use 84px posters, and keep all controls reachable at
+44px minimum height. Cards wrap long titles and locations without overflow.
+Skeletons follow the final geometry; failed reads keep a visible retry action.
+
 Event detail keeps the cover/host column and editorial title, dates, venue/map,
 reservation panel and description. Read current contract state before offering
 financial actions. Indexed data supplies discovery/history; failed refreshes have

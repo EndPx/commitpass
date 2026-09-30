@@ -3,6 +3,7 @@ import { PlatformShell } from "@/components/events/platform-shell";
 import "./workspace.css";
 import "./editor.css";
 import "./lifecycle.css";
+import "./lists.css";
 export default function PlatformLayout({ children }: { children: ReactNode }) {
   return (
     <div className="platform">

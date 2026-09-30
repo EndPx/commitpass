@@ -232,3 +232,23 @@ References: [email OTP](https://docs.privy.io/authentication/user-authentication
 [OAuth](https://docs.privy.io/authentication/user-authentication/login-methods/oauth),
 [passkeys](https://docs.privy.io/authentication/user-authentication/login-methods/passkey),
 [headless CAPTCHA](https://docs.privy.io/authentication/user-authentication/captcha).
+
+## Events and Discover layout
+
+The personal Events page groups cards by date in the viewer's timezone, with a
+timeline rail on desktop, compact posters on the right, and verified hosting or
+reservation labels. Upcoming/Past and role filters remain available. Re-selecting
+the active role preserves its loaded events. Discover uses a poster grid with
+name/place search, date and format filters, and an open-spots toggle. Cards show
+actual capacity availability. Search applies to loaded pages, with pagination
+still available; zero matches have a reset action. Failed reads retain retry
+feedback, while genuinely empty results have a distinct invitation to host.
+
+Browser checks on 30 September 2026 used local API response fixtures to inspect
+populated views without publishing sample events. Three/two/one-column discovery
+and the personal timeline were reviewed at desktop, tablet and phone widths;
+375px views had no horizontal overflow. Search, online filtering, full-event
+exclusion, filter clearing and repeated active-role selection were exercised.
+Interception and viewport overrides were removed afterward, and real empty API
+data was checked again. These checks do not prove onchain event publishing or
+claim transactions. No Lighthouse score is claimed.
