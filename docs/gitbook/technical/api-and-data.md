@@ -1,12 +1,14 @@
 ---
-description: Public indexed reads, authenticated attendance and the frozen snapshot boundary.
+description: >-
+  Public indexed reads, authenticated attendance and the frozen snapshot
+  boundary.
 ---
 
 # API and data model
 
 The Go API serves indexed event data and manages application records. The hosted base URL is:
 
-```text
+```
 https://commitpass-api.endpx.cloud
 ```
 
@@ -38,16 +40,16 @@ Privy token verification and wallet-link synchronization establish identity. Met
 
 Application tables include:
 
-- `users` and `wallet_links` for account identity and verified wallets.
-- `events` for descriptions associated with a validated chain event.
-- `check_ins` for server-timestamped attendance and audit fields.
-- `attendance_snapshots` for immutable settlement payloads.
+* `users` and `wallet_links` for account identity and verified wallets.
+* `events` for descriptions associated with a validated chain event.
+* `check_ins` for server-timestamped attendance and audit fields.
+* `attendance_snapshots` for immutable settlement payloads.
 
 The application schema is separate from Envio's indexed entities. Envio does not write attendance snapshots.
 
 ## Snapshot service
 
-```text
+```
 POST /v1/attendance-snapshots/{chainId}/{vault}/{eventId}/{cutoff}
 GET  /v1/attendance-snapshots/{chainId}/{vault}/{eventId}/{cutoff}
 ```
@@ -58,4 +60,4 @@ The payload includes `version`, `chainId`, `vault`, `eventId`, `cutoff`, `frozen
 
 A snapshot records attendance input. It does not prove redemption, allocation or payout succeeded; those are established by contract receipts and indexed logs.
 
-[API implementation](https://github.com/EndPx/commitpass/tree/main/api) · [Attendance and trust](../protocol/attendance-and-trust.md)
+[API implementation](../../../api/) · [Attendance and trust](../protocol/attendance-and-trust.md)

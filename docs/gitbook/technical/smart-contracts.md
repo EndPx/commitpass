@@ -14,12 +14,12 @@ Each event records a fixed commitment amount, owner, registration deadline, star
 
 The event vault:
 
-- Accepts one fixed USDC commitment per depositor while registration is open.
-- Tracks the original depositing address independently of transferable vault shares.
-- Closes registration and deposits pooled assets into the configured ERC-4626 yield source at start.
-- Redeems all yield shares and calculates deterministic allocations at settlement.
-- Finalizes eligible cancellation refunds directly onchain.
-- Allows each entitled depositor to call `claimReward()` once.
+* Accepts one fixed USDC commitment per depositor while registration is open.
+* Tracks the original depositing address independently of transferable vault shares.
+* Closes registration and deposits pooled assets into the configured ERC-4626 yield source at start.
+* Redeems all yield shares and calculates deterministic allocations at settlement.
+* Finalizes eligible cancellation refunds directly onchain.
+* Allows each entitled depositor to call `claimReward()` once.
 
 `ClaimAllocated` describes entitlement. `RewardClaimed` describes an actual payout. `SettlementFinalized` records the outcome and financial totals.
 
@@ -43,6 +43,6 @@ The current yield vault is an ERC-4626 fixture backed by Circle's native testnet
 
 ## Source and deployment
 
-[Contract source](https://github.com/EndPx/commitpass/tree/main/contracts/src) · [Current addresses](../deployments/monad-testnet.md) · [Payout rules](../protocol/commitments-and-rewards.md)
+[Contract source](../../../contracts/src/) · [Current addresses](../deployments/monad-testnet.md) · [Payout rules](../protocol/commitments-and-rewards.md)
 
 The factory and mock yield vault have recorded source verification. The active signed simulation receiver has a recorded deployment receipt and runtime hash; explorer source verification for that receiver is not claimed. None of these statements constitutes an independent audit.
