@@ -60,3 +60,25 @@ export interface IndexedParticipant {
   amount: string;
   claimableAmount: string;
 }
+
+export interface ProfileSummary {
+  eventsJoined: number;
+  eventsHosted: number;
+  settledEvents: number;
+  eventsAttended: number;
+  committedAmount: string;
+  claimableAmount: string;
+  receivedAmount: string;
+  months: Array<{ month: string; events: number }>;
+}
+export interface ProfilePosition extends IndexedParticipant {
+  claimedAmount: string;
+  event: EventSummary;
+}
+export interface ProfilePage {
+  source: "envio" | "no-wallets";
+  chainId: number;
+  summary: ProfileSummary;
+  data: ProfilePosition[];
+  nextCursor: string | null;
+}

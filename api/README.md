@@ -24,6 +24,10 @@ The root `go.work` resolves `github.com/EndPx/commitpass/packages/shared` locall
 - `GET /v1/events/{vault}`: event state and last indexed transaction.
 - `GET /v1/events/{vault}/participants`: deposits and claimable amounts after indexed settlement.
 - `GET /v1/events/{vault}/activity`: logs with block/transaction references.
+- `GET /v1/wallet-profile?wallets=...`: full-history participation, locked funds,
+  claimable returns, received claims, and six UTC monthly registration buckets.
+- `GET /v1/wallet-positions?wallets=...&kind=all|claimable|received`: paginated
+  public participation records, ordered by descending indexed ID.
 
 Lists return up to 100 records. Pass `nextCursor` as `?after=` for another page. Onchain integers and timestamps are decimal strings. Results carry `source: envio` and chain ID 10143.
 
@@ -32,6 +36,15 @@ and `role=all|hosting|going`. These filter public chain facts using the current
 indexed owner or participant deposits. The web personal-events proxy derives the
 wallet filter from a fresh authenticated `/v1/me` response. These filters grant
 no authorization to write event metadata or attendance.
+
+Wallet-profile routes expose only public onchain facts, accept 1–20 validated
+addresses, and use parameterized read-only queries. `/api/profile` verifies a
+fresh `/v1/me` response and derives its wallets server-side; client wallet query
+parameters cannot select another user's private profile. Privy names/emails are
+displayed only in the authenticated frontend. Financial totals are token units,
+not wallet balances. Attendance excludes cancellation and zero-attendance refunds;
+monthly counts deduplicate linked wallets at their first event commitment. The
+profile links to the event's existing claim flow, which reads current chain state.
 
 `INDEXER_DATABASE_URL` must target `commitpass_indexer`. Connections default to read-only transactions, with two connections and bounded query timeouts. Connection and SQL errors are not exposed to callers. Missing configuration or schema yields 503; an unindexed event detail yields 404.
 

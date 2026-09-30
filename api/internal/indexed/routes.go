@@ -26,6 +26,8 @@ func Register(mux *http.ServeMux) (func(), error) {
 		mux.HandleFunc("GET /v1/events/{vault}", unavailable)
 		mux.HandleFunc("GET /v1/events/{vault}/participants", unavailable)
 		mux.HandleFunc("GET /v1/events/{vault}/activity", unavailable)
+		mux.HandleFunc("GET /v1/wallet-profile", unavailable)
+		mux.HandleFunc("GET /v1/wallet-positions", unavailable)
 		return func() {}, nil
 	}
 	config, err := pgxpool.ParseConfig(connection)
@@ -52,6 +54,8 @@ func Register(mux *http.ServeMux) (func(), error) {
 	mux.HandleFunc("GET /v1/events/{vault}", routes.event)
 	mux.HandleFunc("GET /v1/events/{vault}/participants", routes.participants)
 	mux.HandleFunc("GET /v1/events/{vault}/activity", routes.activity)
+	mux.HandleFunc("GET /v1/wallet-profile", routes.walletProfile)
+	mux.HandleFunc("GET /v1/wallet-positions", routes.walletPositions)
 	return pool.Close, nil
 }
 
