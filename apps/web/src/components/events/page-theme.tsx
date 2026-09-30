@@ -13,8 +13,9 @@ import {
   type EventAppearance,
 } from "@commitpass/shared";
 import { normalizeAppearance } from "@/lib/event-editor";
+import { usePreferences } from "./preferences";
 
-const ThemeContext = createContext<(value: EventAppearance) => void>(() => {});
+const ThemeContext = createContext<(value?: EventAppearance) => void>(() => {});
 function mix(a: string, b: string, amount: number) {
   const channel = (color: string, offset: number) =>
     parseInt(color.slice(offset, offset + 2), 16);
@@ -75,9 +76,12 @@ export function themeVariables(raw: EventAppearance): CSSProperties {
   } as CSSProperties;
 }
 export function PageThemeProvider({ children }: { children: ReactNode }) {
-  const [appearance, setAppearance] = useState(DEFAULT_EVENT_APPEARANCE);
+  const [eventAppearance, setAppearance] = useState<EventAppearance>();
+  const { preferences, mode } = usePreferences();
+  const appearance = eventAppearance ?? { ...DEFAULT_EVENT_APPEARANCE, mode };
   const apply = useCallback(
-    (value: EventAppearance) => setAppearance(normalizeAppearance(value)),
+    (value?: EventAppearance) =>
+      setAppearance(value ? normalizeAppearance(value) : undefined),
     [],
   );
   return (
@@ -85,6 +89,7 @@ export function PageThemeProvider({ children }: { children: ReactNode }) {
       <div
         className={`platform-surface theme-${appearance.style}`}
         data-mode={appearance.mode}
+        data-background={eventAppearance ? "event" : preferences.background}
         style={themeVariables(appearance)}
       >
         {children}
@@ -95,7 +100,7 @@ export function PageThemeProvider({ children }: { children: ReactNode }) {
 export function usePageAppearance(appearance?: EventAppearance) {
   const apply = useContext(ThemeContext);
   useEffect(() => {
-    apply(appearance ?? DEFAULT_EVENT_APPEARANCE);
-    return () => apply(DEFAULT_EVENT_APPEARANCE);
+    apply(appearance);
+    return () => apply();
   }, [appearance, apply]);
 }

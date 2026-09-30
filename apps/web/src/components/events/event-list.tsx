@@ -14,10 +14,12 @@ import {
 import type { EventPage, EventSummary } from "@commitpass/shared";
 import { dateLabel, eventTitle, jsonRequest } from "@/lib/events";
 import { useAccount } from "./account-context";
+import { usePreferences } from "./preferences";
 import { EventListCard, eventFormat, hasOpenSpots } from "./event-list-card";
 
 export function EventList({ personal = false }: { personal?: boolean }) {
   const { ready, authenticated, getAccessToken } = usePrivy();
+  const { timezone } = usePreferences();
   const { session, connecting, error: accountError, refresh } = useAccount();
   const [rows, setRows] = useState<EventSummary[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
@@ -124,7 +126,12 @@ export function EventList({ personal = false }: { personal?: boolean }) {
     );
   const groups = new Map<string, EventSummary[]>();
   for (const event of visible) {
-    const day = new Date(Number(event.startAt) * 1000).toDateString();
+    const day = dateLabel(event.startAt, {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      timeZone: timezone,
+    });
     groups.set(day, [...(groups.get(day) ?? []), event]);
   }
   const extraFilterCount =
@@ -176,17 +183,26 @@ export function EventList({ personal = false }: { personal?: boolean }) {
                   <section
                     className="plans-date-group"
                     key={day}
-                    aria-label={dateLabel(first.startAt)}
+                    aria-label={dateLabel(first.startAt, {
+                      weekday: "long",
+                      month: "long",
+                      day: "numeric",
+                      timeZone: timezone,
+                    })}
                   >
                     <div className="plans-date">
                       <strong>
                         {dateLabel(first.startAt, {
+                          timeZone: timezone,
                           month: "short",
                           day: "numeric",
                         })}
                       </strong>
                       <span>
-                        {dateLabel(first.startAt, { weekday: "long" })}
+                        {dateLabel(first.startAt, {
+                          weekday: "long",
+                          timeZone: timezone,
+                        })}
                       </span>
                     </div>
                     <div className="plans-day-cards">

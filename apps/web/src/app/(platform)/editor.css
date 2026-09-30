@@ -13,6 +13,9 @@
 .theme-minimal {
   background-image: var(--page-gradient);
 }
+.platform-surface[data-background="plain"] {
+  background-image: none;
+}
 .theme-aurora {
   background-image:
     radial-gradient(ellipse at 10% 18%, var(--theme-glow), transparent 52%),

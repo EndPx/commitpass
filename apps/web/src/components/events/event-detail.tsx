@@ -44,6 +44,8 @@ import { useAccount } from "./account-context";
 import { EventCover } from "./event-cover";
 import { EventLocation } from "./event-location";
 import { usePageAppearance } from "./page-theme";
+import { usePreferences } from "./preferences";
+import { utcOffset } from "@/lib/display-time";
 import { LoadError } from "./event-list";
 import { EventPass } from "./event-pass";
 import { HostManagement } from "./host-management";
@@ -57,6 +59,7 @@ export function EventDetail({
   vault: string;
   manage?: boolean;
 }) {
+  const { timezone } = usePreferences();
   const [indexedEvent, setEvent] = useState<EventSummary | null>(null);
   const live = useEventState(vault as Address);
   const event =
@@ -131,6 +134,13 @@ export function EventDetail({
     session?.wallets.some(
       (wallet) => wallet.toLowerCase() === live.value?.owner.toLowerCase(),
     );
+  const startOffset = utcOffset(
+    new Date(Number(event.startAt) * 1000),
+    timezone,
+  );
+  const endOffset = event.settleAt
+    ? utcOffset(new Date(Number(event.settleAt) * 1000), timezone)
+    : startOffset;
   return (
     <main className="workspace-content detail-workspace" id="workspace-main">
       <Link className="back-link" href="/events">
@@ -189,19 +199,17 @@ export function EventDetail({
                     weekday: "long",
                     month: "long",
                     day: "numeric",
-                    ...(event.metadata?.timezone
-                      ? { timeZone: event.metadata.timezone }
-                      : {}),
+                    timeZone: timezone,
                   })}
                 </strong>
                 <small>
-                  {timeLabel(event.startAt, event.metadata?.timezone)}
+                  {timeLabel(event.startAt, timezone)}
+                  {startOffset !== endOffset ? ` ${startOffset}` : ""}
                   {event.settleAt
-                    ? ` – ${timeLabel(event.settleAt, event.metadata?.timezone)}`
+                    ? ` – ${timeLabel(event.settleAt, timezone)}${startOffset !== endOffset ? ` ${endOffset}` : ""}`
                     : ""}{" "}
-                  ·
-                  {event.metadata?.timezone?.replaceAll("_", " ") ||
-                    "Local time"}
+                  {startOffset === endOffset ? `· ${startOffset} ` : ""}·{" "}
+                  {timezone.replaceAll("_", " ")}
                 </small>
               </span>
             </div>
@@ -304,6 +312,7 @@ function ReservationPanel({
   live: LiveEventState | null;
 }) {
   const { authenticated } = usePrivy();
+  const { timezone } = usePreferences();
   const {
     session,
     error: sessionError,
@@ -708,8 +717,13 @@ function ReservationPanel({
             day: "numeric",
             hour: "numeric",
             minute: "2-digit",
-            timeZone: event.metadata?.timezone,
-          })}
+            timeZone: timezone,
+            hourCycle: "h23",
+          })}{" "}
+          {utcOffset(
+            new Date(Number(event.registrationDeadline) * 1000),
+            timezone,
+          )}
         </small>
       </section>
     </>

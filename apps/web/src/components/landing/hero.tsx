@@ -72,6 +72,55 @@ export function Hero() {
           return () => timeline.revert();
         },
       );
+      mm.add(
+        "(max-width: 899px) and (prefers-reduced-motion: no-preference), (max-height: 699px) and (prefers-reduced-motion: no-preference)",
+        () => {
+          const stage = root.current!;
+          const cards = gsap.utils
+            .toArray<HTMLElement>(".floating-poster", stage)
+            .filter((card) => getComputedStyle(card).display !== "none");
+          const pass = stage.querySelector<HTMLElement>(".gathered-pass")!;
+          const timeline = gsap.timeline({
+            defaults: { ease: "power2.inOut" },
+            scrollTrigger: {
+              trigger: stage,
+              start: "top top",
+              end: "top -35%",
+              scrub: 0.5,
+              invalidateOnRefresh: true,
+            },
+          });
+          timeline
+            .to(
+              cards,
+              {
+                x: (_, card: HTMLElement) =>
+                  (stage.clientWidth - card.offsetWidth) / 2 - card.offsetLeft,
+                y: (_, card: HTMLElement) => {
+                  return (
+                    stage.querySelector<HTMLElement>(".gathered")!.offsetTop +
+                    pass.offsetTop +
+                    (pass.offsetHeight - card.offsetHeight) / 2 -
+                    card.offsetTop
+                  );
+                },
+                rotation: (index) => (index - 1) * 4,
+                scale: 0.8,
+                duration: 0.75,
+                stagger: 0.03,
+              },
+              0,
+            )
+            .to(cards, { autoAlpha: 0, scale: 0.65, duration: 0.25 }, 0.65)
+            .fromTo(
+              pass,
+              { autoAlpha: 0, y: 24, scale: 0.94 },
+              { autoAlpha: 1, y: 0, scale: 1, duration: 0.4 },
+              0.65,
+            );
+          return () => timeline.revert();
+        },
+      );
       return () => mm.revert();
     },
     { scope: root },

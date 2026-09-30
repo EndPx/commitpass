@@ -90,7 +90,8 @@ svg {
 .site-header {
   height: 80px;
   padding: 0 4%;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   justify-content: space-between;
   gap: 24px;
@@ -101,6 +102,12 @@ svg {
   -webkit-backdrop-filter: blur(16px) saturate(115%);
   backdrop-filter: blur(16px) saturate(115%);
   border-bottom: 1px solid #e5e5de80;
+}
+.site-header > .brand {
+  justify-self: start;
+}
+.site-header > .button {
+  justify-self: end;
 }
 .brand {
   display: inline-flex;
@@ -123,7 +130,7 @@ svg {
   display: flex;
   align-items: center;
   gap: 32px;
-  margin-left: 80px;
+  margin-left: 0;
 }
 .site-header nav a {
   padding: 12px 0;
@@ -1426,6 +1433,45 @@ svg {
     justify-content: space-between;
   }
 }
+@media (max-width: 899px), (max-height: 699px) {
+  .hero {
+    min-height: 1040px;
+    height: auto;
+  }
+  .gathered {
+    display: flex;
+    inset: auto 0 96px;
+  }
+  .gathered-heading {
+    display: none;
+  }
+  .gathered-pass {
+    width: min(400px, calc(100% - 48px));
+    padding: 20px;
+  }
+}
+@media (min-width: 900px) and (max-height: 699px) {
+  .hero-copy {
+    padding-top: 80px;
+  }
+  .floating-poster--1 {
+    left: 24%;
+    top: 60%;
+  }
+  .floating-poster--2 {
+    right: 24%;
+    top: 60%;
+  }
+  .floating-poster--3 {
+    left: calc(50% - 78px);
+    top: 63%;
+  }
+  .floating-poster--4,
+  .floating-poster--5,
+  .floating-poster--6 {
+    display: none;
+  }
+}
 @media (max-width: 599px) {
   .community-photo {
     aspect-ratio: 4 / 3;
@@ -1442,6 +1488,7 @@ svg {
   .site-header {
     padding-inline: 20px;
     gap: 8px;
+    grid-template-columns: minmax(0, 1fr) auto;
   }
   .site-header nav {
     display: none;
@@ -1457,7 +1504,7 @@ svg {
     gap: 4px;
   }
   .hero {
-    min-height: 840px;
+    min-height: 1040px;
   }
   .hero-copy {
     padding-top: 72px;

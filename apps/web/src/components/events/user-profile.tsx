@@ -18,6 +18,7 @@ import {
 } from "@/lib/events";
 import { assetAddress, chainClient, explorer } from "@/lib/chain";
 import { useAccount } from "./account-context";
+import { usePreferences } from "./preferences";
 import { EventCover } from "./event-cover";
 import { EmptyEvents, LoadError } from "./event-list";
 
@@ -436,6 +437,7 @@ function Metric({ label, value }: { label: string; value: string }) {
   );
 }
 function Position({ position }: { position: ProfilePosition }) {
+  const { timezone } = usePreferences();
   const { event } = position;
   const claimable = BigInt(position.claimableAmount) > 0n;
   const terminal = ["SETTLED", "REFUNDED", "CANCELLED"].includes(event.status);
@@ -467,6 +469,7 @@ function Position({ position }: { position: ProfilePosition }) {
             month: "short",
             day: "numeric",
             year: "numeric",
+            timeZone: timezone,
           })}{" "}
           · {shorten(position.wallet)}
         </p>

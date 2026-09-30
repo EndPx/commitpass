@@ -51,7 +51,9 @@ opacity with 16px backdrop blur. Anchor offsets clear the header: 104px desktop,
 92px mobile. Hero pin begins 80px below the viewport top so it stays beneath
 the navigation. Section spacing 112px desktop, 72px mobile.
 Breakpoints: 600px, 900px, 1200px. Pin only at >=900px and height >=700px.
-Mobile receives a static poster arrangement and normal document flow.
+Smaller/shorter screens keep normal document flow and animate three posters
+toward a compact reservation preview during scroll, without pinning. Desktop
+landing navigation uses equal outer grid tracks and sits at the viewport center.
 
 ## 5. Reusable components
 
@@ -85,6 +87,9 @@ Below-fold reveals: y24px, opacity, 650ms power2.out, once per section.
 Button transitions 180ms. Reduced motion removes idle float, pinning, parallax and reveals;
 all essential text and walkthrough controls remain available. Rendered server
 content is visible before JavaScript. No loader or forced waiting screen.
+The compact hero uses scrub 0.5, moving/scaling its outer poster wrappers into
+the preview area before crossfading to the reservation. Keep hero copy and CTAs
+visible throughout. At reduced motion the posters remain static.
 
 ## 7. Depth and surfaces
 
@@ -151,6 +156,18 @@ Below the account email, show the full server-verified wallet address, preferrin
 the embedded wallet. Use selectable 12px monospace text that wraps without
 truncation and an adjacent 44px copy button. Confirm copying with a check icon
 and an accessible status; show clipboard failures inline.
+Enclose the wallet row in a 1px theme border, 10px corners, and 8px padding.
+Account Settings opens the existing native dialog. Workspace appearance offers
+Light/Dark/System and Soft gradient/Plain; authored event themes remain intact.
+Timezone/location offers automatic browser detection or an IANA city/timezone.
+Show 24-hour times and explicit UTC offsets, computed at each displayed instant
+so daylight saving and half-hour zones are handled correctly. Apply the viewer's
+timezone to list grouping, event details, passes, registration deadlines and
+profile activity dates, while preserving event timestamps and editor timezone.
+Store validated non-sensitive preferences locally; update across browser tabs.
+SDK-confirmed authenticated landing visitors are redirected to `/events` with
+replace navigation. Load the session gate asynchronously without hiding the
+public landing while authentication initializes.
 Sign out uses a solid red #b42318 background with white text/icons and a darker
 #912018 hover state in both Light and Dark themes.
 

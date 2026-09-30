@@ -7,6 +7,7 @@ import { Hero } from "@/components/landing/hero";
 import { Walkthrough } from "@/components/landing/walkthrough";
 import { Poster } from "@/components/landing/poster";
 import { Reveal } from "@/components/landing/reveal";
+import { LandingSessionGate } from "@/components/landing/session-gate";
 
 const faqs = [
   {
@@ -39,6 +40,7 @@ const faqs = [
 export default function Home() {
   return (
     <div id="top">
+      <LandingSessionGate />
       <a className="skip-link" href="#main">
         Skip to content
       </a>

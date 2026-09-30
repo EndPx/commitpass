@@ -5,6 +5,8 @@ import { usePrivy } from "@privy-io/react-auth";
 import { CalendarPlus, Check, Download, Ticket } from "lucide-react";
 import type { EventSummary } from "@commitpass/shared";
 import { dateLabel, eventTitle, jsonRequest, shorten } from "@/lib/events";
+import { usePreferences } from "./preferences";
+import { utcOffset } from "@/lib/display-time";
 
 export function EventPass({
   event,
@@ -22,6 +24,7 @@ export function EventPass({
   refund?: boolean;
 }) {
   const { getAccessToken } = usePrivy();
+  const { timezone } = usePreferences();
   const [qr, setQr] = useState("");
   const [qrError, setQrError] = useState(false);
   const [attendance, setAttendance] = useState<boolean | null>(null);
@@ -146,8 +149,10 @@ export function EventPass({
               day: "numeric",
               hour: "numeric",
               minute: "2-digit",
-              timeZone: event.metadata?.timezone,
-            })}
+              timeZone: timezone,
+              hourCycle: "h23",
+            })}{" "}
+            {utcOffset(new Date(Number(event.startAt) * 1000), timezone)}
           </p>
           <p className="event-pass-status" role="status">
             {status}

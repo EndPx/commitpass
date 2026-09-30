@@ -27,8 +27,9 @@ export function dateLabel(
 }
 export const timeLabel = (seconds: string, timezone?: string) =>
   new Date(Number(seconds) * 1000).toLocaleTimeString("en-US", {
-    hour: "numeric",
+    hour: "2-digit",
     minute: "2-digit",
+    hourCycle: "h23",
     ...(timezone ? { timeZone: timezone } : {}),
   });
 export function statusLabel(event: EventSummary) {

@@ -10,6 +10,7 @@ import {
   Copy,
   LogOut,
   Plus,
+  Settings,
   UserRound,
 } from "lucide-react";
 import { AuthProvider, authConfigured } from "@/components/auth/provider";
@@ -18,6 +19,9 @@ import { AccountProvider, useAccount } from "./account-context";
 import { PageThemeProvider } from "./page-theme";
 import { LocalRuntimeNotice } from "./local-runtime";
 import { Faucet } from "./faucet";
+import { PreferencesProvider, usePreferences } from "./preferences";
+import { AccountSettings } from "./account-settings";
+import { clockLabel } from "@/lib/display-time";
 import { isLocal } from "@/lib/runtime-network";
 
 export default function PlatformRuntime({ children }: { children: ReactNode }) {
@@ -32,19 +36,21 @@ export default function PlatformRuntime({ children }: { children: ReactNode }) {
   return (
     <AuthProvider>
       <AccountProvider>
-        <PageThemeProvider>
-          <Navigation />
-          <LocalRuntimeNotice />
-          {children}
-          <footer className="workspace-footer">
-            <Brand compact href="/" />
-            <span>
-              {isLocal
-                ? "Local Anvil · CRE simulation · Test funds only"
-                : "Monad testnet · Test funds only"}
-            </span>
-          </footer>
-        </PageThemeProvider>
+        <PreferencesProvider>
+          <PageThemeProvider>
+            <Navigation />
+            <LocalRuntimeNotice />
+            {children}
+            <footer className="workspace-footer">
+              <Brand compact href="/" />
+              <span>
+                {isLocal
+                  ? "Local Anvil · CRE simulation · Test funds only"
+                  : "Monad testnet · Test funds only"}
+              </span>
+            </footer>
+          </PageThemeProvider>
+        </PreferencesProvider>
       </AccountProvider>
     </AuthProvider>
   );
@@ -54,6 +60,8 @@ function Navigation() {
   const { ready, authenticated, user, logout } = usePrivy();
   const { wallets } = useWallets();
   const { session, connecting } = useAccount();
+  const { timezone } = usePreferences();
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const verifiedWallets = session?.wallets ?? [];
   const walletAddress =
     verifiedWallets.find((address) =>
@@ -88,11 +96,7 @@ function Navigation() {
     const updateClock = () => {
       const now = new Date();
       setClock({
-        label: new Intl.DateTimeFormat("id-ID", {
-          hour: "2-digit",
-          minute: "2-digit",
-          timeZoneName: "short",
-        }).format(now),
+        label: clockLabel(now, timezone),
         datetime: now.toISOString(),
       });
     };
@@ -104,7 +108,7 @@ function Navigation() {
       window.removeEventListener("scroll", updateScroll);
       window.clearInterval(timer);
     };
-  }, []);
+  }, [timezone]);
   const name = user?.google?.name || user?.email?.address || "Your account";
   return (
     <>
@@ -134,7 +138,11 @@ function Navigation() {
         <div className="workspace-header-actions">
           <Faucet />
           {clock && (
-            <time className="workspace-clock" dateTime={clock.datetime}>
+            <time
+              className="workspace-clock"
+              dateTime={clock.datetime}
+              title={timezone.replaceAll("_", " ")}
+            >
               {clock.label}
             </time>
           )}
@@ -217,6 +225,18 @@ function Navigation() {
                   <UserRound size={15} /> My profile
                 </Link>
                 <button
+                  type="button"
+                  className="account-settings-trigger"
+                  onClick={(event) => {
+                    event.currentTarget
+                      .closest("details")
+                      ?.removeAttribute("open");
+                    setSettingsOpen(true);
+                  }}
+                >
+                  <Settings size={15} /> Settings
+                </button>
+                <button
                   className="account-sign-out"
                   disabled={busy}
                   onClick={async () => {
@@ -246,6 +266,9 @@ function Navigation() {
           )}
         </div>
       </header>
+      {settingsOpen && (
+        <AccountSettings onClose={() => setSettingsOpen(false)} />
+      )}
     </>
   );
 }

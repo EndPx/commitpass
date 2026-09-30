@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import { MapPin, Users, Video } from "lucide-react";
 import type { EventSummary } from "@commitpass/shared";
@@ -10,6 +11,8 @@ import {
   timeLabel,
 } from "@/lib/events";
 import { EventCover } from "./event-cover";
+import { usePreferences } from "./preferences";
+import { utcOffset } from "@/lib/display-time";
 
 export function eventFormat(event: EventSummary) {
   const location = event.metadata?.location.trim() ?? "";
@@ -47,6 +50,7 @@ export function EventListCard({
   personal?: boolean;
   hosting?: boolean;
 }) {
+  const { timezone } = usePreferences();
   const title = eventTitle(event);
   const online = eventFormat(event) === "online";
   const finalized = ["SETTLED", "REFUNDED", "CANCELLED"].includes(event.status);
@@ -80,9 +84,18 @@ export function EventListCard({
           <EventCover title={title} posterUrl={event.metadata?.posterUrl} />
           <div className="discover-date">
             <strong>
-              {dateLabel(event.startAt, { month: "short", day: "numeric" })}
+              {dateLabel(event.startAt, {
+                month: "short",
+                day: "numeric",
+                timeZone: timezone,
+              })}
             </strong>
-            <span>{dateLabel(event.startAt, { weekday: "short" })}</span>
+            <span>
+              {dateLabel(event.startAt, {
+                weekday: "short",
+                timeZone: timezone,
+              })}
+            </span>
           </div>
         </div>
       )}
@@ -98,7 +111,8 @@ export function EventListCard({
               Number.isFinite(start.getTime()) ? start.toISOString() : undefined
             }
           >
-            {timeLabel(event.startAt)}
+            {timeLabel(event.startAt, timezone)}{" "}
+            <small>{utcOffset(start, timezone)}</small>
           </time>
         </div>
         <h2>{title}</h2>
