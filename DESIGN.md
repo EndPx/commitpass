@@ -207,6 +207,9 @@ hosted cover is selected by default and saved in posterUrl. Do not copy Luma art
 Theme sheet offers Minimal/Aurora/Confetti/Grid, custom accent, Sans/Editorial/Mono,
 and Light/Dark. Preview while editing, commit only on Confirm. Store appearance
 and IANA timezone in metadata and drafts; use the appearance on event detail.
+Shuffle applies a coordinated cover and complete appearance preset together:
+background style, accent color, title font, and Light/Dark mode. Choose a different
+cover and background style on each click. Manual cover selection keeps the theme.
 Convert wall times using Temporal with rejected DST ambiguity before constructing
 contract timestamps. Changing timezone preserves instants. Keep commitment >0
 and capacity 1–500; do not offer unsupported Free/Unlimited/Approval modes.

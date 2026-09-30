@@ -53,7 +53,6 @@ import { CoverEditor, ThemeEditor } from "./appearance-editors";
 import { usePageAppearance } from "./page-theme";
 import { isLocal, runtimeStorageKey } from "@/lib/runtime-network";
 import {
-  coverTemplates,
   convertZone,
   dateText,
   defaultCover,
@@ -61,6 +60,7 @@ import {
   registrationCutoff,
   freshDraft,
   restoreDraft,
+  shuffleEventLook,
   timeText,
   zoneOffset,
   type EventDraft,
@@ -474,16 +474,13 @@ export function CreateEvent() {
             <button
               type="button"
               className="cover-shuffle"
-              aria-label="Choose another default cover"
-              title="Shuffle cover"
+              aria-label="Shuffle cover and theme"
+              title="Shuffle cover and theme"
               disabled={locked}
               onClick={() => {
-                const options = coverTemplates.filter(
-                  (cover) => cover.url !== draft.posterUrl,
-                );
-                const next =
-                  options[Math.floor(Math.random() * options.length)];
-                if (next) update("posterUrl", next.url);
+                setDraft(shuffleEventLook(draft));
+                setMessage("");
+                setError("");
               }}
             >
               <Shuffle size={18} />

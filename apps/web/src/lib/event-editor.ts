@@ -8,6 +8,20 @@ import brandMedia from "./brand-media.json";
 
 export const coverTemplates = brandMedia.templates;
 export const defaultCover = coverTemplates[0]!.url;
+const coverAppearances: Record<string, EventAppearance[]> = {
+  together: [
+    { style: "confetti", color: "#e9792e", font: "sans", mode: "light" },
+    { style: "grid", color: "#246b55", font: "mono", mode: "dark" },
+  ],
+  "good-plans": [
+    { style: "grid", color: "#385fd1", font: "mono", mode: "light" },
+    { style: "aurora", color: "#7951b0", font: "serif", mode: "dark" },
+  ],
+  workshop: [
+    { style: "minimal", color: "#b9462d", font: "serif", mode: "light" },
+    { style: "aurora", color: "#246b55", font: "sans", mode: "dark" },
+  ],
+};
 export type EventDraft = EventMetadata & {
   start: string;
   end: string;
@@ -17,6 +31,23 @@ export type EventDraft = EventMetadata & {
   timezone: string;
   appearance: EventAppearance;
 };
+export function shuffleEventLook(draft: EventDraft): EventDraft {
+  const options = coverTemplates
+    .filter((cover) => cover.url !== draft.posterUrl)
+    .flatMap((cover) =>
+      (coverAppearances[cover.id] ?? [DEFAULT_EVENT_APPEARANCE])
+        .filter((appearance) => appearance.style !== draft.appearance.style)
+        .map((appearance) => ({ posterUrl: cover.url, appearance })),
+    );
+  const next = options[Math.floor(Math.random() * options.length)];
+  return next
+    ? {
+        ...draft,
+        posterUrl: next.posterUrl,
+        appearance: { ...next.appearance },
+      }
+    : draft;
+}
 export function browserZone() {
   return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
 }
