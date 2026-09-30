@@ -1,9 +1,9 @@
 # Hosted CommitPass
 
 Recorded on 30 September 2026. API/VPS runtime source:
-`dcb8366ae336dd148ff497d0bdca98411fa50bb5`. Frontend source after the Events and
-Discover redesign, coordinated cover/theme shuffle, and soft workspace gradients:
-`bd6add7a3a2d2fd528c339ac16336c37f904a3d3`.
+`dcb8366ae336dd148ff497d0bdca98411fa50bb5`. Frontend source after the compact,
+aligned Events/Discover update, coordinated shuffle, and soft gradients:
+`a0209ad107c90a1a63c29bfc214e6f11f3dd22f6`.
 
 | Component | Location                            | Runtime                                                            |
 | --------- | ----------------------------------- | ------------------------------------------------------------------ |
@@ -44,7 +44,7 @@ data remains in `app`. No indexer reset was performed.
 
 ## Vercel
 
-The current production deployment is `dpl_F93EAEeUdV43cfJZcMSXCgk2bm2D`.
+The current production deployment is `dpl_EsYDFgdVj6Vweu8qFngBEjEKiEkV`.
 Builds first compile the shared workspace, then Next.js. `.vercelignore` excludes
 the root Go/contract/indexer/CRE workspaces and local credentials while retaining
 the Next.js `/api` route handlers.
@@ -76,6 +76,10 @@ deployment succeeded independently of that connection.
 - Soft gradients follow event accent and Light/Dark mode across the workspace.
   Local visual inspection covered desktop Light/Dark and a 375px mobile Light
   viewport, with no horizontal overflow.
+- Events/Discover share their heading and toolbar geometry, content width, and
+  date controls. Local inspection covered both pages at desktop and 375px mobile;
+  filters update their active count and dismiss on Escape or an outside click.
+  The mobile filter panel stayed within the viewport with no horizontal overflow.
 - The frontend `/api/session` and VPS `/v1/me` rejected missing tokens with 401.
 - API and indexer services are enabled and active. Envio is backfilling from the
   public deployment block. At 12:25 WIB, its checkpoint was 66,275,925 with a
