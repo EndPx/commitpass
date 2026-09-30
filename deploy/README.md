@@ -2,7 +2,8 @@
 
 Recorded on 30 September 2026. API/VPS runtime source:
 `dcb8366ae336dd148ff497d0bdca98411fa50bb5`. Frontend source after the Events and
-Discover redesign: `f807b1c50730be9725a887691e35df29ae8fc36c`.
+Discover redesign and coordinated cover/theme shuffle:
+`87d6484beb38f0d149149821e80cc7169cd73f10`.
 
 | Component | Location                            | Runtime                                                            |
 | --------- | ----------------------------------- | ------------------------------------------------------------------ |
@@ -43,7 +44,7 @@ data remains in `app`. No indexer reset was performed.
 
 ## Vercel
 
-The current production deployment is `dpl_3XfT3ALy1cJsrkcySvFy27GmQ84j`.
+The current production deployment is `dpl_HSeaTA5His8r3KZitHmz7M2mT3Ao`.
 Builds first compile the shared workspace, then Next.js. `.vercelignore` excludes
 the root Go/contract/indexer/CRE workspaces and local credentials while retaining
 the Next.js `/api` route handlers.
@@ -69,6 +70,9 @@ deployment succeeded independently of that connection.
 - Frontend `/`, `/signin`, `/health`, and `/api/events` returned 200.
 - Google sign-in completed, the Go session check passed, and the Events workspace
   loaded in the deployed browser. The event editor also loaded.
+- Cover shuffle changes the cover and complete appearance together. The deployed
+  editor showed the new grid/blue/mono preset after a click; local draft saving
+  and reload preserved a workshop/aurora/green/dark preset.
 - The frontend `/api/session` and VPS `/v1/me` rejected missing tokens with 401.
 - API and indexer services are enabled and active. Envio is backfilling from the
   public deployment block. At 12:25 WIB, its checkpoint was 66,275,925 with a
