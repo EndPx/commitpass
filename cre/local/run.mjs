@@ -244,7 +244,7 @@ async function main() {
       params: [wallet.account.address, toHex(parseEther("100"))],
     });
 
-  const assetContract = compiled("MockYieldVault.sol", "MockAUSD");
+  const assetContract = compiled("MockYieldVault.sol", "MockUSDC");
   const yieldContract = compiled("MockYieldVault.sol", "MockYieldVault");
   const factoryContract = compiled(
     "CommitPassFactory.sol",

@@ -11,7 +11,7 @@ import (
 func LocalSchemas() (app, indexer string, err error) {
 	if os.Getenv("COMMITPASS_LOCAL") != "1" {
 		if schema := os.Getenv("COMMITPASS_INDEXER_SCHEMA"); schema != "" {
-			if schema != "envio_hosted" {
+			if schema != "envio_hosted" && schema != "envio_usdc" {
 				return "", "", fmt.Errorf("invalid hosted indexer namespace")
 			}
 			return "app", schema, nil

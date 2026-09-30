@@ -20,7 +20,7 @@ const contracts = [
       "registrationClosed",
       "depositedToYield",
       "eventSettled",
-      "ASSET_TOKEN",
+      "USDC_TOKEN",
       "owner",
       "automation",
       "eventDate",

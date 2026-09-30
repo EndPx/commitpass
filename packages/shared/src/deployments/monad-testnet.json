@@ -1,68 +1,65 @@
 {
   "chainId": 10143,
   "network": "monad-testnet",
-  "sourceCommit": "60bf09336d0fc83909d2bf30f53960c799f6b533",
-  "recordedAt": "2026-09-27T17:04:29.115Z",
+  "sourceCommit": "ec4653c635bb6e85820cda1c706dfd31aa0c954f",
+  "recordedAt": "2026-09-30T09:21:42.987Z",
   "deployer": "0xc82f469Aa95a2f7792300c8d11230e9023A98600",
   "treasury": "0xc82f469Aa95a2f7792300c8d11230e9023A98600",
   "forwarder": "0xF8344CFd5c43616a4366C34E3EEE75af79a74482",
-  "startBlock": 66181579,
-  "totalFeeWei": "749741300007497413",
+  "startBlock": 66933185,
+  "totalFeeWei": "784383831007615377",
   "contracts": {
-    "MockAUSD": {
-      "address": "0xd2A8f6D7645F53aB23dC3EcB146a196026F964DA",
-      "transactionHash": "0x70b7b3931ce131aeaf42ee3bddde401c95b6baef6f609cb5c045df837e4197b1",
-      "blockNumber": 66181579,
-      "runtimeCodeHash": "0xa558402a0033584a713f2df6b114ba6b4feab32866504e0c9f0b0fb237307b7b",
-      "gasUsed": "627876",
-      "feeWei": "62787600000627876",
+    "USDC": {
+      "address": "0x534b2f3A21130d7a60830c2Df862319e593943A3",
+      "external": true,
+      "symbol": "USDC",
+      "decimals": 6,
+      "runtimeCodeHash": "0x96215e6049ed615cdc22fea7701e85458a8e51a2df3e7d45e8f9fa1d521b5a78",
       "verification": {
-        "provider": "etherscan",
-        "status": "Pass - Verified",
-        "guid": "giktnhtgqtce6rtekavxudjcy2ricnbcixgpbk9yuhfjmnqlzx",
-        "url": "https://testnet.monadscan.com/address/0xd2A8f6D7645F53aB23dC3EcB146a196026F964DA#code"
+        "provider": "circle",
+        "url": "https://developers.circle.com/stablecoins/usdc-contract-addresses"
       }
     },
     "MockYieldVault": {
-      "address": "0x054F6A7CE03fdEB7814977B0FE7017cc5B2d7DA2",
-      "transactionHash": "0x69a8164cb5f5d9a8bc377d328eb7de1badd2882b2b18e539e0818dd16f8d8efd",
-      "blockNumber": 66181585,
-      "runtimeCodeHash": "0xc60eaef1e479fc2591d621b4d70ca976a5a894d35fdc846a28157b266978bacb",
-      "gasUsed": "1232792",
-      "feeWei": "123279200001232792",
+      "address": "0xA0e884769DF132a80e951010eC6c88712b8275E9",
+      "transactionHash": "0xe04eecf79dbc6e4d3700e7ca3f8c1361b0717cdbbe86acaf91559070a31ee210",
+      "blockNumber": 66933185,
+      "runtimeCodeHash": "0xe6b9b7c338776d6960c370d9579aa1b495c9988444b4430891efad89eb3b6694",
+      "gasUsed": "1278383",
+      "feeWei": "131673449001278383",
       "verification": {
         "provider": "etherscan",
         "status": "Pass - Verified",
-        "guid": "jakidhsznztuecs6ejhmk899udhvsc71dh1s8a1kb89m2xfmsk",
-        "url": "https://testnet.monadscan.com/address/0x054F6A7CE03fdEB7814977B0FE7017cc5B2d7DA2#code"
+        "guid": "rxbsnyktsaciyfmvcmrpnd6lktdntkwu7gke2eimcgchdn6vfe",
+        "url": "https://testnet.monadscan.com/address/0xA0e884769DF132a80e951010eC6c88712b8275E9#code"
       }
     },
     "CommitPassFactory": {
-      "address": "0xD524e3d9E7f0B419A862B4Ad854422d573B5D651",
-      "transactionHash": "0x68264783c8c16ed574e3ad9d5063bdd67bae23b189c1b277d2da36b9d58d9b9f",
-      "blockNumber": 66181592,
-      "runtimeCodeHash": "0x129a7e7587d30eaa536e32f7b8967660083cd1163eb7cca14e93acc25b37a593",
-      "gasUsed": "3437175",
-      "feeWei": "343717500003437175",
+      "address": "0x4De2d5a126fAFBbd488251E98C1706165730746C",
+      "transactionHash": "0x9841048774d01ed18377d539b5af26a90200566305df96a2495dc98f79f24853",
+      "blockNumber": 66933188,
+      "runtimeCodeHash": "0x7a92f055365b086e69f945fb6e7a6b88e4e525f192cb2498a92547f76d64c7fb",
+      "gasUsed": "4000833",
+      "feeWei": "412085799004000833",
       "verification": {
         "provider": "etherscan",
         "status": "Pass - Verified",
-        "guid": "ml3awcrcp1anhlttgwbzx4imaczm7xymdxfmyedq1wc1knsnu9",
-        "url": "https://testnet.monadscan.com/address/0xD524e3d9E7f0B419A862B4Ad854422d573B5D651#code"
+        "guid": "488uyb5hxptruq54h7qt6a8bhwcugpe4ewpzygphpxbiph22wq",
+        "url": "https://testnet.monadscan.com/address/0x4De2d5a126fAFBbd488251E98C1706165730746C#code"
       }
     },
     "CommitPassAutomation": {
-      "address": "0x06A41268C8cA9d5ADa19b02a8E2f37A0195dC49c",
-      "transactionHash": "0x12e5998dcb5c6e5bfb7aa66c090d5c7c0c99906ea483c136719d9480024b2490",
-      "blockNumber": 66181599,
-      "runtimeCodeHash": "0x709440a48161ba39b1ddf0f206cf3a90f292e46e2302e474b9a4e8b5c0aafae4",
-      "gasUsed": "2199570",
-      "feeWei": "219957000002199570",
+      "address": "0xC7c6FaD1C2A0e8961E34D40c39C059ECE6dBB8Cc",
+      "transactionHash": "0xd258f475728ceed62680c134c06ed94ebd38f2e12e323892f66672ac91d7b5e5",
+      "blockNumber": 66933196,
+      "runtimeCodeHash": "0xcc49365ec38bba52447f07005c2d8ccf38d686cd77b6c820e0664f1f51b3e5e8",
+      "gasUsed": "2336161",
+      "feeWei": "240624583002336161",
       "verification": {
         "provider": "etherscan",
         "status": "Pass - Verified",
-        "guid": "vhrxcecbmszxyirrew4kxepibck9wk1utec4gvmvrjxisz5jve",
-        "url": "https://testnet.monadscan.com/address/0x06A41268C8cA9d5ADa19b02a8E2f37A0195dC49c#code"
+        "guid": "jdt2bwzwd3qc28apcya562hiw8qrnztayrvcadkkz24mhmw38a",
+        "url": "https://testnet.monadscan.com/address/0xC7c6FaD1C2A0e8961E34D40c39C059ECE6dBB8Cc#code"
       }
     }
   }

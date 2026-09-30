@@ -208,7 +208,7 @@ async function main() {
     method: "anvil_setBalance",
     params: [owner.address, toHex(parseEther("100"))],
   });
-  const assetAbi = compiled("MockYieldVault.sol", "MockAUSD");
+  const assetAbi = compiled("MockYieldVault.sol", "MockUSDC");
   const forwarderAbi = compiled("LocalCREForwarder.sol", "LocalCREForwarder");
   const receiverAbi = compiled(
     "CommitPassAutomation.sol",
@@ -249,7 +249,7 @@ async function main() {
     chainId: 10143,
     startBlock: 1,
     contracts: {
-      MockAUSD: { address: asset },
+      USDC: { address: asset },
       MockYieldVault: { address: yieldVault },
       CommitPassFactory: { address: factory },
       CommitPassAutomation: { address: receiver },

@@ -45,7 +45,7 @@ if (args[0] === "start" || args.includes("db-migrate")) {
     process.env.ENVIO_RPC_URL === "http://127.0.0.1:8547";
   const hostedSchema =
     process.env.COMMITPASS_LOCAL !== "1" &&
-    process.env.ENVIO_PG_SCHEMA === "envio_hosted";
+    ["envio_hosted", "envio_usdc"].includes(process.env.ENVIO_PG_SCHEMA);
   if (
     process.env.ENVIO_PG_DATABASE !== "commitpass_indexer" ||
     (process.env.ENVIO_PG_SCHEMA !== "envio" &&
@@ -55,6 +55,17 @@ if (args[0] === "start" || args.includes("db-migrate")) {
   ) {
     throw new Error(
       "Use the dedicated commitpass_indexer database and envio schema",
+    );
+  }
+  if (
+    process.env.ENVIO_PG_SCHEMA === "envio_usdc" &&
+    (process.env.ENVIO_FACTORY_ADDRESS?.toLowerCase() !==
+      deployment.contracts.CommitPassFactory.address.toLowerCase() ||
+      deployment.contracts.USDC?.address.toLowerCase() !==
+        "0x534b2f3a21130d7a60830c2df862319e593943a3")
+  ) {
+    throw new Error(
+      "USDC indexing must use the current Monad USDC factory manifest",
     );
   }
 }
