@@ -1470,15 +1470,21 @@
   gap: 6px;
   min-height: 44px;
   min-width: 44px;
-  padding: 0 4px;
-  border: 0;
-  background: none;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--white);
   font: inherit;
   font-size: 13px;
   color: var(--ink);
 }
 .workspace-faucet-link > svg {
-  display: none;
+  display: block;
+  color: var(--accent);
+}
+.workspace-faucet-link:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
 }
 .faucet-fields {
   display: grid;
@@ -1544,8 +1550,8 @@
   margin-top: 12px;
 }
 @media (max-width: 649px) {
-  .workspace-faucet-link > svg {
-    display: block;
+  .workspace-faucet-link {
+    padding: 0;
   }
   .workspace-faucet-link > span {
     display: none;

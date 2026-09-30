@@ -250,7 +250,10 @@ rows appear above the fold; charts live under Analytics. Keep the existing light
 palette and typography. Remove the settlement explanation beneath the activity.
 
 Header Faucet opens a dialog with fixed USDC/Monad testnet and a verified linked
-wallet (prefer Privy's embedded wallet). No wallet means an explicit create-wallet
+wallet. The trigger has a 1px border, white surface, 10px corners, and an always
+visible accent-colored water icon; hover uses accent-soft. Desktop shows its
+Faucet label; mobile keeps a 44px icon button.
+Prefer Privy's embedded wallet. No wallet means an explicit create-wallet
 action, then refresh verification before using its address. Multiple wallets can
 be selected. The current Circle form did not honor the tested network/address URL
 parameters; show honest instructions, copy the address, and open the official
