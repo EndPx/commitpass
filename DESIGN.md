@@ -145,6 +145,8 @@ surfaces, charcoal headings, restrained terracotta selection and light dividers.
 Max-width 1040px workspace; 800px event timeline. Header: Events, Discover,
 Create event, account menu. No dashboard KPI cards. Empty states use an original
 oversized ticket illustration, useful next action, and honest copy.
+Account popovers use 16px padding and adjacent 44px action rows with no extra
+top margin between My profile and Sign out.
 
 Workspace header follows the supplied Luma reference: 64px desktop / 56px phone,
 symbol-only home link at left, centered navigation, local clock and actions at
