@@ -1,8 +1,8 @@
 # Hosted CommitPass
 
 Recorded on 30 September 2026. API/indexer/CRE runtime source:
-`77187b5e1559cb25979af3062247936855d9a605`. Frontend source after simplifying the faucet links:
-`7da37ade56fc266e19dcdee106aa87e92f99307e`. Public commitments use Circle's
+`77187b5e1559cb25979af3062247936855d9a605`. Frontend source after removing the Events promotional row:
+`9ae26c50ff53d24bf9122e262b905466272cbb9f`. Public commitments use Circle's
 native Monad testnet USDC, address `0x534b2f3A21130d7a60830c2Df862319e593943A3`
 (6 decimals). [Deployment and verification](../contracts/DEPLOYMENT.md).
 
@@ -48,7 +48,7 @@ was reset; the earlier environment files also remain available for rollback.
 
 ## Vercel
 
-The current production deployment is `dpl_64C2prKFeADqegRGhZkbpwoWshNw`.
+The current production deployment is `dpl_6qtB5m5n416niMfkP3K89JDuhE2X`.
 Builds first compile the shared workspace, then Next.js. `.vercelignore` excludes
 the root Go/contract/indexer/CRE workspaces and local credentials while retaining
 the Next.js `/api` route handlers.
