@@ -130,6 +130,40 @@
 .account-popover strong {
   font-size: 14px;
 }
+.account-wallet {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-block: 12px 8px;
+}
+.account-wallet-details {
+  flex: 1;
+  min-width: 0;
+}
+.account-wallet-label {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+.account-wallet code {
+  display: block;
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+.account-popover .account-wallet-copy {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  justify-content: center;
+  padding: 0;
+  color: inherit;
+}
+.account-popover .account-wallet-copy:hover {
+  color: var(--accent);
+}
 .account-popover p {
   font-size: 12px;
   line-height: 1.6;

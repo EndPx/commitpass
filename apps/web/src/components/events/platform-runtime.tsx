@@ -2,11 +2,19 @@
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { usePrivy } from "@privy-io/react-auth";
-import { CalendarDays, Compass, LogOut, Plus, UserRound } from "lucide-react";
+import { usePrivy, useWallets } from "@privy-io/react-auth";
+import {
+  CalendarDays,
+  Check,
+  Compass,
+  Copy,
+  LogOut,
+  Plus,
+  UserRound,
+} from "lucide-react";
 import { AuthProvider, authConfigured } from "@/components/auth/provider";
 import { Brand } from "@/components/landing/brand";
-import { AccountProvider } from "./account-context";
+import { AccountProvider, useAccount } from "./account-context";
 import { PageThemeProvider } from "./page-theme";
 import { LocalRuntimeNotice } from "./local-runtime";
 import { Faucet } from "./faucet";
@@ -44,6 +52,30 @@ export default function PlatformRuntime({ children }: { children: ReactNode }) {
 function Navigation() {
   const path = usePathname();
   const { ready, authenticated, user, logout } = usePrivy();
+  const { wallets } = useWallets();
+  const { session, connecting } = useAccount();
+  const verifiedWallets = session?.wallets ?? [];
+  const walletAddress =
+    verifiedWallets.find((address) =>
+      wallets.some(
+        (wallet) =>
+          wallet.walletClientType === "privy" &&
+          wallet.address.toLowerCase() === address.toLowerCase(),
+      ),
+    ) ??
+    verifiedWallets[0] ??
+    "";
+  const [copiedWallet, setCopiedWallet] = useState("");
+  const [copyError, setCopyError] = useState("");
+  useEffect(() => {
+    setCopiedWallet("");
+    setCopyError("");
+  }, [walletAddress]);
+  useEffect(() => {
+    if (!copiedWallet) return;
+    const timer = window.setTimeout(() => setCopiedWallet(""), 2000);
+    return () => window.clearTimeout(timer);
+  }, [copiedWallet]);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -126,6 +158,53 @@ function Navigation() {
                     user?.google?.email ||
                     "Signed in with Privy"}
                 </p>
+                {walletAddress ? (
+                  <div className="account-wallet">
+                    <div className="account-wallet-details">
+                      <span className="account-wallet-label">Wallet</span>
+                      <code>{walletAddress}</code>
+                    </div>
+                    <button
+                      type="button"
+                      className="account-wallet-copy"
+                      aria-label={
+                        copiedWallet === walletAddress
+                          ? "Wallet address copied"
+                          : "Copy wallet address"
+                      }
+                      title={
+                        copiedWallet === walletAddress
+                          ? "Copied"
+                          : "Copy address"
+                      }
+                      onClick={async () => {
+                        setCopyError("");
+                        try {
+                          await navigator.clipboard.writeText(walletAddress);
+                          setCopiedWallet(walletAddress);
+                        } catch {
+                          setCopyError(
+                            "Could not copy. Select the address to copy it.",
+                          );
+                        }
+                      }}
+                    >
+                      {copiedWallet === walletAddress ? (
+                        <Check size={16} aria-hidden="true" />
+                      ) : (
+                        <Copy size={16} aria-hidden="true" />
+                      )}
+                    </button>
+                    <span className="sr-only" role="status">
+                      {copiedWallet === walletAddress
+                        ? "Wallet address copied"
+                        : ""}
+                    </span>
+                  </div>
+                ) : (
+                  <p>{connecting ? "Loading wallet…" : "No wallet linked."}</p>
+                )}
+                {copyError && <p role="alert">{copyError}</p>}
                 <Link
                   href="/profile"
                   className="account-profile-link"

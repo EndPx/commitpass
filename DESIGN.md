@@ -147,6 +147,10 @@ Create event, account menu. No dashboard KPI cards. Empty states use an original
 oversized ticket illustration, useful next action, and honest copy.
 Account popovers use 16px padding and adjacent 44px action rows with no extra
 top margin between My profile and Sign out.
+Below the account email, show the full server-verified wallet address, preferring
+the embedded wallet. Use selectable 12px monospace text that wraps without
+truncation and an adjacent 44px copy button. Confirm copying with a check icon
+and an accessible status; show clipboard failures inline.
 Sign out uses a solid red #b42318 background with white text/icons and a darker
 #912018 hover state in both Light and Dark themes.
 
