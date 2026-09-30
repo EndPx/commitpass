@@ -2,7 +2,7 @@
 
 Recorded on 30 September 2026. API/indexer/CRE runtime source:
 `77187b5e1559cb25979af3062247936855d9a605`. Frontend source after the compact
-profile, faucet, and account-menu spacing update: `542536a95f440946ac6bf88758bbd27d39723007`. Public commitments use Circle's
+profile, faucet, and red sign-out update: `ff917bb10e61d859a370f6d07637264d04cd52e5`. Public commitments use Circle's
 native Monad testnet USDC, address `0x534b2f3A21130d7a60830c2Df862319e593943A3`
 (6 decimals). [Deployment and verification](../contracts/DEPLOYMENT.md).
 
@@ -48,7 +48,7 @@ was reset; the earlier environment files also remain available for rollback.
 
 ## Vercel
 
-The current production deployment is `dpl_977dUHvd7iayZdhQ1hzw3cm95ip5`.
+The current production deployment is `dpl_J8yZHxG39CiKgMFq62UJy9LgkZHs`.
 Builds first compile the shared workspace, then Next.js. `.vercelignore` excludes
 the root Go/contract/indexer/CRE workspaces and local credentials while retaining
 the Next.js `/api` route handlers.
