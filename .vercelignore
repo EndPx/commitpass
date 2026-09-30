@@ -8,7 +8,7 @@
 **/*.log
 **/*.tsbuildinfo
 .turbo/
-api/
-contracts/
-cre/
-indexer/
+/api/
+/contracts/
+/cre/
+/indexer/

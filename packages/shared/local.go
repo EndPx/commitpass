@@ -10,6 +10,12 @@ import (
 // Local runs have isolated namespaces; public schemas are never reset.
 func LocalSchemas() (app, indexer string, err error) {
 	if os.Getenv("COMMITPASS_LOCAL") != "1" {
+		if schema := os.Getenv("COMMITPASS_INDEXER_SCHEMA"); schema != "" {
+			if schema != "envio_hosted" {
+				return "", "", fmt.Errorf("invalid hosted indexer namespace")
+			}
+			return "app", schema, nil
+		}
 		return "app", "envio", nil
 	}
 	run := os.Getenv("COMMITPASS_LOCAL_RUN")
