@@ -34,7 +34,7 @@ pnpm --filter @commitpass/cre typecheck
 pnpm --filter @commitpass/cre compile:wasm
 ```
 
-Ordinary monorepo builds typecheck CRE. Explicit WASM compilation produces `cre/dist/lifecycle.wasm` through Javy. A build is not workflow execution evidence.
+Ordinary monorepo builds typecheck CRE. Explicit WASM compilation produces `cre/dist/commitpass.wasm` through Javy. A build is not workflow execution evidence.
 
 ## Monad testnet simulation
 
@@ -54,7 +54,7 @@ After receiver signature changes, run `forge build` in `contracts`, then `node p
 ## Configuration and activation
 
 1. Prepare testnet assets, factory and receiver using `contracts/script/DeployTestnet.s.sol`. It requires chain 10143, an explicit treasury and the trusted Monad testnet **deployed-workflow KeystoneForwarder**. Verify that forwarder in the official directory for the selected CRE environment.
-2. Copy `lifecycle/config.testnet.example.json` to `lifecycle/config.testnet.json`. Set the receiver address, reachable HTTPS attendance API and gas limit. The zero receiver deliberately fails validation.
+2. Copy `commitpass/config.testnet.example.json` to `commitpass/config.testnet.json`. Set the receiver address, reachable HTTPS attendance API and gas limit. The zero receiver deliberately fails validation.
 3. Copy `secrets.example.yaml` to `secrets.yaml`. Supply `ATTENDANCE_API_TOKEN_ALL` through the environment for simulation. Deployed workflows use the Vault DON secrets mechanism.
 4. Register/deploy the workflow with this receiver address. Record its resulting workflow ID. The receiver deployer calls `configureWorkflow(workflowId)` exactly once, then activates the workflow. Events cannot attach automation before configuration. An update changing the workflow ID requires a new receiver; there is no permission bypass for existing events.
 5. Use `createAutomatedEvent` and find its vault via `factory.vaultByEventId(id)`. The legacy two-step `createEvent` plus `setAutomation` path can be interrupted by a deposit and should not be used by the application.
@@ -63,9 +63,9 @@ From `cre`, after configuration and working CLI authentication:
 
 ```sh
 # No broadcast flag; trigger 0 is cron.
-cre workflow simulate lifecycle --target testnet-settings --trigger-index 0 --non-interactive
+cre workflow simulate commitpass --target testnet-settings --trigger-index 0 --non-interactive
 # Trigger 1 consumes a finalized organizer request log.
-cre workflow simulate lifecycle --target testnet-settings --trigger-index 1 --evm-tx-hash <request-tx> --evm-event-index <log-index> --non-interactive
+cre workflow simulate commitpass --target testnet-settings --trigger-index 1 --evm-tx-hash <request-tx> --evm-event-index <log-index> --non-interactive
 ```
 
 The receiver validates its forwarder and workflow ID in **64-byte production KeystoneForwarder metadata**. Simulation reports do not establish deployed DON identity. The local runner uses an explicit Anvil-only forwarder fixture with a local workflow ID while leaving the receiver unchanged. A local simulation is separate evidence from a deployed DON write.
@@ -99,11 +99,11 @@ Failed HTTP requests, malformed data, unknown fields, digest mismatch and consen
 
 ## Current boundaries
 
-- The receiver and mock-asset contracts are deployed on Monad testnet; see `contracts/DEPLOYMENT.md`. No deployed DON execution or completed public event lifecycle is claimed. Hosted simulation config points at the HTTPS Go API. A full Privy-authorized browser check-in journey remains a separate milestone.
+- The factory, signed simulation receiver and mock yield vault are deployed on Monad testnet; see `contracts/DEPLOYMENT.md`. A single-attendee Privy-authorized frontend journey completed creation, commitment, check-in, CRE broadcast start/settlement and claim; see [the recorded receipts and accounting](evidence/frontend-monad-broadcast-2026-10-01.json). Hosted simulation config points at the HTTPS Go API. DON deployment and browser coverage of cancellation, zero attendance and the no-show split remain unverified.
 - Testnet uses Circle USDC on Monad (`0x534b2f3A21130d7a60830c2Df862319e593943A3`, 6 decimals) and a mock yield vault. It has no mainnet Clearstar connection or organic yield; token donations can model yield.
 - A valid empty attendance snapshot refunds all commitments plus recovered surplus without a platform fee. Owner cancellation before start opens principal refunds directly onchain. Redemption failure or principal shortfall reverts atomically, leaving settlement pending.
 - Claim allocations include deterministic remainder distribution in registration order. Platform revenue is 50% of no-show principal only when attendance is nonzero; no yield fee applies.
-- Privy/Mera login choices do not change participant identity: claims belong to the depositing wallet.
+- Privy authentication does not change participant identity: claims belong to the depositing wallet.
 
 References: [receiver contracts](https://docs.chain.link/cre/guides/workflow/using-evm-client/onchain-write/building-consumer-contracts), [EVM writes](https://docs.chain.link/cre/guides/workflow/using-evm-client/onchain-write/overview-ts), [secrets](https://docs.chain.link/cre/guides/workflow/secrets/using-secrets-simulation-ts).
 
@@ -138,3 +138,12 @@ cre init --project-name cre --workflow-name lifecycle --template hello-world-ts 
 The generated project/workflow layout is adopted here, with the existing financial
 workflow retained. Generated Sepolia sample RPCs were replaced with Monad testnet;
 the private registry field is configuration only, with no workflow deployment.
+
+The generated workflow directory was subsequently renamed from `lifecycle/` to
+`commitpass/`. Workflow names now use `commitpass-testnet`, `commitpass-local` and
+`commitpass-interactive`; the repository project root stays `cre/`. For a fresh
+standalone project with both names set to CommitPass, use:
+
+```sh
+cre init --project-name commitpass --workflow-name commitpass --template hello-world-ts --deployment-registry private --rpc-url monad-testnet=https://testnet-rpc.monad.xyz --non-interactive
+```

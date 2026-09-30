@@ -1,5 +1,5 @@
 {
-  "name": "@commitpass/cre-lifecycle",
+  "name": "@commitpass/cre-workflow",
   "version": "0.0.0",
   "private": true,
   "scripts": {

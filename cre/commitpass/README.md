@@ -15,7 +15,7 @@ pnpm --filter @commitpass/cre simulate:broadcast
 From `cre/`, with authenticated CRE CLI and signing environment configured:
 
 ```sh
-cre workflow simulate lifecycle --target testnet-settings --trigger-index 0 --broadcast --non-interactive
+cre workflow simulate commitpass --target testnet-settings --trigger-index 0 --broadcast --non-interactive
 ```
 
 `project.yaml` contains the public Monad testnet RPC. `workflow.yaml` selects the

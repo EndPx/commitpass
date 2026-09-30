@@ -2,7 +2,7 @@ packages:
   - apps/*
   - api
   - cre
-  - cre/lifecycle
+  - cre/commitpass
   - indexer
   - packages/*
   - contracts

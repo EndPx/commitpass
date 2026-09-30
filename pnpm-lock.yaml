@@ -115,7 +115,7 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
-  cre/lifecycle:
+  cre/commitpass:
     dependencies:
       '@chainlink/cre-sdk':
         specifier: 1.22.0

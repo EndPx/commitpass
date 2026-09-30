@@ -6,9 +6,9 @@ import { createPublicClient, http, isAddress, keccak256, parseAbi } from "viem";
 const broadcast = process.argv.includes("--broadcast");
 const root = new URL("../", import.meta.url);
 const cwd = fileURLToPath(root);
-const wasm = fileURLToPath(new URL("dist/lifecycle.wasm", root));
+const wasm = fileURLToPath(new URL("dist/commitpass.wasm", root));
 const config = JSON.parse(
-  readFileSync(new URL("lifecycle/config.testnet.json", root), "utf8"),
+  readFileSync(new URL("commitpass/config.testnet.json", root), "utf8"),
 );
 const deployment = JSON.parse(
   readFileSync(
@@ -114,7 +114,7 @@ const result = spawnSync(
   [
     "workflow",
     "simulate",
-    "lifecycle",
+    "commitpass",
     "--target",
     "testnet-settings",
     "--trigger-index",

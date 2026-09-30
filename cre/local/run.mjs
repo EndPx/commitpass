@@ -135,7 +135,7 @@ async function simulate(name, request, expectedSuccess = true) {
   const args = [
     "workflow",
     "simulate",
-    fileURLToPath(new URL("../lifecycle", import.meta.url)),
+    fileURLToPath(new URL("../commitpass", import.meta.url)),
     "--project-root",
     fileURLToPath(local),
     "--target",
@@ -143,7 +143,7 @@ async function simulate(name, request, expectedSuccess = true) {
     "--env",
     fileURLToPath(new URL("empty.env", local)),
     "--wasm",
-    fileURLToPath(new URL("../dist/lifecycle.wasm", import.meta.url)),
+    fileURLToPath(new URL("../dist/commitpass.wasm", import.meta.url)),
     "--non-interactive",
     "--trigger-index",
     request ? "1" : "0",

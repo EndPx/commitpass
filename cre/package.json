@@ -18,7 +18,7 @@
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
     "build": "tsc -p tsconfig.json",
-    "compile:wasm": "cre-compile lifecycle/main.ts dist/lifecycle.wasm",
+    "compile:wasm": "cre-compile commitpass/main.ts dist/commitpass.wasm",
     "simulate": "pnpm --filter @commitpass/shared build && pnpm compile:wasm && node scripts/simulate-testnet.mjs",
     "local": "pnpm --filter @commitpass/shared build && pnpm compile:wasm && node local/run.mjs",
     "simulate:broadcast": "pnpm --filter @commitpass/shared build && pnpm compile:wasm && node scripts/simulate-testnet.mjs --broadcast"
