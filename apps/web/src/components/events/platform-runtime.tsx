@@ -124,6 +124,17 @@ function Navigation() {
                     user?.google?.email ||
                     "Signed in with Privy"}
                 </p>
+                <Link
+                  href="/profile"
+                  className="account-profile-link"
+                  onClick={(event) =>
+                    event.currentTarget
+                      .closest("details")
+                      ?.removeAttribute("open")
+                  }
+                >
+                  <UserRound size={15} /> My profile
+                </Link>
                 <button
                   disabled={busy}
                   onClick={async () => {

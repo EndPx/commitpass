@@ -221,6 +221,21 @@ and capacity 1–500; do not offer unsupported Free/Unlimited/Approval modes.
 
 ## Participant pass and host workspace
 
+Private `/profile` uses the same content width and heading scale as event browsing.
+Privy supplies the user's display name; authenticated `/v1/me` supplies wallet
+ownership. Envio supplies full-history counts and exact token-unit totals, with
+paginated participation records. Attendance rate includes only normally settled
+events, excluding cancelled and zero-attendance refunds. Keep wallet balance,
+locked commitments, available returns, and received funds visually separate.
+Do not sum different assets or label claimable funds as wallet balance. Return
+actions open the existing event claim flow, which validates current chain state.
+Use a quiet four-column financial summary (two on mobile), compact participation
+rows, explicit loading/error/empty states, and existing original cover assets.
+Add an attendance ring and a six-month registration bar chart. Use full-history
+Envio aggregates and exact distinct-event counts; deduplicate multiple linked
+wallets at their first event commitment. Calendar buckets use UTC. SVG/CSS marks
+are static, with text values and captions, and show honest zero-data states.
+
 Events and Discover are different browsing surfaces. The supplied Luma events
 screenshot is the reference for the personal list: a 900px content measure,
 32px heading with Upcoming/Past on the same row, grouped calendar dates at left,
