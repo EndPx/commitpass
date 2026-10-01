@@ -22,6 +22,20 @@ process.env.ENVIO_FACTORY_ADDRESS ||=
   deployment.contracts.CommitPassFactory.address;
 process.env.ENVIO_START_BLOCK ||= String(deployment.startBlock);
 const args = process.argv.slice(2);
+const managedHosting = process.env.ENVIO_MANAGED_HOSTING === "1";
+if (managedHosting) {
+  const configIndex = args.indexOf("--config");
+  if (
+    process.env.COMMITPASS_LOCAL === "1" ||
+    args[configIndex + 1] !== "./config.hosted.yaml" ||
+    configIndex < 0 ||
+    args.includes("db-migrate")
+  ) {
+    throw new Error(
+      "Managed hosting requires the hosted configuration and platform-owned migrations",
+    );
+  }
+}
 if (args[0] === "start") {
   for (const key of ["ENVIO_FACTORY_ADDRESS"]) {
     if (
@@ -39,7 +53,7 @@ if (args[0] === "start") {
     );
   }
 }
-if (args[0] === "start" || args.includes("db-migrate")) {
+if (!managedHosting && (args[0] === "start" || args.includes("db-migrate"))) {
   const localSchema =
     process.env.COMMITPASS_LOCAL === "1" &&
     /^envio_local_[a-z0-9]{12,32}$/.test(process.env.ENVIO_PG_SCHEMA ?? "") &&

@@ -8,6 +8,8 @@ The Cloud package is self-contained: runtime imports, schema and ABI snapshots l
 
 The hosted configuration indexes the active Monad testnet factory from its deployment block. It contains no database credentials, wallet key or attendance secret. Envio Cloud owns the indexer storage and exposes a GraphQL endpoint. The Go API selects that endpoint through `ENVIO_GRAPHQL_URL`; application check-ins and immutable attendance snapshots remain in Neon. Local Anvil runs continue to use their isolated SQL namespaces.
 
+Set the project-owned Cloud flag `ENVIO_MANAGED_HOSTING=1` in the Envio Cloud environment. The launcher then accepts the platform-owned database only when Cloud starts it with `--config ./config.hosted.yaml`. It rejects local mode and manual database migration commands in this path. Self-hosted starts retain the dedicated Neon database/schema guards.
+
 Use `envio-cloud deployment endpoint` to obtain the real deployed endpoint; do not construct or guess its URL. A connected repository and successful build are not indexing proof: check sync status and query actual event, participant and claim records before switching the Go API.
 
 The Development tier is intended for hackathon/demo use and has platform retention and usage limits. No paid plan is required for the initial public deployment.
