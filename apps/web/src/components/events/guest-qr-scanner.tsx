@@ -35,6 +35,7 @@ export function GuestQrScanner({
   onGuest: (wallet: string) => void;
   onClose: () => void;
 }) {
+  const imageInput = useRef<HTMLInputElement>(null);
   const video = useRef<HTMLVideoElement>(null),
     controls = useRef<IScannerControls | null>(null),
     mounted = useRef(true),
@@ -176,19 +177,26 @@ export function GuestQrScanner({
           <Camera size={16} />
           {busy ? "Preparing…" : active ? "Stop camera" : "Start camera"}
         </button>
-        <label className="button">
+        <button
+          className="button"
+          type="button"
+          disabled={busy}
+          onClick={() => imageInput.current?.click()}
+        >
           <ImagePlus size={16} />
           Upload QR
-          <input
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            disabled={busy}
-            onChange={(event) => {
-              void image(event.target.files?.[0]);
-              event.target.value = "";
-            }}
-          />
-        </label>
+        </button>
+        <input
+          ref={imageInput}
+          hidden
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          disabled={busy}
+          onChange={(event) => {
+            void image(event.target.files?.[0]);
+            event.target.value = "";
+          }}
+        />
       </div>
       <form className="guest-scan-manual" onSubmit={submit}>
         <label htmlFor="guest-reservation-link">
