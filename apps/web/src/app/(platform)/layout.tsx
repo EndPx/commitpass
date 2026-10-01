@@ -8,6 +8,7 @@ import "./profile.css";
 import "./onboarding.css";
 import "./discovery.css";
 import "./vault.css";
+import "./manage.css";
 export default function PlatformLayout({ children }: { children: ReactNode }) {
   return (
     <div className="platform">

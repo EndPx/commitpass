@@ -11,12 +11,18 @@
 }
 .event-vault-card,
 .reservation-panel {
-  background: color-mix(in srgb, var(--white) 62%, transparent);
-  backdrop-filter: blur(16px) saturate(115%);
-  -webkit-backdrop-filter: blur(16px) saturate(115%);
+  background-color: color-mix(in srgb, var(--white) 22%, transparent);
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--ink) 4%, transparent),
+    transparent 55%
+  );
+  border-color: color-mix(in srgb, var(--ink) 10%, transparent);
+  backdrop-filter: blur(28px) saturate(135%);
+  -webkit-backdrop-filter: blur(28px) saturate(135%);
   box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--ink) 4%, transparent),
-    0 8px 24px rgb(0 0 0 / 4%);
+    inset 0 1px 0 color-mix(in srgb, var(--ink) 6%, transparent),
+    0 8px 24px rgb(0 0 0 / 8%);
 }
 .event-period-tabs {
   width: fit-content;
@@ -55,7 +61,7 @@
   background: var(--green);
 }
 .event-vault-address {
-  background: color-mix(in srgb, var(--white) 18%, transparent);
+  background: color-mix(in srgb, var(--white) 8%, transparent);
 }
 .event-vault-address a {
   display: grid;

@@ -1,40 +1,108 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import dynamic from "next/dynamic";
 import { usePrivy } from "@privy-io/react-auth";
-import type {
-  EventMetadata,
-  EventSummary,
-  IndexedParticipant,
-} from "@commitpass/shared";
-import { jsonRequest, shorten } from "@/lib/events";
-import { CoverUpload } from "./cover-upload";
+import { Check, Copy, QrCode, RefreshCw, Search, Users } from "lucide-react";
+import type { EventSummary, IndexedParticipant } from "@commitpass/shared";
+import { amount, jsonRequest, shorten } from "@/lib/events";
+import { ManagedEventEditor } from "./managed-event-editor";
+const QrScanner = dynamic(
+  () => import("./guest-qr-scanner").then((module) => module.GuestQrScanner),
+  { ssr: false },
+);
+
 export function HostTools({
   event,
   refresh,
+  lifecycle,
 }: {
   event: EventSummary;
   refresh: () => void;
+  lifecycle?: ReactNode;
 }) {
-  const { getAccessToken } = usePrivy();
-  const [metadata, setMetadata] = useState<EventMetadata>(
-    event.metadata ?? {
-      title: "",
-      description: "",
-      location: "",
-      posterUrl: "",
-    },
+  const [tab, setTab] = useState("details");
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).has("guest"))
+      setTab("participants");
+  }, [event.vault]);
+  return (
+    <section className="host-tools host-workspace-tabs">
+      <div
+        className="host-tabs"
+        role="tablist"
+        aria-label="Manage event sections"
+      >
+        {[
+          { id: "details", label: "Event details" },
+          { id: "participants", label: "Participants" },
+        ].map((item) => (
+          <button
+            key={item.id}
+            id={`host-tab-${item.id}`}
+            role="tab"
+            aria-selected={tab === item.id}
+            aria-controls={`host-panel-${item.id}`}
+            tabIndex={tab === item.id ? 0 : -1}
+            onClick={() => setTab(item.id)}
+            onKeyDown={(e) => {
+              if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key))
+                return;
+              e.preventDefault();
+              const next =
+                e.key === "Home"
+                  ? "details"
+                  : e.key === "End"
+                    ? "participants"
+                    : tab === "details"
+                      ? "participants"
+                      : "details";
+              setTab(next);
+              document.getElementById(`host-tab-${next}`)?.focus();
+            }}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+      <div
+        id="host-panel-details"
+        role="tabpanel"
+        aria-labelledby="host-tab-details"
+        hidden={tab !== "details"}
+      >
+        <ManagedEventEditor key={event.vault} event={event} refresh={refresh} />
+        <div className="managed-lifecycle">
+          <h3>Event controls</h3>
+          {lifecycle}
+        </div>
+      </div>
+      <div
+        id="host-panel-participants"
+        role="tabpanel"
+        aria-labelledby="host-tab-participants"
+        hidden={tab !== "participants"}
+      >
+        {tab === "participants" && (
+          <ParticipantsPanel key={event.vault} event={event} />
+        )}
+      </div>
+    </section>
   );
-  const [participants, setParticipants] = useState<IndexedParticipant[]>([]);
-  const [checked, setChecked] = useState<string[]>([]);
-  const [cursor, setCursor] = useState<string | null>(null);
-  const [loaded, setLoaded] = useState(false);
-  const [indexedStatus, setIndexedStatus] = useState<string>("");
-  const [busy, setBusy] = useState(false);
-  const [coverUploading, setCoverUploading] = useState(false);
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
-  const [search, setSearch] = useState("");
-  const [copied, setCopied] = useState("");
+}
+function ParticipantsPanel({ event }: { event: EventSummary }) {
+  const { getAccessToken } = usePrivy();
+  const [participants, setParticipants] = useState<IndexedParticipant[]>([]),
+    [checked, setChecked] = useState<string[]>([]);
+  const [cursor, setCursor] = useState<string | null>(null),
+    [indexedStatus, setIndexedStatus] = useState("");
+  const [loaded, setLoaded] = useState(false),
+    [busy, setBusy] = useState(false),
+    [scanOpen, setScanOpen] = useState(false);
+  const [search, setSearch] = useState(""),
+    [filter, setFilter] = useState("all"),
+    [error, setError] = useState(""),
+    [message, setMessage] = useState(""),
+    [copied, setCopied] = useState("");
   useEffect(() => {
     const guest = new URLSearchParams(window.location.search).get("guest");
     if (guest && /^0x[\da-f]{40}$/i.test(guest)) setSearch(guest);
@@ -43,26 +111,23 @@ export function HostTools({
   useEffect(() => {
     if (
       !["SETTLED", "CANCELLED", "REFUNDED"].includes(event.status) ||
-      indexedStatus === event.status
+      indexedStatus === event.status ||
+      busy
     )
       return;
-    const timer = window.setTimeout(() => void loadGuests(), 4000);
-    return () => window.clearTimeout(timer);
-  }, [event.vault, event.status, indexedStatus, participants]);
-  const visibleGuests = participants.filter((person) =>
-    person.wallet.toLowerCase().includes(search.trim().toLowerCase()),
-  );
+    const timer = setTimeout(() => void loadGuests(), 4000);
+    return () => clearTimeout(timer);
+  }, [event.status, indexedStatus, busy]);
   async function loadGuests(after = "") {
     setBusy(true);
     setError("");
     try {
       const token = await getAccessToken();
-      // Read the indexed event first so terminal labels use a committed indexer
-      // state before fetching its participant outcomes.
-      const indexed = await jsonRequest<EventSummary>(
+      if (!token) throw new Error("Please sign in again.");
+      const indexed = await jsonRequest<{ data: EventSummary }>(
         `/api/events/${event.vault}`,
       );
-      const [people, checkIns] = await Promise.all([
+      const [people, attendance] = await Promise.all([
         jsonRequest<{ data: IndexedParticipant[]; nextCursor: string | null }>(
           `/api/events/${event.vault}/participants?after=${encodeURIComponent(after)}`,
         ),
@@ -72,249 +137,124 @@ export function HostTools({
         ),
       ]);
       setParticipants((current) =>
-        after ? [...current, ...people.data] : people.data,
+        after
+          ? Array.from(
+              new Map(
+                [...current, ...people.data].map((person) => [
+                  person.id,
+                  person,
+                ]),
+              ).values(),
+            )
+          : people.data,
       );
       setCursor(people.nextCursor);
-      setChecked(
-        checkIns.checkIns.map((record) => record.wallet.toLowerCase()),
-      );
+      setChecked(attendance.checkIns.map((item) => item.wallet.toLowerCase()));
       setLoaded(true);
-      setIndexedStatus(indexed.status);
-    } catch (error) {
+      setIndexedStatus(indexed.data.status);
+    } catch (value) {
       setError(
-        error instanceof Error ? error.message : "Could not load guests.",
+        value instanceof Error ? value.message : "Could not load participants.",
       );
     } finally {
       setBusy(false);
     }
   }
+  async function checkIn(person: IndexedParticipant) {
+    if (
+      busy ||
+      checked.includes(person.wallet.toLowerCase()) ||
+      event.status !== "ACTIVE"
+    )
+      return;
+    setBusy(true);
+    setError("");
+    setMessage("");
+    try {
+      const token = await getAccessToken();
+      if (!token) throw new Error("Please sign in again.");
+      await jsonRequest(
+        `/api/events/${event.vault}/check-ins/${person.wallet}`,
+        { method: "PUT", headers: { Authorization: `Bearer ${token}` } },
+      );
+      setChecked((current) => [
+        ...new Set([...current, person.wallet.toLowerCase()]),
+      ]);
+      setMessage(`${shorten(person.wallet)} checked in.`);
+    } catch (value) {
+      setError(
+        value instanceof Error ? value.message : "Could not record attendance.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+  const terminal = ["SETTLED", "CANCELLED", "REFUNDED"].includes(event.status);
+  const isPresent = (person: IndexedParticipant) =>
+    event.status === "SETTLED" && indexedStatus === event.status
+      ? person.attended
+      : checked.includes(person.wallet.toLowerCase()) || person.attended;
+  const visible = participants.filter(
+    (person) =>
+      person.wallet.toLowerCase().includes(search.trim().toLowerCase()) &&
+      (filter === "all" ||
+        (filter === "checked" ? isPresent(person) : !isPresent(person))),
+  );
   return (
-    <section className="host-tools">
-      <h2>Guest list & event details</h2>
-      <details>
-        <summary>Edit event details</summary>
-        <form
-          onSubmit={async (form) => {
-            form.preventDefault();
-            if (busy || coverUploading || event.metadataUnavailable) return;
-            setBusy(true);
-            setError("");
-            setMessage("");
-            try {
-              const token = await getAccessToken();
-              await jsonRequest(`/api/events/${event.vault}/metadata`, {
-                method: "PUT",
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(metadata),
-              });
-              setMessage("Event details saved.");
-              refresh();
-            } catch (error) {
-              setError(
-                error instanceof Error
-                  ? error.message
-                  : "Could not save details.",
-              );
-            } finally {
-              setBusy(false);
-            }
-          }}
-        >
-          <label>
-            Title
-            <input
-              value={metadata.title}
-              maxLength={120}
-              required
-              onChange={(e) =>
-                setMetadata({ ...metadata, title: e.target.value })
-              }
-            />
-          </label>
-          <label>
-            Location
-            <input
-              value={metadata.location}
-              maxLength={300}
-              onChange={(e) =>
-                setMetadata({ ...metadata, location: e.target.value })
-              }
-            />
-          </label>
-          <label>
-            Description
-            <textarea
-              rows={5}
-              value={metadata.description}
-              maxLength={5000}
-              onChange={(e) =>
-                setMetadata({ ...metadata, description: e.target.value })
-              }
-            />
-          </label>
-          <CoverUpload
-            value={metadata.posterUrl}
-            onChange={(url) =>
-              setMetadata((current) => ({ ...current, posterUrl: url }))
-            }
-            disabled={busy}
-            onBusyChange={setCoverUploading}
-          />
-          {event.metadataUnavailable && (
-            <p className="form-error">
-              Event details could not be loaded. Reconnect before saving to
-              avoid replacing existing details.
-            </p>
-          )}
-          <button
-            className="button"
-            disabled={busy || coverUploading || event.metadataUnavailable}
-          >
-            Save details
-          </button>
-        </form>
-      </details>
-      <details open>
-        <summary>Guests & check-in</summary>
-        <p>
-          Open a guest’s QR pass to find their reservation, then confirm their
-          presence here. A pass alone is not proof of attendance.
-        </p>
-        <div className="guest-list-summary">
-          <strong>
-            {loaded ? `${checked.length} checked in` : "Loading attendance…"}
-          </strong>
-          <span>
-            {participants.length} reservations loaded
-            {cursor ? " · more available" : ""}
-          </span>
+    <section
+      className="participants-panel"
+      aria-label="Participants and check-in"
+    >
+      <div className="participants-heading">
+        <div>
+          <h3>Participants</h3>
+          <p>
+            {loaded
+              ? `${participants.length}${cursor ? "+" : ""} reservations · ${checked.length} checked in`
+              : "Loading reservations…"}
+          </p>
         </div>
-        <label className="guest-search">
-          Find a guest
+        <button className="button" onClick={() => setScanOpen(true)}>
+          <QrCode size={17} />
+          Scan QR
+        </button>
+      </div>
+      <div className="participants-toolbar">
+        <label className="participant-search">
+          <Search size={17} />
           <input
+            type="search"
+            aria-label="Search participant wallet"
             value={search}
-            placeholder="Wallet address or CommitPass link"
-            onChange={(e) => {
-              const value = e.target.value;
-              try {
-                const url = new URL(value);
-                const guest = url.searchParams.get("guest");
-                if (
-                  url.origin === window.location.origin &&
-                  url.pathname.toLowerCase() ===
-                    `/events/${event.vault}/manage`.toLowerCase() &&
-                  guest &&
-                  /^0x[\da-f]{40}$/i.test(guest)
-                ) {
-                  setSearch(guest);
-                  return;
-                }
-              } catch {
-                /* Plain wallet/search text. */
-              }
-              setSearch(value);
-            }}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search wallet address"
           />
         </label>
-        {visibleGuests.map((person) => (
-          <div className="guest-checkin" key={person.id}>
-            <span title={person.wallet}>
-              {shorten(person.wallet)}
-              <small>
-                {["SETTLED", "CANCELLED", "REFUNDED"].includes(event.status) &&
-                indexedStatus !== event.status
-                  ? "Confirming attendance…"
-                  : person.claimed
-                    ? "Return claimed"
-                    : ["CANCELLED", "REFUNDED"].includes(event.status)
-                      ? "Refund available"
-                      : person.attended
-                        ? "Attendance confirmed"
-                        : event.status === "SETTLED"
-                          ? "No-show · no refund"
-                          : "Commitment confirmed"}
-              </small>
-              <button
-                className="guest-copy"
-                type="button"
-                onClick={async () => {
-                  try {
-                    await navigator.clipboard.writeText(person.wallet);
-                    setCopied(person.wallet);
-                  } catch {
-                    setError("Could not copy the wallet address.");
-                  }
-                }}
-              >
-                {copied === person.wallet ? "Copied" : "Copy wallet"}
-              </button>
-            </span>
-            <button
-              disabled={
-                busy ||
-                checked.includes(person.wallet.toLowerCase()) ||
-                event.status !== "ACTIVE"
-              }
-              onClick={async () => {
-                setBusy(true);
-                setError("");
-                try {
-                  const token = await getAccessToken();
-                  await jsonRequest(
-                    `/api/events/${event.vault}/check-ins/${person.wallet}`,
-                    {
-                      method: "PUT",
-                      headers: { Authorization: `Bearer ${token}` },
-                    },
-                  );
-                  setChecked((current) => [
-                    ...current,
-                    person.wallet.toLowerCase(),
-                  ]);
-                } catch (error) {
-                  setError(
-                    error instanceof Error
-                      ? error.message
-                      : "Could not record attendance.",
-                  );
-                } finally {
-                  setBusy(false);
-                }
-              }}
-            >
-              {checked.includes(person.wallet.toLowerCase())
-                ? "Checked in"
-                : "Check in"}
-            </button>
-          </div>
-        ))}
-        {loaded && participants.length > 0 && !visibleGuests.length && (
-          <p>
-            No matching guest in the loaded reservations.
-            {cursor ? " Load more guests to continue searching." : ""}
-          </p>
-        )}
-        {loaded && !participants.length && <p>No committed guests yet.</p>}
-        {cursor && (
-          <button
-            className="button"
-            disabled={busy}
-            onClick={() => loadGuests(cursor)}
-          >
-            Load more guests
-          </button>
-        )}
-        <button
-          className="auth-text-button"
-          disabled={busy}
-          onClick={() => loadGuests()}
+        <select
+          aria-label="Attendance filter"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
         >
-          {busy ? "Loading…" : "Refresh guests"}
+          <option value="all">All participants</option>
+          <option value="checked">Checked in</option>
+          <option value="waiting">Not checked in</option>
+        </select>
+        <button
+          className="participant-refresh"
+          aria-label="Refresh participants"
+          disabled={busy}
+          onClick={() => void loadGuests()}
+        >
+          <RefreshCw size={17} />
         </button>
-      </details>
+      </div>
+      {event.status !== "ACTIVE" && (
+        <p className="participant-checkin-note">
+          {terminal
+            ? "Check-in is closed for this event."
+            : "Check-in opens once the event starts."}
+        </p>
+      )}
       {error && (
         <p className="form-error" role="alert">
           {error}
@@ -324,6 +264,168 @@ export function HostTools({
         <p className="form-message" role="status">
           {message}
         </p>
+      )}
+      <div className="participant-table-scroll">
+        <table className="participant-table">
+          <thead>
+            <tr>
+              <th>Participant wallet</th>
+              <th>Commitment</th>
+              <th>Attendance</th>
+              <th>Return</th>
+              <th>
+                <span className="sr-only">Actions</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {visible.map((person) => {
+              const present = isPresent(person);
+              return (
+                <tr
+                  key={person.id}
+                  className={
+                    search.toLowerCase() === person.wallet.toLowerCase()
+                      ? "selected"
+                      : ""
+                  }
+                >
+                  <td>
+                    <div className="participant-wallet">
+                      <span className="host-avatar" aria-hidden="true">
+                        {person.wallet.slice(2, 3).toUpperCase()}
+                      </span>
+                      <code title={person.wallet}>
+                        {shorten(person.wallet)}
+                      </code>
+                      <button
+                        aria-label={`Copy wallet ${shorten(person.wallet)}`}
+                        onClick={async () => {
+                          try {
+                            await navigator.clipboard.writeText(person.wallet);
+                            setCopied(person.wallet);
+                          } catch {
+                            setError("Could not copy the wallet.");
+                          }
+                        }}
+                      >
+                        {copied === person.wallet ? (
+                          <Check size={14} />
+                        ) : (
+                          <Copy size={14} />
+                        )}
+                      </button>
+                    </div>
+                  </td>
+                  <td>
+                    {amount(person.amount)} <small>USDC</small>
+                  </td>
+                  <td>
+                    <span
+                      className={`participant-status ${present ? "present" : ""}`}
+                    >
+                      {terminal && indexedStatus !== event.status
+                        ? "Updating…"
+                        : present
+                          ? "Checked in"
+                          : event.status === "SETTLED"
+                            ? "No-show"
+                            : "Not checked in"}
+                    </span>
+                  </td>
+                  <td>
+                    {terminal && indexedStatus !== event.status
+                      ? "Updating…"
+                      : person.claimed
+                        ? "Collected"
+                        : terminal
+                          ? BigInt(person.claimableAmount) > 0n
+                            ? `${amount(person.claimableAmount)} USDC available`
+                            : "No return"
+                          : "After event ends"}
+                  </td>
+                  <td>
+                    <button
+                      className="participant-checkin"
+                      disabled={busy || present || event.status !== "ACTIVE"}
+                      onClick={() => void checkIn(person)}
+                    >
+                      {present ? (
+                        <>
+                          <Check size={14} />
+                          Checked in
+                        </>
+                      ) : (
+                        "Check in"
+                      )}
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+            {!visible.length && (
+              <tr>
+                <td colSpan={5}>
+                  <div className="participant-empty">
+                    <Users size={28} />
+                    <strong>
+                      {!loaded
+                        ? error
+                          ? "Participants unavailable."
+                          : "Loading participants…"
+                        : search || filter !== "all"
+                          ? "No matching participants."
+                          : "No reservations yet."}
+                    </strong>
+                    <p>
+                      {search || filter !== "all"
+                        ? cursor
+                          ? "Load more participants or clear your filters."
+                          : "Try another wallet or clear your filters."
+                        : "Guests will appear here after their commitment is confirmed."}
+                    </p>
+                    {(search || filter !== "all") && (
+                      <button
+                        className="button"
+                        onClick={() => {
+                          setSearch("");
+                          setFilter("all");
+                        }}
+                      >
+                        Clear filters
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      {cursor && (
+        <button
+          className="button participants-more"
+          disabled={busy}
+          onClick={() => void loadGuests(cursor)}
+        >
+          Load more participants
+        </button>
+      )}
+      <span className="sr-only" role="status">
+        {copied ? "Wallet address copied" : ""}
+      </span>
+      {scanOpen && (
+        <QrScanner
+          vault={event.vault}
+          onClose={() => setScanOpen(false)}
+          onGuest={(wallet) => {
+            setFilter("all");
+            setSearch(wallet);
+            setMessage(
+              "Pass read. Confirm the matching reservation with Check in.",
+            );
+          }}
+        />
       )}
     </section>
   );

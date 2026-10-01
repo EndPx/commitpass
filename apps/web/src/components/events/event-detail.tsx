@@ -152,7 +152,10 @@ export function EventDetail({
     ? utcOffset(new Date(Number(event.settleAt) * 1000), timezone)
     : startOffset;
   return (
-    <main className="workspace-content detail-workspace" id="workspace-main">
+    <main
+      className={`workspace-content detail-workspace${manage ? " manage-workspace" : ""}`}
+      id="workspace-main"
+    >
       <div className="detail-grid">
         <aside className="detail-aside" ref={asideRef}>
           <EventCover
@@ -179,55 +182,6 @@ export function EventDetail({
           <EventVaultCard event={indexedEvent ?? event} />
         </aside>
         <div className="detail-main">
-          <div className="event-chips detail-status">
-            <span>{statusLabel(event)}</span>
-          </div>
-          <h1>{eventTitle(event)}</h1>
-          <div className="detail-facts">
-            <div>
-              <span className="detail-fact-icon">
-                <CalendarDays size={20} />
-              </span>
-              <span>
-                <strong>
-                  {dateLabel(event.startAt, {
-                    weekday: "long",
-                    month: "long",
-                    day: "numeric",
-                    timeZone: timezone,
-                  })}
-                </strong>
-                <small>
-                  {timeLabel(event.startAt, timezone)}
-                  {startOffset !== endOffset ? ` ${startOffset}` : ""}
-                  {event.settleAt
-                    ? ` – ${timeLabel(event.settleAt, timezone)}${startOffset !== endOffset ? ` ${endOffset}` : ""}`
-                    : ""}{" "}
-                  {startOffset === endOffset ? `· ${startOffset} ` : ""}·{" "}
-                  {timezone.replaceAll("_", " ")}
-                </small>
-              </span>
-            </div>
-            <div>
-              <span className="detail-fact-icon">
-                <MapPin size={20} />
-              </span>
-              <span>
-                <strong>
-                  {event.metadata?.location || "Location to be announced"}
-                </strong>
-              </span>
-            </div>
-          </div>
-          {(error || live.error) && (
-            <p className="form-error" role="alert">
-              {live.error ||
-                "Event details could not refresh. Showing the last available details."}{" "}
-              <button className="auth-text-button" onClick={refresh}>
-                Reconnect
-              </button>
-            </p>
-          )}
           {manage ? (
             <HostManagement
               event={event}
@@ -237,6 +191,55 @@ export function EventDetail({
             />
           ) : (
             <>
+              <div className="event-chips detail-status">
+                <span>{statusLabel(event)}</span>
+              </div>
+              <h1>{eventTitle(event)}</h1>
+              <div className="detail-facts">
+                <div>
+                  <span className="detail-fact-icon">
+                    <CalendarDays size={20} />
+                  </span>
+                  <span>
+                    <strong>
+                      {dateLabel(event.startAt, {
+                        weekday: "long",
+                        month: "long",
+                        day: "numeric",
+                        timeZone: timezone,
+                      })}
+                    </strong>
+                    <small>
+                      {timeLabel(event.startAt, timezone)}
+                      {startOffset !== endOffset ? ` ${startOffset}` : ""}
+                      {event.settleAt
+                        ? ` – ${timeLabel(event.settleAt, timezone)}${startOffset !== endOffset ? ` ${endOffset}` : ""}`
+                        : ""}{" "}
+                      {startOffset === endOffset ? `· ${startOffset} ` : ""}·{" "}
+                      {timezone.replaceAll("_", " ")}
+                    </small>
+                  </span>
+                </div>
+                <div>
+                  <span className="detail-fact-icon">
+                    <MapPin size={20} />
+                  </span>
+                  <span>
+                    <strong>
+                      {event.metadata?.location || "Location to be announced"}
+                    </strong>
+                  </span>
+                </div>
+              </div>
+              {(error || live.error) && (
+                <p className="form-error" role="alert">
+                  {live.error ||
+                    "Event details could not refresh. Showing the last available details."}{" "}
+                  <button className="auth-text-button" onClick={refresh}>
+                    Reconnect
+                  </button>
+                </p>
+              )}
               {owner ? (
                 <OrganizerEventPanel event={event} />
               ) : (
@@ -246,23 +249,23 @@ export function EventDetail({
                   live={live.error ? null : live.value}
                 />
               )}
+              <section className="event-description">
+                <h2>About this event</h2>
+                {event.metadataUnavailable ? (
+                  <p>
+                    Event details are temporarily unavailable.{" "}
+                    <button onClick={refresh}>Try again</button>
+                  </p>
+                ) : (
+                  <p>
+                    {event.metadata?.description ||
+                      "The host hasn’t added a description yet."}
+                  </p>
+                )}
+              </section>
+              <EventLocation location={event.metadata?.location || ""} />
             </>
           )}
-          <section className="event-description">
-            <h2>About this event</h2>
-            {event.metadataUnavailable ? (
-              <p>
-                Event details are temporarily unavailable.{" "}
-                <button onClick={refresh}>Try again</button>
-              </p>
-            ) : (
-              <p>
-                {event.metadata?.description ||
-                  "The host hasn’t added a description yet."}
-              </p>
-            )}
-          </section>
-          <EventLocation location={event.metadata?.location || ""} />
         </div>
       </div>
     </main>

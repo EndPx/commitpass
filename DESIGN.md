@@ -354,6 +354,27 @@ Mobile stacks ticket QR and summary columns. Owner authorization comes from fres
 chain state and Privy; the API independently authorizes every check-in/metadata write.
 Lifecycle requests remain pending until CRE execution changes contract state.
 
+### Manage workspace
+
+Manage replaces the public date/reservation/description stack with one host
+workspace and exactly two tabs: Event details and Participants. Tabs support
+arrow/Home/End navigation and preserve unsaved editor values. Event details
+reuses Create's large name input, date rows, option rows and existing location,
+description, cover and theme dialogs. Contract schedule, stake and capacity are
+read-only and clearly labelled fixed after creation. A Save changes action
+writes metadata only; existing lifecycle confirmations/receipt recovery remain.
+Participants uses a semantic, horizontally scrollable table with wallet,
+commitment, attendance, return and check-in columns; wallet search, checked-in
+filter, pagination, refresh and honest loading/empty/error states. Status text
+accompanies color; do not invent profile names or attendees. Camera decoding
+loads only after Start camera. Scan QR also accepts an image or reservation
+link. Reject a QR for another event or an unrecognized origin; scan selects a
+reservation, never records attendance automatically. Stop camera tracks on
+close/unmount and provide a visible camera error with image/manual fallback.
+The organizer confirms attendance with the existing authenticated API, which
+continues to validate organizer, deposit and event state. On mobile the tabs
+remain visible, editor rows wrap and table scrolling is confined to the table.
+
 ### Vault insights
 
 Public lifecycle copy uses Event ended for SETTLED; internal contract/indexer
@@ -371,8 +392,10 @@ yield rate or vault balance. Empty events show an empty capacity bar honestly.
 The full selectable address has one 44px arrow link to its explorer contract
 page. Omit both Copy and the redundant View on Monadscan footer link. Reuse
 the existing 16px radius, 20px padding, theme surfaces and dividers.
-Vault and reservation surfaces are translucent theme panels: 62% surface tint,
-16px backdrop blur, 115% saturation, a theme border and a subtle inset rim.
+Vault and reservation surfaces follow the supplied Luma glass-card reference:
+22% surface tint, a 4%-to-transparent diagonal sheen, 28px backdrop blur and
+135% saturation. Use a 10% ink border, a 6% inset rim and a subtle depth shadow.
+Address rows use only 8% surface tint so they do not mask the translucent panel.
 Keep readable ink/muted colors in Light and Dark. Status sits above the event
 title. An organizer sees Your event with guest count, per-guest commitment and
 one Manage event action, replacing the guest reservation panel. Event detail

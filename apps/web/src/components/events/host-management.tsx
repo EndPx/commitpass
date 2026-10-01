@@ -225,147 +225,160 @@ export function HostManagement({
       <div className="host-dashboard-heading">
         <div>
           <small>HOST WORKSPACE</small>
-          <h2>Make it a good gathering.</h2>
+          <h1>Manage event</h1>
         </div>
         <Link href={`/events/${event.vault}`}>
           View event <ArrowUpRight size={15} />
         </Link>
       </div>
-      <div className="host-stats">
-        <div>
-          <span>Guests</span>
-          <strong>
-            {live.count.toString()} <small>/ {live.capacity.toString()}</small>
-          </strong>
-        </div>
-        <div>
-          <span>Committed</span>
-          <strong>
-            {amount((live.count * live.stake).toString())} <small>USDC</small>
-          </strong>
-        </div>
-        <div>
-          <span>Event status</span>
-          <strong className="host-status-value">{statusLabel(event)}</strong>
-        </div>
-      </div>
-      <ol className="lifecycle-steps">
-        {[
-          ["Registration", true],
-          ["Event started", live.started],
-          ["Event ended", live.settled],
-        ].map(([label, done]) => (
-          <li key={String(label)} className={done ? "complete" : ""}>
-            {done ? <Check size={15} /> : <Clock3 size={15} />} {label}
-          </li>
-        ))}
-      </ol>
-      <div className="host-lifecycle">
-        <h3>
-          {live.outcome === 3
-            ? "Event cancelled."
-            : live.outcome === 2
-              ? "Full refunds are available."
-              : live.settled
-                ? "All wrapped up."
-                : ending
-                  ? "Your event is wrapping up."
-                  : live.started
-                    ? "Your event is live."
-                    : starting
-                      ? "Waiting for the event to start."
-                      : "Ready when your people are."}
-        </h3>
-        <p>
-          {live.outcome === 3
-            ? "Cancellation is confirmed onchain. Every guest can claim their full commitment with no fee."
-            : live.outcome === 2
-              ? "No attendance was recorded in the finalized snapshot. Every guest can claim their commitment plus a share of recovered yield. No platform fee applies."
-              : live.settled
-                ? "The event has ended. Eligible guests can collect their return from the event page."
-                : ending
-                  ? "Check-in is closed. Automation will use the attendance snapshot to settle commitments. This page refreshes automatically."
-                  : live.started
-                    ? "Check guests in below. Ending the event closes check-in and starts preparing guest returns."
-                    : starting
-                      ? "Automation is waiting to execute the start. This page updates when the contract confirms it."
-                      : "Starting closes registration and asks automation to put the committed funds into the event’s yield vault."}
-        </p>
-        {pending ? (
-          <button
-            className="button button--dark"
-            disabled={busy}
-            onClick={execute}
-          >
-            {busy ? "Checking request…" : "Check submitted request"}
-          </button>
-        ) : (
-          !live.settled && (
-            <button
-              className="button button--dark"
-              disabled={
-                busy ||
-                !wallet ||
-                (live.started
-                  ? ending
-                  : live.startRequested || live.count === 0n)
-              }
-              onClick={() => setConfirmation(live.started ? "end" : "start")}
-            >
-              {live.started ? <Square size={15} /> : <Play size={15} />}
-              {live.started ? "End event" : "Start event"}
-            </button>
-          )
-        )}
-        {isLocal &&
-          !pending &&
-          !live.settled &&
-          !live.started &&
-          !live.startRequested &&
-          live.timestamp < live.start && (
-            <button
-              className="button cancel-event-button"
-              disabled={busy || !wallet}
-              onClick={() => setConfirmation("cancel")}
-            >
-              Cancel event
-            </button>
-          )}
-        {isLocal && live.settled && (
-          <p className="field-note">
-            Allocated to guests: {amount(live.allocated.toString())} USDC ·
-            Claimed: {amount(live.claimed.toString())} · Platform revenue:{" "}
-            {amount(live.revenue.toString())}
-          </p>
-        )}
-        {!wallet && (
-          <p className="field-note">
-            Connect the wallet used to create this event to send a lifecycle
-            request.
-          </p>
-        )}
-        {pending && (
-          <a
-            className="receipt-link"
-            href={`${explorer}/tx/${pending}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            View request transaction <ArrowUpRight size={13} />
-          </a>
-        )}
-        {error && (
-          <p className="form-error" role="alert">
-            {error}
-          </p>
-        )}
-        {message && (
-          <p className="form-message" role="status">
-            {message}
-          </p>
-        )}
-      </div>
-      <HostTools event={event} refresh={refresh} />
+      <HostTools
+        event={event}
+        refresh={refresh}
+        lifecycle={
+          <>
+            <div className="host-stats">
+              <div>
+                <span>Guests</span>
+                <strong>
+                  {live.count.toString()}{" "}
+                  <small>/ {live.capacity.toString()}</small>
+                </strong>
+              </div>
+              <div>
+                <span>Committed</span>
+                <strong>
+                  {amount((live.count * live.stake).toString())}{" "}
+                  <small>USDC</small>
+                </strong>
+              </div>
+              <div>
+                <span>Event status</span>
+                <strong className="host-status-value">
+                  {statusLabel(event)}
+                </strong>
+              </div>
+            </div>
+            <ol className="lifecycle-steps">
+              {[
+                ["Registration", true],
+                ["Event started", live.started],
+                ["Event ended", live.settled],
+              ].map(([label, done]) => (
+                <li key={String(label)} className={done ? "complete" : ""}>
+                  {done ? <Check size={15} /> : <Clock3 size={15} />} {label}
+                </li>
+              ))}
+            </ol>
+            <div className="host-lifecycle">
+              <h3>
+                {live.outcome === 3
+                  ? "Event cancelled."
+                  : live.outcome === 2
+                    ? "Full refunds are available."
+                    : live.settled
+                      ? "All wrapped up."
+                      : ending
+                        ? "Your event is wrapping up."
+                        : live.started
+                          ? "Your event is live."
+                          : starting
+                            ? "Waiting for the event to start."
+                            : "Ready when your people are."}
+              </h3>
+              <p>
+                {live.outcome === 3
+                  ? "Cancellation is confirmed onchain. Every guest can claim their full commitment with no fee."
+                  : live.outcome === 2
+                    ? "No attendance was recorded in the finalized snapshot. Every guest can claim their commitment plus a share of recovered yield. No platform fee applies."
+                    : live.settled
+                      ? "The event has ended. Eligible guests can collect their return from the event page."
+                      : ending
+                        ? "Check-in is closed. Automation will use the attendance snapshot to settle commitments. This page refreshes automatically."
+                        : live.started
+                          ? "Check guests in below. Ending the event closes check-in and starts preparing guest returns."
+                          : starting
+                            ? "Automation is waiting to execute the start. This page updates when the contract confirms it."
+                            : "Starting closes registration and asks automation to put the committed funds into the event’s yield vault."}
+              </p>
+              {pending ? (
+                <button
+                  className="button button--dark"
+                  disabled={busy}
+                  onClick={execute}
+                >
+                  {busy ? "Checking request…" : "Check submitted request"}
+                </button>
+              ) : (
+                !live.settled && (
+                  <button
+                    className="button button--dark"
+                    disabled={
+                      busy ||
+                      !wallet ||
+                      (live.started
+                        ? ending
+                        : live.startRequested || live.count === 0n)
+                    }
+                    onClick={() =>
+                      setConfirmation(live.started ? "end" : "start")
+                    }
+                  >
+                    {live.started ? <Square size={15} /> : <Play size={15} />}
+                    {live.started ? "End event" : "Start event"}
+                  </button>
+                )
+              )}
+              {isLocal &&
+                !pending &&
+                !live.settled &&
+                !live.started &&
+                !live.startRequested &&
+                live.timestamp < live.start && (
+                  <button
+                    className="button cancel-event-button"
+                    disabled={busy || !wallet}
+                    onClick={() => setConfirmation("cancel")}
+                  >
+                    Cancel event
+                  </button>
+                )}
+              {isLocal && live.settled && (
+                <p className="field-note">
+                  Allocated to guests: {amount(live.allocated.toString())} USDC
+                  · Claimed: {amount(live.claimed.toString())} · Platform
+                  revenue: {amount(live.revenue.toString())}
+                </p>
+              )}
+              {!wallet && (
+                <p className="field-note">
+                  Connect the wallet used to create this event to send a
+                  lifecycle request.
+                </p>
+              )}
+              {pending && (
+                <a
+                  className="receipt-link"
+                  href={`${explorer}/tx/${pending}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  View request transaction <ArrowUpRight size={13} />
+                </a>
+              )}
+              {error && (
+                <p className="form-error" role="alert">
+                  {error}
+                </p>
+              )}
+              {message && (
+                <p className="form-message" role="status">
+                  {message}
+                </p>
+              )}
+            </div>
+          </>
+        }
+      />
       {confirmation && !busy && (
         <EditorDialog
           title={
