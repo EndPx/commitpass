@@ -36,6 +36,6 @@ local-simulation:
     workflow-name: commitpass-receiver-free
     deployment-registry: private
   workflow-artifacts:
-    workflow-path: ./main.ts
+    workflow-path: ./health-check.ts
     config-path: ./config.local-simulation.json
     secrets-path: ./secrets.local-simulation.yaml

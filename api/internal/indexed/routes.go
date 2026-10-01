@@ -20,6 +20,9 @@ var walletAddress = regexp.MustCompile(`^0x[0-9a-fA-F]{40}$`)
 
 // Register returns a cleanup function. Missing configuration yields 503, never fabricated data.
 func Register(mux *http.ServeMux) (func(), error) {
+	if endpoint := os.Getenv("ENVIO_GRAPHQL_URL"); endpoint != "" && os.Getenv("COMMITPASS_LOCAL") != "1" {
+		return registerHosted(mux, endpoint)
+	}
 	connection := os.Getenv("INDEXER_DATABASE_URL")
 	if connection == "" {
 		mux.HandleFunc("GET /v1/events", unavailable)

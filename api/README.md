@@ -1,5 +1,13 @@
 # API
 
+## Envio Cloud reads
+
+Set `ENVIO_GRAPHQL_URL` to the endpoint returned by Envio Cloud for CommitPass to serve public chain facts from the hosted indexer. The API preserves the existing REST response shapes, validates GraphQL responses, returns chain integers as decimal strings and computes profile totals with arbitrary-precision integers.
+
+Hosted failures return 503; they never silently fall back to stale SQL data or fabricate empty results. Leaving the endpoint unset retains the self-hosted SQL reader. Explicit local Anvil mode always uses its isolated SQL namespace. Application authentication, metadata, check-ins and attendance snapshots keep their existing database and onchain authorization checks.
+
+The current hosted reader caps complete wallet/profile scans at 10,000 positions/events and fails rather than reporting partial totals beyond that bound. Financial claim eligibility is still checked against the event contract.
+
 Interactive local mode is launched by `pnpm local:app`. `COMMITPASS_LOCAL=1`
 selects a validated local manifest and requires loopback Anvil. Each run uses
 `app_local_<runId>` and `envio_local_<runId>` schemas, with explicit SQL

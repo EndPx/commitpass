@@ -21,11 +21,27 @@ Standard DON execution checks the production forwarder and the actual workflow I
 
 Standard CRE can deliver reports without a confidential wallet inside the workflow. Confidential Workflows become relevant when computation over private data or keys must be protected from operators; direct EVM writes alone do not require them.
 
-## Build and simulation
+## Source layout and official examples
+
+The source follows Chainlink's [Keeper Bot](https://github.com/smartcontractkit/cre-templates/tree/main/starter-templates/keeper-bot/keeper-bot-ts/my-workflow) and [Event Reactor](https://github.com/smartcontractkit/cre-templates/tree/main/starter-templates/event-reactor/event-reactor-ts/my-workflow) structure:
+
+- `commitpass/main.ts`: Runner entry point.
+- `commitpass/workflow.ts`: cron/log registration and the shared read → decide → write lifecycle.
+- `commitpass/config.ts`: required factory, schedule, API and gas configuration with runtime validation.
+- `commitpass/attendance.ts`: authenticated HTTP, identical consensus, snapshot domain and digest validation.
+- `commitpass/simulation.ts`: signing only for the explicit CLI broadcast target.
+- `contracts/evm/ts/generated/`: CLI-generated bindings for the few ABI members this workflow consumes. Regenerate with `pnpm --filter @commitpass/cre bindings` after shared ABI changes.
+
+Finalized reads, finalized request logs, replay protection, vault-bound simulation signatures and successful receipt/hash checks remain required. The educational templates' zero-hash fallback is deliberately not used.
+
+`commitpass/health-check.ts` is a separate receiver-free entry point selected only by the `local-simulation` target. Its config contains the API URL and explicit local mode; it requires no factory, gas limit or secret. Production configuration has no health-check mode and rejects unknown fields.
+
+## Commands
 
 ```sh
 # Repository root
 pnpm --filter @commitpass/shared build
+pnpm --filter @commitpass/cre bindings
 pnpm --filter @commitpass/cre typecheck
 pnpm --filter @commitpass/cre compile:wasm
 
@@ -37,7 +53,7 @@ cre workflow simulate commitpass --target local-simulation --non-interactive --t
 pnpm cre:local
 ```
 
-The receiver-free target fetches public API health using the native HTTP capability. It does not prove settlement. The Anvil runner exercises the financial lifecycle using an explicitly local forwarder fixture and real vault bytecode.
+The receiver-free target fetches public API health using the native HTTP capability. It does not prove settlement. If passing `--wasm` manually, use `dist/health-check.wasm` for this target and `dist/commitpass.wasm` for lifecycle targets. The Anvil runner exercises the financial lifecycle using an explicitly local forwarder fixture and real vault bytecode.
 
 ## Monad testnet configuration
 

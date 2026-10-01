@@ -1,0 +1,59 @@
+{
+  "chainId": 10143,
+  "network": "monad-testnet",
+  "contractModel": "direct-vault-receiver-v1",
+  "sourceCommit": "894a5ee",
+  "recordedAt": "2026-09-30T22:33:51.000Z",
+  "deployer": "0xc82f469Aa95a2f7792300c8d11230e9023A98600",
+  "treasury": "0xc82f469Aa95a2f7792300c8d11230e9023A98600",
+  "forwarder": "0xB9F79d863261869B234c481D1f9A7af84AeAd192",
+  "startBlock": 67091536,
+  "totalFeeWei": "557042952000000000",
+  "contracts": {
+    "USDC": {
+      "address": "0x534b2f3A21130d7a60830c2Df862319e593943A3",
+      "external": true,
+      "symbol": "USDC",
+      "decimals": 6,
+      "runtimeCodeHash": "0x96215e6049ed615cdc22fea7701e85458a8e51a2df3e7d45e8f9fa1d521b5a78",
+      "verification": {
+        "provider": "circle",
+        "url": "https://developers.circle.com/stablecoins/usdc-contract-addresses"
+      }
+    },
+    "MockYieldVault": {
+      "address": "0xA0e884769DF132a80e951010eC6c88712b8275E9",
+      "transactionHash": "0xe04eecf79dbc6e4d3700e7ca3f8c1361b0717cdbbe86acaf91559070a31ee210",
+      "blockNumber": 66933185,
+      "runtimeCodeHash": "0xe6b9b7c338776d6960c370d9579aa1b495c9988444b4430891efad89eb3b6694",
+      "gasUsed": "1278383",
+      "feeWei": "131673449001278383",
+      "verification": {
+        "provider": "etherscan",
+        "status": "Pass - Verified",
+        "guid": "rxbsnyktsaciyfmvcmrpnd6lktdntkwu7gke2eimcgchdn6vfe",
+        "url": "https://testnet.monadscan.com/address/0xA0e884769DF132a80e951010eC6c88712b8275E9#code"
+      }
+    },
+    "CommitPassFactory": {
+      "address": "0x94f7408816cc9eAB7e5043E92bdDdDAFf3A9931F",
+      "transactionHash": "0xff0b0cd82dd737767f82cdd28f81d691351e82fa303854b0949100c81026c3f3",
+      "blockNumber": 67091536,
+      "runtimeCodeHash": "0x08212c7d6952a5cbf81b538bfe9aca60146f5d7f8f0a9adfb93c13ed8fbaaf2c",
+      "gasUsed": "5408184",
+      "feeWei": "557042952000000000",
+      "verification": {
+        "provider": "etherscan",
+        "status": "Pass - Verified",
+        "guid": "besyl64u2cnegzfdpvqjdskxwrgpc7qmcenag1sbibiujan8af",
+        "url": "https://testnet.monadscan.com/address/0x94f7408816cc9eAB7e5043E92bdDdDAFf3A9931F#code"
+      }
+    }
+  },
+  "execution": {
+    "mode": "cre-cli-vault-simulation-broadcast",
+    "forwarder": "0xB9F79d863261869B234c481D1f9A7af84AeAd192",
+    "reportSigner": "0x8FA244d58Ac61Fc773cB83045f312A30bdC6bfe5",
+    "donDeployed": false
+  }
+}

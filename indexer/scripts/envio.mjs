@@ -6,12 +6,15 @@ import { existsSync, readFileSync } from "node:fs";
 const cwd = fileURLToPath(new URL("../", import.meta.url));
 const envFile = new URL("../.env", import.meta.url);
 if (existsSync(envFile)) loadEnvFile(fileURLToPath(envFile));
+const sharedManifest = new URL(
+  "../../packages/shared/src/deployments/monad-testnet.json",
+  import.meta.url,
+);
 const deployment = JSON.parse(
   readFileSync(
-    new URL(
-      "../../packages/shared/src/deployments/monad-testnet.json",
-      import.meta.url,
-    ),
+    existsSync(sharedManifest)
+      ? sharedManifest
+      : new URL("../deployment.json", import.meta.url),
     "utf8",
   ),
 );

@@ -4,6 +4,13 @@ This workflow folder follows the official `cre init --template hello-world-ts`
 project/workflow layout. It retains CommitPass's cron and finalized EVM-log
 callbacks, immutable attendance snapshot checks and signed Monad testnet reports.
 
+The implementation follows the official Keeper Bot and Event Reactor examples:
+`main.ts` starts the Runner; `workflow.ts` registers callbacks and orchestrates
+read → decide → write. `config.ts`, `attendance.ts` and `simulation.ts` own their
+respective validation and signing boundaries. EVM reads/report writes use
+CLI-generated bindings from the shared ABI snapshots. `health-check.ts` is a
+separate simulation-only entry point, never a lifecycle mode.
+
 From the repository root:
 
 ```sh

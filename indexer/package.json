@@ -4,13 +4,11 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@commitpass/shared": "workspace:*",
     "envio": "3.12.1"
   },
   "devDependencies": {
-    "@commitpass/typescript-config": "workspace:*",
-    "@types/node": "catalog:",
-    "typescript": "catalog:"
+    "@types/node": "24.19.0",
+    "typescript": "5.9.3"
   },
   "scripts": {
     "codegen": "node scripts/envio.mjs codegen",

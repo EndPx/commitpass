@@ -1,5 +1,17 @@
 # CommitPass Envio indexer
 
+## Envio Cloud deployment
+
+Deploy this indexer in the **EndPx** organization, using repository `EndPx/commitpass`, branch `main`, root directory `indexer` and configuration `config.hosted.yaml`.
+
+The Cloud package is self-contained: runtime imports, schema and ABI snapshots live inside `indexer/`. Shared contract ABIs remain canonical in `packages/shared/abi`; `node packages/shared/tools/export-indexer.mjs` exports the Cloud copies, public deployment manifest and concrete hosted configuration. `pnpm contracts:abi` invokes that exporter after contract compilation.
+
+The hosted configuration indexes the active Monad testnet factory from its deployment block. It contains no database credentials, wallet key or attendance secret. Envio Cloud owns the indexer storage and exposes a GraphQL endpoint. The Go API selects that endpoint through `ENVIO_GRAPHQL_URL`; application check-ins and immutable attendance snapshots remain in Neon. Local Anvil runs continue to use their isolated SQL namespaces.
+
+Use `envio-cloud deployment endpoint` to obtain the real deployed endpoint; do not construct or guess its URL. A connected repository and successful build are not indexing proof: check sync status and query actual event, participant and claim records before switching the Go API.
+
+The Development tier is intended for hackathon/demo use and has platform retention and usage limits. No paid plan is required for the initial public deployment.
+
 For the interactive local app, use `pnpm local:app` from the root. It supplies the
 Anvil addresses/RPC and a new `envio_local_<runId>` schema without resetting the
 public `envio` schema. The Go reader selects the matching namespace. Run public

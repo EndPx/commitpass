@@ -29,7 +29,6 @@ import {
   Pencil,
   Check,
   MapPin,
-  Save,
   Ticket,
   Users,
   ImagePlus,
@@ -137,7 +136,7 @@ export function CreateEvent() {
         if (active) {
           setPublishReady(false);
           setError(
-            "Could not check event creation availability. Your draft can still be saved.",
+            "Could not check event creation availability. Please try again.",
           );
         }
       })
@@ -154,16 +153,6 @@ export function CreateEvent() {
     setMessage("");
     setError("");
   }
-  function saveDraft() {
-    try {
-      localStorage.setItem(draftKey, JSON.stringify(draft));
-      setMessage("Draft saved on this device.");
-      setError("");
-    } catch {
-      setError("This browser couldn’t save the draft. Keep this page open.");
-    }
-  }
-
   async function finishCreation(transaction: Pending) {
     setMessage("Waiting for the transaction to confirm…");
     const receipt = await chainClient.waitForTransactionReceipt({
@@ -281,7 +270,7 @@ export function CreateEvent() {
       });
       if (!workflow)
         throw new Error(
-          "Event automation is not configured on this test network yet. Save your draft for now.",
+          "Event automation is not configured on this test network yet. Please try again later.",
         );
       localStorage.setItem(draftKey, JSON.stringify(draft));
       await wallet.switchChain(MONAD_TESTNET.chainId);
@@ -615,7 +604,7 @@ export function CreateEvent() {
               <p>
                 {checking
                   ? "This only reads the network; no transaction is sent."
-                  : "Event automation is not configured on this test network yet. Your draft can be saved on this device."}
+                  : "Event automation is not configured on this test network yet. Please try again later."}
               </p>
               {!checking && (
                 <button
@@ -648,17 +637,6 @@ export function CreateEvent() {
             </a>
           )}
           <div className="create-actions">
-            {!pending && !created && (
-              <button
-                className="button"
-                type="button"
-                onClick={saveDraft}
-                disabled={!hydrated || busy}
-              >
-                <Save size={16} />
-                Save draft
-              </button>
-            )}
             {created && !pending ? (
               <Link className="button button--dark" href={"/events/" + created}>
                 <Check size={16} />

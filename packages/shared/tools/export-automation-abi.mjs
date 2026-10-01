@@ -15,3 +15,4 @@ for (const name of ["CommitPassFactory", "CommitPassVault"]) {
   );
 }
 await import("./export-web-abi.mjs");
+await import("./export-indexer.mjs");

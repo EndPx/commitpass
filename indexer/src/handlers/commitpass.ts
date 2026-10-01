@@ -1,5 +1,6 @@
 import { indexer, type EvmOnEventContext } from "envio";
-import { AUTOMATION_ACTION } from "@commitpass/shared";
+// LifecycleRequested action values from the deployed event-vault protocol.
+const AUTOMATION_ACTION = { start: 1, settle: 2 } as const;
 
 const fields = { transaction: ["hash"], block: ["timestamp", "hash"] } as const;
 const eventKey = (chainId: number, vault: string) =>

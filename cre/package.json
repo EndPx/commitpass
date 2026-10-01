@@ -21,6 +21,8 @@
     "compile:wasm": "cre-compile commitpass/main.ts dist/commitpass.wasm",
     "simulate": "pnpm --filter @commitpass/shared build && pnpm compile:wasm && node scripts/simulate-testnet.mjs",
     "local": "pnpm --filter @commitpass/shared build && pnpm compile:wasm && node local/run.mjs",
-    "simulate:broadcast": "pnpm --filter @commitpass/shared build && pnpm compile:wasm && node scripts/simulate-testnet.mjs --broadcast"
+    "simulate:broadcast": "pnpm --filter @commitpass/shared build && pnpm compile:wasm && node scripts/simulate-testnet.mjs --broadcast",
+    "bindings": "node scripts/generate-bindings.mjs",
+    "compile:health": "cre-compile commitpass/health-check.ts dist/health-check.wasm"
   }
 }

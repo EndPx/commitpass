@@ -139,21 +139,15 @@ importers:
 
   indexer:
     dependencies:
-      '@commitpass/shared':
-        specifier: workspace:*
-        version: link:../packages/shared
       envio:
         specifier: 3.12.1
         version: 3.12.1(@types/react@19.1.17)(bufferutil@4.1.0)(react-dom@19.1.9(react@19.2.5))(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.6.5)
     devDependencies:
-      '@commitpass/typescript-config':
-        specifier: workspace:*
-        version: link:../packages/typescript-config
       '@types/node':
-        specifier: 'catalog:'
+        specifier: 24.19.0
         version: 24.19.0
       typescript:
-        specifier: 'catalog:'
+        specifier: 5.9.3
         version: 5.9.3
 
   packages/shared:

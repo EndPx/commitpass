@@ -1,6 +1,4 @@
 {
   "mode": "local-simulation",
-  "attendanceApi": "https://commitpass-api.endpx.cloud",
-  "attendanceSecretId": "ATTENDANCE_API_TOKEN",
-  "gasLimit": "5000000"
+  "attendanceApi": "https://commitpass-api.endpx.cloud"
 }

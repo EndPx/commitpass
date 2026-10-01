@@ -22,6 +22,8 @@ contracts/broadcast/
 cre/commitpass/config.testnet.json
 cre/secrets.yaml
 *.wasm
+cre/contracts/evm/ts/generated/*_mock.ts
+cre/contracts/evm/ts/generated/index.ts
 indexer/.envio/
 cre/.local/
 cre/.interactive/
