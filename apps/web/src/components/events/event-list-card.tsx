@@ -2,14 +2,7 @@
 import Link from "next/link";
 import { MapPin, Users, Video } from "lucide-react";
 import type { EventSummary } from "@commitpass/shared";
-import {
-  amount,
-  dateLabel,
-  eventTitle,
-  shorten,
-  statusLabel,
-  timeLabel,
-} from "@/lib/events";
+import { amount, eventTitle, statusLabel, timeLabel } from "@/lib/events";
 import { EventCover } from "./event-cover";
 import { usePreferences } from "./preferences";
 import { utcOffset } from "@/lib/display-time";
@@ -45,13 +38,16 @@ export function EventListCard({
   event,
   personal = false,
   hosting = false,
+  layout,
 }: {
   event: EventSummary;
   personal?: boolean;
   hosting?: boolean;
+  layout?: "cards" | "list";
 }) {
   const { timezone } = usePreferences();
   const title = eventTitle(event);
+  const host = event.metadata?.organizerName || "Organizer";
   const online = eventFormat(event) === "online";
   const finalized = ["SETTLED", "REFUNDED", "CANCELLED"].includes(event.status);
   const badge = finalized
@@ -76,51 +72,43 @@ export function EventListCard({
         : "";
   return (
     <Link
-      className={personal ? "plan-card" : "discover-card"}
+      className={layout ? `agenda-event agenda-event--${layout}` : "plan-card"}
       href={`/events/${event.vault}`}
     >
-      {!personal && (
-        <div className="discover-card-poster">
-          <EventCover title={title} posterUrl={event.metadata?.posterUrl} />
-          <div className="discover-date">
-            <strong>
-              {dateLabel(event.startAt, {
-                month: "short",
-                day: "numeric",
-                timeZone: timezone,
-              })}
-            </strong>
-            <span>
-              {dateLabel(event.startAt, {
-                weekday: "short",
-                timeZone: timezone,
-              })}
-            </span>
-          </div>
-        </div>
+      {layout === "list" && (
+        <time className="agenda-list-time" dateTime={start.toISOString()}>
+          {timeLabel(event.startAt, timezone)}
+          <small>{utcOffset(start, timezone)}</small>
+        </time>
       )}
       <div className="plan-card-info">
-        <div className="plan-time">
+        <div
+          className={`plan-time${layout === "list" ? " agenda-list-meta" : ""}`}
+        >
           {status === "live" && (
             <span className="plan-live">
               <i /> Live
             </span>
           )}
-          <time
-            dateTime={
-              Number.isFinite(start.getTime()) ? start.toISOString() : undefined
-            }
-          >
-            {timeLabel(event.startAt, timezone)}{" "}
-            <small>{utcOffset(start, timezone)}</small>
-          </time>
+          {layout !== "list" && (
+            <time
+              dateTime={
+                Number.isFinite(start.getTime())
+                  ? start.toISOString()
+                  : undefined
+              }
+            >
+              {timeLabel(event.startAt, timezone)}{" "}
+              <small>{utcOffset(start, timezone)}</small>
+            </time>
+          )}
         </div>
         <h2>{title}</h2>
         <p className="plan-host">
           <span className="host-avatar" aria-hidden="true">
-            {hosting ? "Y" : event.organizer.slice(2, 3).toUpperCase()}
+            {hosting ? "Y" : host[0]?.toUpperCase()}
           </span>
-          {hosting ? "Hosted by you" : `By ${shorten(event.organizer)}`}
+          {hosting ? "Hosted by you" : `By ${host}`}
         </p>
         <p className="plan-location">
           {online ? <Video size={15} /> : <MapPin size={15} />}
@@ -155,7 +143,7 @@ export function EventListCard({
           </small>
         )}
       </div>
-      {personal && (
+      {(personal || layout === "cards") && (
         <EventCover small title={title} posterUrl={event.metadata?.posterUrl} />
       )}
     </Link>

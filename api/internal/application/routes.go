@@ -29,6 +29,7 @@ type principalKey struct{}
 
 func Register(mux *http.ServeMux) (func(), error) {
 	if os.Getenv("DATABASE_URL") == "" {
+		mux.HandleFunc("PUT /v1/me", func(w http.ResponseWriter, r *http.Request) { problem(w, 503, "Application backend is not configured") })
 		for _, pattern := range []string{"POST /v1/session", "GET /v1/me", "GET /v1/events/{vault}/attendance/{wallet}", "GET /v1/events/{vault}/metadata", "PUT /v1/events/{vault}/metadata", "GET /v1/events/{vault}/check-ins", "PUT /v1/events/{vault}/check-ins/{wallet}", "GET /v1/attendance-snapshots/{chainId}/{vault}/{eventId}/{cutoff}", "POST /v1/attendance-snapshots/{chainId}/{vault}/{eventId}/{cutoff}"} {
 			mux.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) { problem(w, 503, "Application backend is not configured") })
 		}
@@ -66,6 +67,7 @@ func Register(mux *http.ServeMux) (func(), error) {
 	mux.Handle("GET /v1/events/{vault}/attendance/{wallet}", s.authenticated(http.HandlerFunc(s.ownAttendance)))
 	mux.Handle("POST /v1/session", s.authenticated(http.HandlerFunc(s.me)))
 	mux.Handle("GET /v1/me", s.authenticated(http.HandlerFunc(s.me)))
+	mux.Handle("PUT /v1/me", s.authenticated(http.HandlerFunc(s.saveProfile)))
 	mux.HandleFunc("GET /v1/events/{vault}/metadata", s.metadata)
 	mux.Handle("PUT /v1/events/{vault}/metadata", s.authenticated(http.HandlerFunc(s.saveMetadata)))
 	mux.Handle("GET /v1/events/{vault}/check-ins", s.authenticated(http.HandlerFunc(s.checkIns)))
@@ -120,6 +122,10 @@ func (s *service) authenticated(next http.Handler) http.Handler {
 			fail(w, err)
 			return
 		}
+		if err = s.db.QueryRow(ctx, `SELECT display_name,profile_completed FROM app.users WHERE privy_id=$1`, user.ID).Scan(&user.Name, &user.ProfileCompleted); err != nil {
+			fail(w, err)
+			return
+		}
 		next.ServeHTTP(w, r.WithContext(context.WithValue(ctx, principalKey{}, user)))
 	})
 }
@@ -163,7 +169,7 @@ func (s *service) metadata(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 	var value metadata
-	err := s.db.QueryRow(ctx, `SELECT e.title,e.description,e.location,e.poster_url,e.timezone,e.appearance,COALESCE(u.display_name,'')
+	err := s.db.QueryRow(ctx, `SELECT e.title,e.description,e.location,e.poster_url,e.timezone,e.appearance,CASE WHEN u.profile_completed THEN u.display_name ELSE '' END
         FROM app.events e LEFT JOIN app.users u ON u.privy_id=e.updated_by
         WHERE e.chain_id=$1 AND e.vault=$2`, int64(s.chain.ChainID), strings.ToLower(vault.Hex())).Scan(&value.Title, &value.Description, &value.Location, &value.PosterURL, &value.Timezone, &value.Appearance, &value.OrganizerName)
 	if err == pgx.ErrNoRows {

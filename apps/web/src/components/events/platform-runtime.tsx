@@ -13,7 +13,8 @@ import {
 } from "lucide-react";
 import { AuthProvider, authConfigured } from "@/components/auth/provider";
 import { Brand } from "@/components/landing/brand";
-import { AccountProvider } from "./account-context";
+import { AccountProvider, useAccount } from "./account-context";
+import { ProfileSetup, ProfileWelcome } from "./profile-name";
 import { WalletAddress } from "./wallet-address";
 import { PageThemeProvider } from "./page-theme";
 import { LocalRuntimeNotice } from "./local-runtime";
@@ -60,6 +61,8 @@ function GuestAccess({ children }: { children: ReactNode }) {
   const path = usePathname();
   const router = useRouter();
   const { ready, authenticated } = usePrivy();
+  const { session, connecting, error, refresh } = useAccount();
+  const [welcomeName, setWelcomeName] = useState("");
   const publicPage =
     path === "/discover" || /^\/events\/0x[0-9a-fA-F]{40}$/.test(path);
   useEffect(() => {
@@ -71,11 +74,43 @@ function GuestAccess({ children }: { children: ReactNode }) {
         Opening your workspace…
       </main>
     );
+  if (authenticated && welcomeName)
+    return (
+      <ProfileWelcome
+        name={welcomeName}
+        onContinue={() => setWelcomeName("")}
+      />
+    );
+  if (authenticated) {
+    if (error)
+      return (
+        <main id="workspace-main" className="workspace-empty" role="alert">
+          <h1>We couldn’t connect your profile.</h1>
+          <p>{error}</p>
+          <button className="button" onClick={refresh}>
+            Try again
+          </button>
+        </main>
+      );
+    if (connecting || !session)
+      return (
+        <main id="workspace-main" className="workspace-loading" role="status">
+          Loading your profile…
+        </main>
+      );
+    if (!session.profileCompleted)
+      return (
+        <ProfileSetup
+          onSaved={(profile) => setWelcomeName(profile.name ?? "")}
+        />
+      );
+  }
   return children;
 }
 function Navigation() {
   const path = usePathname();
   const { ready, authenticated, user, logout } = usePrivy();
+  const { session } = useAccount();
   const { timezone } = usePreferences();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [error, setError] = useState("");
@@ -103,7 +138,8 @@ function Navigation() {
       window.clearInterval(timer);
     };
   }, [timezone]);
-  const name = user?.google?.name || user?.email?.address || "Your account";
+  const name =
+    session?.profileCompleted && session.name ? session.name : "Your account";
   return (
     <>
       <a className="skip-link" href="#workspace-main">
@@ -158,7 +194,7 @@ function Navigation() {
                 <span>{name[0]?.toUpperCase() || <UserRound size={16} />}</span>
               </summary>
               <div className="account-popover">
-                <strong>{user?.google?.name || "Your account"}</strong>
+                <strong>{name}</strong>
                 <p>
                   {user?.email?.address ||
                     user?.google?.email ||

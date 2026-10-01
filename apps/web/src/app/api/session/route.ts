@@ -56,7 +56,17 @@ export async function POST(request: Request) {
           )
         : [];
     return NextResponse.json(
-      { id: principal.id, wallets },
+      {
+        id: principal.id,
+        wallets,
+        name:
+          "name" in principal && typeof principal.name === "string"
+            ? principal.name
+            : "",
+        profileCompleted:
+          "profileCompleted" in principal &&
+          principal.profileCompleted === true,
+      },
       { headers: noStore },
     );
   } catch {

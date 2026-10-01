@@ -2,7 +2,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePrivy } from "@privy-io/react-auth";
-import { ArrowUpRight, Copy, RefreshCw, UserRound } from "lucide-react";
+import { ArrowUpRight, Copy, RefreshCw, UserRound, Pencil } from "lucide-react";
+import { EditorDialog } from "./editor-dialog";
+import { ProfileNameForm } from "./profile-name";
 import { erc20Abi, type Address } from "viem";
 import type {
   ProfilePage,
@@ -36,6 +38,7 @@ export function UserProfile() {
   const [error, setError] = useState("");
   const [kind, setKind] = useState("all");
   const [view, setView] = useState("activity");
+  const [editingName, setEditingName] = useState(false);
   const [copiedWallet, setCopiedWallet] = useState("");
   const [after, setAfter] = useState("");
   const [attempt, setAttempt] = useState(0);
@@ -126,7 +129,7 @@ export function UserProfile() {
   const page = current?.page;
   const positions = current?.kind === kind ? page?.data : undefined;
   const walletBalance = balance?.accountId === accountId ? balance : undefined;
-  const name = user?.google?.name || "My profile";
+  const name = session?.name || "My profile";
   const email = user?.google?.email || user?.email?.address;
   const refresh = () => {
     setAfter("");
@@ -341,7 +344,16 @@ export function UserProfile() {
               {name[0]?.toUpperCase()}
             </span>
             <div>
-              <h2>{name}</h2>
+              <div className="profile-name-heading">
+                <h2>{name}</h2>
+                <button
+                  className="profile-edit-name"
+                  aria-label="Edit name"
+                  onClick={() => setEditingName(true)}
+                >
+                  <Pencil size={15} />
+                </button>
+              </div>
               {authenticated && email && <p>{email}</p>}
               <div className="profile-wallet-line">
                 <span>Wallet</span>
@@ -406,6 +418,14 @@ export function UserProfile() {
         </section>
       )}
       {content}
+      {editingName && (
+        <EditorDialog title="Your name" onClose={() => setEditingName(false)}>
+          <ProfileNameForm
+            initialName={session?.name}
+            onSaved={() => setEditingName(false)}
+          />
+        </EditorDialog>
+      )}
     </main>
   );
 }

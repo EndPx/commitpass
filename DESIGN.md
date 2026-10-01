@@ -310,11 +310,23 @@ Discover has one compact toolbar: a search input, an event count, and Filters.
 Format, Next 7 days, and open-spot options live in a dismissible filter popover.
 No subtitle, duplicate host action, or extra results heading above the events.
 Events does not show the bottom create-event/draft promotional row.
-Discover uses a responsive three/two/one-column poster grid. Search filters loaded
-event titles and locations, with pagination still available. Reset is present
-when filters produce no matches. Both routes share the same restrained empty
-state structure, explicitly describing the missing events and a relevant action. Document
-scroll owns both routes; the existing header remains sticky. Mobile timelines
+Discover follows the supplied 1 October card/list references: a date-grouped
+agenda in the main column and a 340px month calendar in the right column, with
+a 32px gap. The compact header offers Cards/List, Search and Upcoming/Past.
+Cards are white, 18px rounded, with 20px padding and 112px posters at right;
+list rows remove the surface and poster, keeping a 72px time column. Host names
+come from the saved public profile. Omit city badges and invented attendees.
+Calendar uses a seven-column month grid, 32px day circles inside 44px targets,
+real event dots, previous/next month and an explicit clear-date control. The
+selected date filters in the viewer's timezone; days without events still work.
+Below 900px the calendar moves above the agenda; below 600px it collapses into
+an expandable Date control. Document scroll owns the agenda. Search opens a
+native full-viewport dialog with a 720px content measure and its own results
+scroll region, a 24px search field, 84px posters and a useful empty state. It
+searches loaded titles, places and host names; retain pagination and disclose
+the loaded-data scope while further pages exist. Restore focus on close.
+Both routes share the same restrained empty state structure, explicitly
+describing the missing events and a relevant action. Mobile timelines
 place dates above cards, use 84px posters, and keep all controls reachable at
 44px minimum height. Cards wrap long titles and locations without overflow.
 Skeletons follow the final geometry; failed reads keep a visible retry action.
@@ -335,3 +347,18 @@ check-in and metadata editing. Reuse warm canvas, accent, typography and themes.
 Mobile stacks ticket QR and summary columns. Owner authorization comes from fresh
 chain state and Privy; the API independently authorizes every check-in/metadata write.
 Lifecycle requests remain pending until CRE execution changes contract state.
+
+## Profile setup and welcome
+
+After verified sign-in, workspace pages require a public display name.
+Keep discovery and event previews browsable by guests. Use a centered 400px form,
+24px title, 14px copy, a 64px initial avatar, and a labelled Your name input with
+2-60 Unicode characters. No Gmail-derived public identity or unique-handle claim.
+Store completion and the name in the app database; later identity sync must not
+overwrite the chosen name. A profile Edit name action reuses the form.
+After first save, show Welcome to CommitPass and the chosen name at the center
+of a broad accent/lavender glow, with a dimensional initial avatar and Continue.
+The welcome is user-dismissed, without a forced timer. Entrance is opacity/y12px
+over 450ms; reduced motion renders the complete state immediately. Keep dark
+mode, focus rings, error/retry states, and 44px targets throughout. Reuse existing
+typography, borders, surfaces and palette; never copy Luma branding or portraits.

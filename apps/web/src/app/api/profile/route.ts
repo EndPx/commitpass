@@ -10,6 +10,43 @@ import { ApiError, apiRead, bearer } from "@/lib/server-api";
 
 const headers = { "Cache-Control": "private, no-store" };
 const address = /^0x[0-9a-fA-F]{40}$/;
+export async function PUT(request: Request) {
+  try {
+    const token = bearer(request);
+    const body: unknown = await request.json();
+    if (
+      !body ||
+      typeof body !== "object" ||
+      !("name" in body) ||
+      typeof body.name !== "string" ||
+      [...body.name.trim()].length < 2 ||
+      [...body.name.trim()].length > 60
+    )
+      throw new ApiError(400);
+    const result = await apiRead("/v1/me", {
+      token,
+      method: "PUT",
+      body: JSON.stringify({ name: body.name.trim() }),
+    });
+    return NextResponse.json(result, { headers });
+  } catch (error) {
+    const status =
+      error instanceof ApiError && [400, 401].includes(error.status)
+        ? error.status
+        : 503;
+    return NextResponse.json(
+      {
+        error:
+          status === 400
+            ? "Choose a name with 2 to 60 characters."
+            : status === 401
+              ? "Please sign in again."
+              : "We couldn’t save your name. Please try again.",
+      },
+      { status, headers },
+    );
+  }
+}
 export async function GET(request: Request) {
   try {
     const user = await apiRead<{ wallets: string[] }>("/v1/me", {

@@ -1,0 +1,164 @@
+.profile-onboarding {
+  min-height: calc(100svh - 144px);
+  display: grid;
+  place-items: center;
+  padding: 48px 24px;
+}
+.profile-setup-card {
+  width: min(400px, 100%);
+  padding: 32px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+}
+.profile-setup-avatar {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  color: var(--accent);
+  background: var(--accent-soft);
+  margin-bottom: 24px;
+}
+.profile-setup-card h1,
+.profile-welcome h1 {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.25;
+}
+.profile-setup-card > p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+  margin-top: 12px;
+}
+.profile-name-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 32px;
+}
+.profile-name-form > label {
+  font-size: 14px;
+  font-weight: 550;
+}
+.profile-name-form input {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 12px;
+  font: inherit;
+  color: var(--ink);
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.profile-name-form p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.profile-name-form .profile-name-error {
+  color: var(--accent);
+}
+.profile-name-form > button {
+  width: 100%;
+  margin-top: 12px;
+}
+.profile-welcome {
+  position: relative;
+  isolation: isolate;
+  text-align: center;
+}
+.profile-welcome::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(
+      ellipse at 46% 42%,
+      color-mix(in srgb, var(--accent-soft) 75%, transparent),
+      transparent 43%
+    ),
+    radial-gradient(ellipse at 60% 39%, rgb(178 148 228 / 24%), transparent 42%);
+}
+.profile-welcome-content {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  max-width: 560px;
+  animation: profile-welcome-in 450ms ease both;
+}
+.profile-welcome-avatar {
+  display: grid;
+  place-items: center;
+  width: 80px;
+  height: 80px;
+  font-size: 28px;
+  color: var(--green);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 30% 22%,
+    var(--white),
+    var(--green-soft) 45%,
+    color-mix(in srgb, var(--green) 35%, var(--green-soft))
+  );
+  box-shadow:
+    inset 0 0 0 2px rgb(255 255 255 / 60%),
+    0 8px 24px rgb(37 38 34 / 8%);
+  margin-bottom: 24px;
+}
+.profile-welcome-content > p {
+  font-size: 18px;
+  color: var(--muted);
+  margin-top: 12px;
+  overflow-wrap: anywhere;
+}
+.profile-welcome-content > button {
+  margin-top: 32px;
+  background: var(--white);
+}
+.profile-name-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.profile-edit-name {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+@keyframes profile-welcome-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 600px) {
+  .profile-onboarding {
+    padding: 32px 16px;
+  }
+  .profile-setup-card {
+    padding: 24px;
+  }
+  .profile-welcome h1 {
+    font-size: 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .profile-welcome-content {
+    animation: none;
+  }
+}

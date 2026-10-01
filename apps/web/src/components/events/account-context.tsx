@@ -11,13 +11,25 @@ import {
 import { usePrivy } from "@privy-io/react-auth";
 import { jsonRequest } from "@/lib/events";
 
-type Session = { id: string; wallets: string[]; name?: string };
+export type Session = {
+  id: string;
+  wallets: string[];
+  name?: string;
+  profileCompleted: boolean;
+};
 const AccountContext = createContext<{
   session: Session | null;
   connecting: boolean;
   error: string;
   refresh: () => void;
-}>({ session: null, connecting: true, error: "", refresh: () => {} });
+  updateSession: (session: Session) => void;
+}>({
+  session: null,
+  connecting: true,
+  error: "",
+  refresh: () => {},
+  updateSession: () => {},
+});
 export function AccountProvider({ children }: { children: ReactNode }) {
   const { ready, authenticated, user, getAccessToken } = usePrivy();
   const [session, setSession] = useState<Session | null>(null);
@@ -66,6 +78,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
         connecting,
         error,
         refresh,
+        updateSession: setSession,
       }}
     >
       {children}

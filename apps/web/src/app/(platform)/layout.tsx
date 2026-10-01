@@ -5,6 +5,8 @@ import "./editor.css";
 import "./lifecycle.css";
 import "./lists.css";
 import "./profile.css";
+import "./onboarding.css";
+import "./discovery.css";
 export default function PlatformLayout({ children }: { children: ReactNode }) {
   return (
     <div className="platform">

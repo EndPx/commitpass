@@ -36,9 +36,8 @@ func syncIdentity(ctx context.Context, pool *database, user auth.Principal) erro
 		return err
 	}
 	defer tx.Rollback(ctx)
-	if _, err = tx.Exec(ctx, `INSERT INTO app.users AS existing(privy_id,display_name) VALUES($1,$2)
-        ON CONFLICT(privy_id) DO UPDATE SET last_seen_at=clock_timestamp(),
-        display_name=CASE WHEN EXCLUDED.display_name<>'' THEN EXCLUDED.display_name ELSE existing.display_name END`, user.ID, user.Name); err != nil {
+	if _, err = tx.Exec(ctx, `INSERT INTO app.users(privy_id,display_name) VALUES($1,$2)
+        ON CONFLICT(privy_id) DO UPDATE SET last_seen_at=clock_timestamp()`, user.ID, user.Name); err != nil {
 		return err
 	}
 	if _, err = tx.Exec(ctx, `UPDATE app.wallet_links SET active=false WHERE privy_id=$1`, user.ID); err != nil {

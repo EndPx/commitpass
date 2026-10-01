@@ -28,9 +28,10 @@ var ErrUnavailable = errors.New("Privy is unavailable")
 var appIDPattern = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
 
 type Principal struct {
-	ID      string   `json:"id"`
-	Wallets []string `json:"wallets"`
-	Name    string   `json:"name,omitempty"`
+	ID               string   `json:"id"`
+	Wallets          []string `json:"wallets"`
+	Name             string   `json:"name,omitempty"`
+	ProfileCompleted bool     `json:"profileCompleted"`
 }
 
 type accessClaims struct {
