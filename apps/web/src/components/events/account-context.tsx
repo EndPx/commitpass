@@ -11,7 +11,7 @@ import {
 import { usePrivy } from "@privy-io/react-auth";
 import { jsonRequest } from "@/lib/events";
 
-type Session = { id: string; wallets: string[] };
+type Session = { id: string; wallets: string[]; name?: string };
 const AccountContext = createContext<{
   session: Session | null;
   connecting: boolean;

@@ -15,14 +15,13 @@ import {
   type EventSummary,
 } from "@commitpass/shared";
 import {
-  ArrowLeft,
   ArrowUpRight,
   CalendarDays,
   Check,
   Clock3,
   Copy,
   MapPin,
-  Ticket,
+  Landmark,
   Users,
 } from "lucide-react";
 import {
@@ -60,7 +59,6 @@ export function EventDetail({
   manage?: boolean;
 }) {
   const { timezone } = usePreferences();
-  const { authenticated } = usePrivy();
   const [indexedEvent, setEvent] = useState<EventSummary | null>(null);
   const live = useEventState(vault as Address);
   const event =
@@ -82,7 +80,6 @@ export function EventDetail({
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [attempt, setAttempt] = useState(0);
-  const [copied, setCopied] = useState(false);
   const refresh = useCallback(() => {
     setAttempt((value) => value + 1);
     live.refresh();
@@ -109,7 +106,7 @@ export function EventDetail({
       controller.abort();
       clearTimeout(timer);
     };
-  }, [vault, attempt]);
+  }, [vault, attempt, session?.id]);
   if (loading && !event)
     return (
       <main className="workspace-content" id="workspace-main">
@@ -119,10 +116,6 @@ export function EventDetail({
   if (!event)
     return (
       <main className="workspace-content" id="workspace-main">
-        <Link className="back-link" href="/discover">
-          <ArrowLeft size={16} />
-          Discover
-        </Link>
         <LoadError
           message={error || "This event has not been indexed yet."}
           retry={refresh}
@@ -144,13 +137,6 @@ export function EventDetail({
     : startOffset;
   return (
     <main className="workspace-content detail-workspace" id="workspace-main">
-      <Link
-        className="back-link"
-        href={authenticated ? "/events" : "/discover"}
-      >
-        <ArrowLeft size={16} />
-        {authenticated ? "Events" : "Discover"}
-      </Link>
       <div className="detail-grid">
         <aside className="detail-aside">
           <EventCover
@@ -160,43 +146,32 @@ export function EventDetail({
           <div className="host-byline">
             <span>Hosted by</span>
             <strong>
-              <span className="host-avatar">{owner ? "Y" : "H"}</span>
-              {owner ? "You" : shorten(event.organizer)}
+              <span className="host-avatar">
+                {(
+                  event.metadata?.organizerName ||
+                  (owner && session?.name) ||
+                  "Organizer"
+                )
+                  .slice(0, 1)
+                  .toUpperCase()}
+              </span>
+              {event.metadata?.organizerName ||
+                (owner && session?.name) ||
+                "Organizer"}
             </strong>
+            <div className="event-chips detail-status">
+              <span>{statusLabel(event)}</span>
+            </div>
           </div>
-          <button
-            className="share-button"
-            onClick={async () => {
-              try {
-                await navigator.clipboard.writeText(window.location.href);
-                setCopied(true);
-              } catch {
-                setCopied(false);
-              }
-            }}
-          >
-            <Copy size={15} />
-            {copied ? "Link copied" : "Copy event link"}
-          </button>
-          <a
-            className="receipt-link"
-            href={`${explorer}/address/${event.vault}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            {isLocal ? "View local contract" : "View event on Monadscan"}{" "}
-            <ArrowUpRight size={13} />
-          </a>
+          <EventVaultCard event={event} />
         </aside>
         <div className="detail-main">
-          <div className="event-chips">
-            <span>{statusLabel(event)}</span>
-            <span>{isLocal ? "Local event" : "Testnet event"}</span>
-          </div>
           <h1>{eventTitle(event)}</h1>
           <div className="detail-facts">
             <div>
-              <CalendarDays size={22} />
+              <span className="detail-fact-icon">
+                <CalendarDays size={20} />
+              </span>
               <span>
                 <strong>
                   {dateLabel(event.startAt, {
@@ -218,7 +193,9 @@ export function EventDetail({
               </span>
             </div>
             <div>
-              <MapPin size={22} />
+              <span className="detail-fact-icon">
+                <MapPin size={20} />
+              </span>
               <span>
                 <strong>
                   {event.metadata?.location || "Location to be announced"}
@@ -226,13 +203,14 @@ export function EventDetail({
               </span>
             </div>
             <div>
-              <Users size={22} />
+              <span className="detail-fact-icon">
+                <Users size={20} />
+              </span>
               <span>
                 <strong>
                   {event.participantCount} / {event.maxParticipant} spots
                   committed
                 </strong>
-                <small>Make a little promise to be there.</small>
               </span>
             </div>
           </div>
@@ -284,25 +262,71 @@ export function EventDetail({
             )}
           </section>
           <EventLocation location={event.metadata?.location || ""} />
-          <section className="commitment-explainer">
-            <Ticket size={22} />
-            <div>
-              <h2>Your commitment comes with you.</h2>
-              <p>
-                Attend and claim your commitment back plus a share of rewards.
-                No-show commitments are split 50% to CommitPass and 50% to
-                attendees. Attendees also share all recovered yield.
-                Cancellation before start and settlement with zero recorded
-                attendance refund everyone’s commitment without a platform fee.
-              </p>
-              <small>
-                Testnet tokens have no monetary value. Rewards are variable.
-              </small>
-            </div>
-          </section>
         </div>
       </div>
     </main>
+  );
+}
+
+function EventVaultCard({ event }: { event: EventSummary }) {
+  const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState(false);
+  const committed = (
+    BigInt(event.stakeAmount) * BigInt(event.participantCount)
+  ).toString();
+  return (
+    <section className="event-vault-card" aria-label="Event vault">
+      <div className="event-vault-heading">
+        <Landmark size={17} />
+        <h2>Event vault</h2>
+      </div>
+      <div className="event-vault-address">
+        <code>{event.vault}</code>
+        <button
+          type="button"
+          aria-label={copied ? "Vault address copied" : "Copy vault address"}
+          onClick={async () => {
+            try {
+              await navigator.clipboard.writeText(event.vault);
+              setCopied(true);
+              setCopyError(false);
+              setTimeout(() => setCopied(false), 2000);
+            } catch {
+              setCopyError(true);
+            }
+          }}
+        >
+          {copied ? <Check size={16} /> : <Copy size={16} />}
+        </button>
+      </div>
+      <span className="sr-only" role="status">
+        {copied
+          ? "Vault address copied"
+          : copyError
+            ? "Could not copy the address. Select it to copy."
+            : ""}
+      </span>
+      <dl className="event-vault-stats">
+        <div>
+          <dt>Committed</dt>
+          <dd>
+            {amount(committed)} <small>USDC</small>
+          </dd>
+        </div>
+        <div>
+          <dt>Guests</dt>
+          <dd>{event.participantCount}</dd>
+        </div>
+      </dl>
+      <a
+        href={`${explorer}/address/${event.vault}`}
+        target="_blank"
+        rel="noreferrer"
+      >
+        {isLocal ? "View contract" : "View on Monadscan"}
+        <ArrowUpRight size={14} />
+      </a>
+    </section>
   );
 }
 

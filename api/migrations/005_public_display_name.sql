@@ -1,0 +1,1 @@
+ALTER TABLE app.users ADD COLUMN IF NOT EXISTS display_name text NOT NULL DEFAULT '';

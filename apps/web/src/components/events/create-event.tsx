@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   useCreateWallet,
   usePrivy,
@@ -27,7 +28,6 @@ import {
   Clock3,
   Globe2,
   Pencil,
-  Check,
   MapPin,
   Ticket,
   Users,
@@ -62,6 +62,7 @@ type Draft = EventDraft;
 type Pending = { hash: Hash; owner: Address; metadata: EventMetadata };
 
 export function CreateEvent() {
+  const router = useRouter();
   const { authenticated, user, getAccessToken } = usePrivy();
   const { session, refresh } = useAccount();
   const { wallets } = useWallets();
@@ -202,12 +203,37 @@ export function CreateEvent() {
       },
       body: JSON.stringify(transaction.metadata),
     });
+    setMessage("Getting your event ready…");
+    const waitUntil = Date.now() + 5000;
+    const timeout = AbortSignal.timeout(35000);
+    let available = false;
+    for (let retry = 0; retry < 15; retry++) {
+      try {
+        const result = await jsonRequest<{
+          data: {
+            metadata: EventMetadata | null;
+            metadataUnavailable: boolean;
+          };
+        }>(`/api/events/${vault}`, { signal: timeout });
+        available =
+          !result.data.metadataUnavailable &&
+          !!result.data.metadata &&
+          result.data.metadata.title === transaction.metadata.title &&
+          result.data.metadata.description === transaction.metadata.description;
+      } catch {
+        if (timeout.aborted) break;
+      }
+      if (available && Date.now() >= waitUntil) break;
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
+    if (!available)
+      throw new Error(
+        "Your event is saved. It is still getting ready; check again to open it.",
+      );
     localStorage.removeItem(pendingKey);
     localStorage.removeItem(draftKey);
     setPending(null);
-    setMessage(
-      "Your event is created and its details are saved. It will appear once indexing catches up.",
-    );
+    router.replace(`/events/${vault}`);
   }
 
   async function createEvent(event: FormEvent<HTMLFormElement>) {
@@ -638,10 +664,9 @@ export function CreateEvent() {
           )}
           <div className="create-actions">
             {created && !pending ? (
-              <Link className="button button--dark" href={"/events/" + created}>
-                <Check size={16} />
-                View event
-              </Link>
+              <button className="button button--dark" type="button" disabled>
+                Opening your event…
+              </button>
             ) : !authenticated ? (
               <Link
                 className="button button--dark"

@@ -17,6 +17,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/golang-jwt/jwt/v5"
@@ -29,6 +30,7 @@ var appIDPattern = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
 type Principal struct {
 	ID      string   `json:"id"`
 	Wallets []string `json:"wallets"`
+	Name    string   `json:"name,omitempty"`
 }
 
 type accessClaims struct {
@@ -109,6 +111,7 @@ func (p *Privy) Authenticate(ctx context.Context, authorization string) (Princip
 			Type    string `json:"type"`
 			Chain   string `json:"chain_type"`
 			Address string `json:"address"`
+			Name    string `json:"name"`
 		} `json:"linked_accounts"`
 	}
 	if json.NewDecoder(io.LimitReader(response.Body, 1<<20)).Decode(&user) != nil || user.ID != claims.Subject {
@@ -116,7 +119,14 @@ func (p *Privy) Authenticate(ctx context.Context, authorization string) (Princip
 	}
 	wallets := make([]string, 0)
 	seen := map[string]bool{}
+	name := ""
 	for _, account := range user.Linked {
+		if account.Type == "google_oauth" {
+			candidate := strings.TrimSpace(account.Name)
+			if candidate != "" && utf8.RuneCountInString(candidate) <= 120 {
+				name = candidate
+			}
+		}
 		if account.Type != "wallet" || account.Chain != "ethereum" || !common.IsHexAddress(account.Address) {
 			continue
 		}
@@ -127,7 +137,7 @@ func (p *Privy) Authenticate(ctx context.Context, authorization string) (Princip
 		}
 	}
 	sort.Strings(wallets)
-	return Principal{ID: user.ID, Wallets: wallets}, nil
+	return Principal{ID: user.ID, Wallets: wallets, Name: name}, nil
 }
 
 func (p *Privy) key(ctx context.Context, kid string) (*ecdsa.PublicKey, error) {

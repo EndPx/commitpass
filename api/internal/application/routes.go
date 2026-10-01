@@ -146,12 +146,13 @@ func (s *service) ownedEvent(w http.ResponseWriter, r *http.Request) (chain.Even
 }
 
 type metadata struct {
-	Title       string          `json:"title"`
-	Description string          `json:"description"`
-	Location    string          `json:"location"`
-	PosterURL   string          `json:"posterUrl"`
-	Timezone    string          `json:"timezone"`
-	Appearance  eventAppearance `json:"appearance"`
+	OrganizerName string          `json:"organizerName,omitempty"`
+	Title         string          `json:"title"`
+	Description   string          `json:"description"`
+	Location      string          `json:"location"`
+	PosterURL     string          `json:"posterUrl"`
+	Timezone      string          `json:"timezone"`
+	Appearance    eventAppearance `json:"appearance"`
 }
 
 func (s *service) metadata(w http.ResponseWriter, r *http.Request) {
@@ -162,7 +163,9 @@ func (s *service) metadata(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 	var value metadata
-	err := s.db.QueryRow(ctx, `SELECT title,description,location,poster_url,timezone,appearance FROM app.events WHERE chain_id=$1 AND vault=$2`, int64(s.chain.ChainID), strings.ToLower(vault.Hex())).Scan(&value.Title, &value.Description, &value.Location, &value.PosterURL, &value.Timezone, &value.Appearance)
+	err := s.db.QueryRow(ctx, `SELECT e.title,e.description,e.location,e.poster_url,e.timezone,e.appearance,COALESCE(u.display_name,'')
+        FROM app.events e LEFT JOIN app.users u ON u.privy_id=e.updated_by
+        WHERE e.chain_id=$1 AND e.vault=$2`, int64(s.chain.ChainID), strings.ToLower(vault.Hex())).Scan(&value.Title, &value.Description, &value.Location, &value.PosterURL, &value.Timezone, &value.Appearance, &value.OrganizerName)
 	if err == pgx.ErrNoRows {
 		problem(w, 404, "Event metadata not found")
 		return
@@ -187,6 +190,7 @@ func (s *service) saveMetadata(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	value.Title = strings.TrimSpace(value.Title)
+	value.OrganizerName = principal(r).Name
 	if !normalizeAppearance(&value) {
 		problem(w, 400, "Invalid event appearance or timezone")
 		return

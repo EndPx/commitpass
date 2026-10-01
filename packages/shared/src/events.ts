@@ -13,6 +13,7 @@ export const DEFAULT_EVENT_APPEARANCE: EventAppearance = {
 };
 
 export interface EventMetadata {
+  organizerName?: string;
   title: string;
   description: string;
   location: string;
