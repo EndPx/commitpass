@@ -319,8 +319,8 @@ come from the saved public profile. Omit city badges and invented attendees.
 Calendar uses a seven-column month grid, 32px day circles inside 44px targets,
 real event dots, previous/next month and an explicit clear-date control. The
 selected date filters in the viewer's timezone; days without events still work.
-Below 900px the calendar moves above the agenda; below 600px it collapses into
-an expandable Date control. Document scroll owns the agenda. Search opens a
+Below 900px the calendar collapses into an expandable Date control above the
+agenda. Document scroll owns the agenda. Search opens a
 native full-viewport dialog with a 720px content measure and its own results
 scroll region, a 24px search field, 84px posters and a useful empty state. It
 searches loaded titles, places and host names; retain pagination and disclose

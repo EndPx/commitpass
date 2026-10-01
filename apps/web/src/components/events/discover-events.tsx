@@ -75,7 +75,7 @@ export function DiscoverEvents() {
     setOpenOnly(false);
   };
   useEffect(() => {
-    const media = window.matchMedia("(max-width: 600px)");
+    const media = window.matchMedia("(max-width: 900px)");
     const adapt = () => setCalendarOpen(!media.matches);
     adapt();
     media.addEventListener("change", adapt);
@@ -416,6 +416,10 @@ function DiscoveryCalendar({
     timeZone: "UTC",
   });
   const offset = (month.getUTCDay() + 6) % 7;
+  const daysInMonth = new Date(
+    Date.UTC(month.getUTCFullYear(), month.getUTCMonth() + 1, 0),
+  ).getUTCDate();
+  const cellCount = Math.ceil((offset + daysInMonth) / 7) * 7;
   const dots = new Set(events.map((event) => eventDay(event, timezone)));
   return (
     <div className="discovery-calendar">
@@ -472,7 +476,7 @@ function DiscoveryCalendar({
         ))}
       </div>
       <div className="calendar-days">
-        {Array.from({ length: 42 }, (_, index) => {
+        {Array.from({ length: cellCount }, (_, index) => {
           const date = new Date(
             Date.UTC(
               month.getUTCFullYear(),
