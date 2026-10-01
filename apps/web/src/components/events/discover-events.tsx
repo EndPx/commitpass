@@ -555,6 +555,7 @@ function DiscoverySearch({
         : null;
     const overflow = document.body.style.overflow;
     dialog.showModal();
+    dialog.querySelector<HTMLInputElement>('input[type="search"]')?.focus();
     document.body.style.overflow = "hidden";
     return () => {
       dialog.close();
