@@ -258,11 +258,12 @@ export function DiscoverEvents() {
             <DiscoveryCalendar
               today={today}
               selected={selectedDay}
-              events={rows}
+              events={rows.filter((event) =>
+                period === "past" ? isPast(event, now) : !isPast(event, now),
+              )}
               timezone={timezone}
               onSelect={(day) => {
                 setSelectedDay(day);
-                if (day) setPeriod(day < today ? "past" : "upcoming");
               }}
             />
           </details>
