@@ -7,7 +7,12 @@ export class ApiError extends Error {
 
 export async function apiRead<T>(
   path: string,
-  options: { token?: string; method?: string; body?: string } = {},
+  options: {
+    token?: string;
+    method?: string;
+    body?: string;
+    signal?: AbortSignal;
+  } = {},
 ): Promise<T> {
   const base = process.env.COMMITPASS_API_URL;
   if (!base) throw new ApiError(503);
@@ -21,7 +26,9 @@ export async function apiRead<T>(
     },
     cache: "no-store",
     redirect: "error",
-    signal: AbortSignal.timeout(22000),
+    signal: options.signal
+      ? AbortSignal.any([options.signal, AbortSignal.timeout(22000)])
+      : AbortSignal.timeout(22000),
   });
   if (!response.ok) throw new ApiError(response.status);
   return response.json() as Promise<T>;

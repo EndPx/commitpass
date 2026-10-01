@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   useCreateWallet,
@@ -19,9 +19,7 @@ import {
   CalendarDays,
   Check,
   Clock3,
-  Copy,
   MapPin,
-  Landmark,
   Users,
 } from "lucide-react";
 import {
@@ -41,6 +39,7 @@ import {
 } from "@/lib/chain";
 import { useAccount } from "./account-context";
 import { EventCover } from "./event-cover";
+import { EventVaultCard } from "./event-vault-card";
 import { EventLocation } from "./event-location";
 import { usePageAppearance } from "./page-theme";
 import { usePreferences } from "./preferences";
@@ -61,6 +60,7 @@ export function EventDetail({
   const { timezone } = usePreferences();
   const [indexedEvent, setEvent] = useState<EventSummary | null>(null);
   const live = useEventState(vault as Address);
+  const asideRef = useRef<HTMLElement>(null);
   const event =
     indexedEvent && live.value
       ? {
@@ -77,6 +77,23 @@ export function EventDetail({
         }
       : indexedEvent;
   usePageAppearance(event?.metadata?.appearance);
+  useEffect(() => {
+    const aside = asideRef.current;
+    if (!aside) return;
+    const position = () =>
+      aside.style.setProperty(
+        "--aside-sticky-top",
+        `${Math.min(24, window.innerHeight - aside.getBoundingClientRect().height - 24)}px`,
+      );
+    position();
+    const observer = new ResizeObserver(position);
+    observer.observe(aside);
+    window.addEventListener("resize", position);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", position);
+    };
+  }, [event?.vault]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [attempt, setAttempt] = useState(0);
@@ -138,7 +155,7 @@ export function EventDetail({
   return (
     <main className="workspace-content detail-workspace" id="workspace-main">
       <div className="detail-grid">
-        <aside className="detail-aside">
+        <aside className="detail-aside" ref={asideRef}>
           <EventCover
             title={eventTitle(event)}
             posterUrl={event.metadata?.posterUrl}
@@ -159,13 +176,13 @@ export function EventDetail({
                 (owner && session?.name) ||
                 "Organizer"}
             </strong>
-            <div className="event-chips detail-status">
-              <span>{statusLabel(event)}</span>
-            </div>
           </div>
-          <EventVaultCard event={event} />
+          <EventVaultCard event={indexedEvent ?? event} />
         </aside>
         <div className="detail-main">
+          <div className="event-chips detail-status">
+            <span>{statusLabel(event)}</span>
+          </div>
           <h1>{eventTitle(event)}</h1>
           <div className="detail-facts">
             <div>
@@ -232,19 +249,15 @@ export function EventDetail({
             />
           ) : (
             <>
-              {owner && (
-                <Link
-                  className="manage-event-link"
-                  href={`/events/${event.vault}/manage`}
-                >
-                  Manage your event <ArrowUpRight size={16} />
-                </Link>
+              {owner ? (
+                <OrganizerEventPanel event={event} />
+              ) : (
+                <ReservationPanel
+                  event={event}
+                  refresh={refresh}
+                  live={live.error ? null : live.value}
+                />
               )}
-              <ReservationPanel
-                event={event}
-                refresh={refresh}
-                live={live.error ? null : live.value}
-              />
             </>
           )}
           <section className="event-description">
@@ -268,64 +281,58 @@ export function EventDetail({
   );
 }
 
-function EventVaultCard({ event }: { event: EventSummary }) {
-  const [copied, setCopied] = useState(false);
-  const [copyError, setCopyError] = useState(false);
-  const committed = (
-    BigInt(event.stakeAmount) * BigInt(event.participantCount)
-  ).toString();
+function OrganizerEventPanel({ event }: { event: EventSummary }) {
+  const { timezone } = usePreferences();
   return (
-    <section className="event-vault-card" aria-label="Event vault">
-      <div className="event-vault-heading">
-        <Landmark size={17} />
-        <h2>Event vault</h2>
+    <section
+      className="reservation-panel organizer-event-panel"
+      aria-label="Organizer event summary"
+    >
+      <div className="reservation-panel-heading">
+        <strong>Your event</strong>
+        <span className="organizer-label">Organizer</span>
       </div>
-      <div className="event-vault-address">
-        <code>{event.vault}</code>
-        <button
-          type="button"
-          aria-label={copied ? "Vault address copied" : "Copy vault address"}
-          onClick={async () => {
-            try {
-              await navigator.clipboard.writeText(event.vault);
-              setCopied(true);
-              setCopyError(false);
-              setTimeout(() => setCopied(false), 2000);
-            } catch {
-              setCopyError(true);
-            }
-          }}
-        >
-          {copied ? <Check size={16} /> : <Copy size={16} />}
-        </button>
-      </div>
-      <span className="sr-only" role="status">
-        {copied
-          ? "Vault address copied"
-          : copyError
-            ? "Could not copy the address. Select it to copy."
-            : ""}
-      </span>
-      <dl className="event-vault-stats">
+      <p>
+        Manage your guest list, confirm attendance, and keep your event on
+        track.
+      </p>
+      <dl className="organizer-event-stats">
         <div>
-          <dt>Committed</dt>
+          <dt>Guests</dt>
           <dd>
-            {amount(committed)} <small>USDC</small>
+            {event.participantCount}
+            <small> / {event.maxParticipant}</small>
           </dd>
         </div>
         <div>
-          <dt>Guests</dt>
-          <dd>{event.participantCount}</dd>
+          <dt>Commitment per guest</dt>
+          <dd>
+            {amount(event.stakeAmount)}
+            <small> USDC</small>
+          </dd>
         </div>
       </dl>
-      <a
-        href={`${explorer}/address/${event.vault}`}
-        target="_blank"
-        rel="noreferrer"
+      <Link
+        className="button button--dark"
+        href={`/events/${event.vault}/manage`}
       >
-        {isLocal ? "View contract" : "View on Monadscan"}
-        <ArrowUpRight size={14} />
-      </a>
+        Manage event
+        <ArrowUpRight size={16} />
+      </Link>
+      <small>
+        <Clock3 size={13} />
+        Registration closes{" "}
+        {dateLabel(event.registrationDeadline, {
+          month: "short",
+          day: "numeric",
+          timeZone: timezone,
+        })}{" "}
+        · {timeLabel(event.registrationDeadline, timezone)}{" "}
+        {utcOffset(
+          new Date(Number(event.registrationDeadline) * 1000),
+          timezone,
+        )}
+      </small>
     </section>
   );
 }
@@ -638,7 +645,7 @@ function ReservationPanel({
                   ? live?.settled && live?.outcome === 1
                     ? "No attendance was confirmed. Your commitment was forfeited: 50% to CommitPass and 50% to attendees."
                     : "You’re on the list. Your host will confirm your attendance at the event."
-                  : "A refundable commitment. Show up, check in, and claim it back after settlement."}
+                  : "A refundable commitment. Show up, check in, and collect your return after the event ends."}
         </p>
         {!authenticated ? (
           <Link

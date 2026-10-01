@@ -226,13 +226,13 @@ export function HostTools({
               <small>
                 {["SETTLED", "CANCELLED", "REFUNDED"].includes(event.status) &&
                 indexedStatus !== event.status
-                  ? "Updating settlement…"
+                  ? "Confirming attendance…"
                   : person.claimed
                     ? "Return claimed"
                     : ["CANCELLED", "REFUNDED"].includes(event.status)
                       ? "Refund available"
                       : person.attended
-                        ? "Attendance settled"
+                        ? "Attendance confirmed"
                         : event.status === "SETTLED"
                           ? "No-show · no refund"
                           : "Commitment confirmed"}

@@ -109,6 +109,7 @@ function GuestAccess({ children }: { children: ReactNode }) {
 }
 function Navigation() {
   const path = usePathname();
+  const eventPage = /^\/events\/0x[0-9a-fA-F]{40}(?:\/manage)?$/.test(path);
   const { ready, authenticated, user, logout } = usePrivy();
   const { session } = useAccount();
   const { timezone } = usePreferences();
@@ -145,7 +146,9 @@ function Navigation() {
       <a className="skip-link" href="#workspace-main">
         Skip to content
       </a>
-      <header className={`workspace-header${scrolled ? " is-scrolled" : ""}`}>
+      <header
+        className={`workspace-header${eventPage ? " workspace-header--event" : ""}${scrolled ? " is-scrolled" : ""}`}
+      >
         <Brand href="/" markOnly />
         <nav aria-label="App navigation">
           {ready && authenticated && (

@@ -71,7 +71,7 @@ export function HostManagement({
       updated.outcome === 3
         ? "Cancellation confirmed. All guests can claim their full commitment."
         : updated.settled
-          ? "Settlement confirmed. Claims are available."
+          ? "Event ended. Guest returns are available."
           : "Request confirmed. Waiting for automation to execute the next step.",
     );
   }
@@ -253,7 +253,7 @@ export function HostManagement({
         {[
           ["Registration", true],
           ["Event started", live.started],
-          ["Settled", live.settled],
+          ["Event ended", live.settled],
         ].map(([label, done]) => (
           <li key={String(label)} className={done ? "complete" : ""}>
             {done ? <Check size={15} /> : <Clock3 size={15} />} {label}
@@ -269,7 +269,7 @@ export function HostManagement({
               : live.settled
                 ? "All wrapped up."
                 : ending
-                  ? "Settlement is in progress."
+                  ? "Your event is wrapping up."
                   : live.started
                     ? "Your event is live."
                     : starting
@@ -282,11 +282,11 @@ export function HostManagement({
             : live.outcome === 2
               ? "No attendance was recorded in the finalized snapshot. Every guest can claim their commitment plus a share of recovered yield. No platform fee applies."
               : live.settled
-                ? "Settlement is confirmed. Eligible guests can claim their return from their event page."
+                ? "The event has ended. Eligible guests can collect their return from the event page."
                 : ending
                   ? "Check-in is closed. Automation will use the attendance snapshot to settle commitments. This page refreshes automatically."
                   : live.started
-                    ? "Check guests in below. Ending the event closes check-in immediately and requests settlement."
+                    ? "Check guests in below. Ending the event closes check-in and starts preparing guest returns."
                     : starting
                       ? "Automation is waiting to execute the start. This page updates when the contract confirms it."
                       : "Starting closes registration and asks automation to put the committed funds into the event’s yield vault."}

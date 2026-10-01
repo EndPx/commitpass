@@ -312,7 +312,13 @@ No subtitle, duplicate host action, or extra results heading above the events.
 Events does not show the bottom create-event/draft promotional row.
 Discover follows the supplied 1 October card/list references: a date-grouped
 agenda in the main column and a 340px month calendar in the right column, with
-a 32px gap. The compact header offers Cards/List, Search and Upcoming/Past.
+a 32px gap. The compact header offers Cards/List, Search and Filters.
+Upcoming/Past sits below the calendar, outside its collapsible region, so it
+remains available at all viewport sizes. Reuse the personal Events segmented
+control: content-sized buttons, 44px minimum targets, 14px labels, 16px padding,
+3px surrounding inset, quiet background and a white selected surface. No full
+sidebar-width stretching. The calendar's focused date uses a visible outline
+without replacing its selected circle with a filled square.
 Cards are white, 18px rounded, with 20px padding and 112px posters at right;
 list rows remove the surface and poster, keeping a 72px time column. Host names
 come from the saved public profile. Omit city badges and invented attendees.
@@ -347,6 +353,34 @@ check-in and metadata editing. Reuse warm canvas, accent, typography and themes.
 Mobile stacks ticket QR and summary columns. Owner authorization comes from fresh
 chain state and Privy; the API independently authorizes every check-in/metadata write.
 Lifecycle requests remain pending until CRE execution changes contract state.
+
+### Vault insights
+
+Public lifecycle copy uses Event ended for SETTLED; internal contract/indexer
+status names are unchanged. List/card price labels use USDC commitment.
+The 340px event-vault card uses a 28px total-commitment figure, a compact three
+stage timeline (Commitments, Event, Returns), a two-column financial breakdown,
+and a proportional returned/available bar derived from Envio participant data.
+Before the event ends, the bar shows registered guests against capacity; never
+represent a forecast as claimable funds. Financial amounts remain bigint until
+formatted in USDC. Read every participant page before displaying aggregate
+available returns; bound the request and surface failure instead of partial
+totals. Refresh while visible, retain prior data on failed refresh, and label
+the data with Envio and the indexed update time. No fabricated activity chart,
+yield rate or vault balance. Empty events show an empty capacity bar honestly.
+The full selectable address has one 44px arrow link to its explorer contract
+page. Omit both Copy and the redundant View on Monadscan footer link. Reuse
+the existing 16px radius, 20px padding, theme surfaces and dividers.
+Vault and reservation surfaces are translucent theme panels: 62% surface tint,
+16px backdrop blur, 115% saturation, a theme border and a subtle inset rim.
+Keep readable ink/muted colors in Light and Dark. Status sits above the event
+title. An organizer sees Your event with guest count, per-guest commitment and
+one Manage event action, replacing the guest reservation panel. Event detail
+and management headers scroll normally. Desktop left columns use native sticky
+positioning constrained by the event grid. For a column taller than the viewport,
+measure its height and use a negative sticky top so its lower content becomes
+visible through document scrolling before it sticks. Never add a nested sidebar
+scrollbar. Mobile columns stay in normal document flow.
 
 ## Profile setup and welcome
 

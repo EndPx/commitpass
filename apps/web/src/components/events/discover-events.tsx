@@ -25,6 +25,7 @@ import { utcOffset } from "@/lib/display-time";
 import { usePreferences } from "./preferences";
 import { EventListCard, eventFormat, hasOpenSpots } from "./event-list-card";
 import { EventCover } from "./event-cover";
+import { EventPeriodTabs } from "./event-period-tabs";
 import { EmptyEvents, LoadError } from "./event-list-states";
 
 function dayKey(date: Date, timezone: string) {
@@ -221,22 +222,6 @@ export function DiscoverEvents() {
             </div>
           </details>
         </div>
-        <div className="segmented discovery-period" aria-label="Event dates">
-          {["upcoming", "past"].map((value) => (
-            <button
-              key={value}
-              aria-pressed={period === value}
-              className={period === value ? "selected" : ""}
-              onClick={() => {
-                setPeriod(value);
-                setSelectedDay("");
-                setOpenOnly(false);
-              }}
-            >
-              {value === "upcoming" ? "Upcoming" : "Past"}
-            </button>
-          ))}
-        </div>
       </div>
       <div className="discovery-layout">
         <aside className="discovery-sidebar" aria-label="Browse by date">
@@ -267,6 +252,14 @@ export function DiscoverEvents() {
               }}
             />
           </details>
+          <EventPeriodTabs
+            value={period}
+            onChange={(value) => {
+              setPeriod(value);
+              setSelectedDay("");
+              setOpenOnly(false);
+            }}
+          />
           <p className="discovery-timezone">
             Times in {utcOffset(new Date(now), timezone)}
             <span>{timezone.replaceAll("_", " ")}</span>

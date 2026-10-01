@@ -1,0 +1,280 @@
+.workspace-header--event {
+  position: relative;
+  top: auto;
+}
+.detail-aside {
+  overflow: visible;
+}
+.detail-main > .event-chips.detail-status {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+.event-vault-card,
+.reservation-panel {
+  background: color-mix(in srgb, var(--white) 62%, transparent);
+  backdrop-filter: blur(16px) saturate(115%);
+  -webkit-backdrop-filter: blur(16px) saturate(115%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--ink) 4%, transparent),
+    0 8px 24px rgb(0 0 0 / 4%);
+}
+.event-period-tabs {
+  width: fit-content;
+  padding: 3px;
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+  gap: 0;
+}
+.event-period-tabs button,
+.plans-heading .event-period-tabs button {
+  min-height: 44px;
+  padding-inline: 16px;
+  font: inherit;
+  font-size: 14px;
+}
+.discovery-sidebar > .event-period-tabs {
+  margin-top: 16px;
+}
+.calendar-days > button.selected {
+  background: transparent;
+}
+.calendar-days > button:focus-visible {
+  border-radius: 50%;
+  outline-offset: -3px;
+}
+.vault-source {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+}
+.vault-source i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+}
+.event-vault-address {
+  background: color-mix(in srgb, var(--white) 18%, transparent);
+}
+.event-vault-address a {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  color: var(--muted);
+  border-radius: 8px;
+}
+.event-vault-address a:hover {
+  color: var(--ink);
+  background: var(--editor-panel);
+}
+.vault-total {
+  margin: 24px 0;
+}
+.vault-total > span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.vault-total strong {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+  font-weight: 600;
+  margin-top: 8px;
+  overflow-wrap: anywhere;
+}
+.vault-total strong small {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--muted);
+}
+.vault-total p {
+  font-size: 12px;
+  color: var(--green);
+  margin-top: 8px;
+}
+.vault-flow {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 24px;
+  padding: 0;
+}
+.vault-flow li {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  position: relative;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 11px;
+  min-width: 0;
+}
+.vault-flow li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: calc(50% + 16px);
+  top: 12px;
+  right: calc(-50% + 16px);
+  height: 1px;
+  background: var(--line);
+}
+.vault-flow li > span {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--white) 32%, transparent);
+}
+.vault-flow li > span > i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.vault-flow .complete {
+  color: var(--green);
+}
+.vault-flow .complete > span {
+  border-color: color-mix(in srgb, var(--green) 25%, transparent);
+  background: var(--green-soft);
+}
+.vault-financials {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 16px;
+  margin: 0;
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+}
+.vault-financials dt {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.vault-financials dd {
+  font-size: 14px;
+  font-weight: 550;
+  margin: 8px 0 0;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.vault-financials small {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--muted);
+}
+.vault-financials .highlight dd {
+  color: var(--green);
+}
+.vault-distribution {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.vault-distribution-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+}
+.vault-distribution-heading strong {
+  font-weight: 550;
+}
+.vault-distribution-heading > span {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.vault-distribution-track {
+  height: 8px;
+  margin: 12px 0;
+  border-radius: 8px;
+  background: var(--editor-input);
+  overflow: hidden;
+}
+.vault-distribution-track > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--green);
+}
+.vault-distribution-caption {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.vault-insights-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.vault-insights-error button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+}
+.vault-indexed-time {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 20px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.reservation-panel-heading .organizer-label {
+  font-size: 12px;
+  letter-spacing: 0;
+  color: var(--muted);
+}
+.organizer-event-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+.organizer-event-stats dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+.organizer-event-stats dd {
+  margin: 8px 0 0;
+  font-size: 24px;
+  font-weight: 550;
+}
+.organizer-event-stats small {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 400;
+}
+@media (max-width: 649px) {
+  .event-period-tabs button,
+  .plans-heading .event-period-tabs button {
+    padding-inline: 16px;
+    font-size: 14px;
+  }
+  .detail-main > .event-chips.detail-status {
+    margin-top: 0;
+  }
+}

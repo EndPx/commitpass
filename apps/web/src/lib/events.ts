@@ -35,7 +35,7 @@ export const timeLabel = (seconds: string, timezone?: string) =>
 export function statusLabel(event: EventSummary) {
   if (event.status === "CANCELLED") return "Cancelled";
   if (event.status === "REFUNDED") return "Refunds available";
-  if (event.status === "SETTLED") return "Settled";
+  if (event.status === "SETTLED") return "Event ended";
   if (event.status === "SETTLEMENT_REQUESTED") return "Wrapping up";
   if (event.status === "ACTIVE") return "In progress";
   if (event.status === "START_REQUESTED") return "Starting soon";

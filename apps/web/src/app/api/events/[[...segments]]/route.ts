@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { EventMetadata, IndexedEvent } from "@commitpass/shared";
 import { ApiError, apiRead, bearer } from "@/lib/server-api";
+import { vaultInsights } from "@/lib/server-vault-insights";
 
 const address = /^0x[0-9a-fA-F]{40}$/;
 const headers = { "Cache-Control": "no-store" };
@@ -70,6 +71,9 @@ export async function GET(request: Request, context: Context) {
         { data: await enrich(result.data) },
         { headers },
       );
+    }
+    if (segments.length === 2 && resource === "vault-insights") {
+      return NextResponse.json(await vaultInsights(vault), { headers });
     }
     if (
       resource === "attendance" &&

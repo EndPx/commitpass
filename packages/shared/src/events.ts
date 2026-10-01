@@ -40,6 +40,14 @@ export interface IndexedEvent {
   participantCount: number;
   attendeeCount: number;
   rewardPerAttendee: string;
+  totalCommitted?: string;
+  yieldDeposited?: string;
+  totalYield?: string;
+  protocolFee?: string;
+  totalClaimed?: string;
+  claimCount?: number;
+  updatedAt?: string;
+  lastBlock?: string;
   lastTransaction: string;
 }
 
@@ -51,6 +59,16 @@ export interface EventSummary extends IndexedEvent {
 export interface EventPage {
   data: EventSummary[];
   nextCursor: string | null;
+}
+
+export interface VaultInsights {
+  source: "envio";
+  event: IndexedEvent;
+  availableToCollect: string;
+  returnedToWallets: string;
+  totalAllocated: string;
+  eligibleReturns: number;
+  collectedReturns: number;
 }
 
 export interface IndexedParticipant {

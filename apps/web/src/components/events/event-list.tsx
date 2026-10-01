@@ -10,6 +10,7 @@ import { useAccount } from "./account-context";
 import { usePreferences } from "./preferences";
 import { EventListCard } from "./event-list-card";
 import { DiscoverEvents } from "./discover-events";
+import { EventPeriodTabs } from "./event-period-tabs";
 
 export function EventList({ personal = false }: { personal?: boolean }) {
   return personal ? <PersonalEvents /> : <DiscoverEvents />;
@@ -197,18 +198,7 @@ function PersonalEvents() {
     <main id="workspace-main" className="workspace-content events-page">
       <div className="plans-heading">
         <h1>Events</h1>
-        <div className="segmented" aria-label="Event dates">
-          {["upcoming", "past"].map((value) => (
-            <button
-              key={value}
-              aria-pressed={tab === value}
-              className={tab === value ? "selected" : ""}
-              onClick={() => setTab(value)}
-            >
-              {value === "upcoming" ? "Upcoming" : "Past"}
-            </button>
-          ))}
-        </div>
+        <EventPeriodTabs value={tab} onChange={setTab} />
       </div>
       <div className="plans-controls">
         <div className="plans-role-filter" aria-label="Your role">

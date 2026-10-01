@@ -137,7 +137,7 @@ export function EventPass({
         <Ticket size={20} />
         <strong>Your event pass</strong>
         <span>
-          <Check size={13} /> {settled ? "Completed" : "Reserved"}
+          <Check size={13} /> {settled ? "Event ended" : "Reserved"}
         </span>
       </div>
       <div className="event-pass-body">

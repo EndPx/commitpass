@@ -597,7 +597,7 @@ function ProfileCharts({ summary }: { summary: ProfileSummary }) {
         <p>
           {summary.settledEvents
             ? "Cancelled and fully refunded events are excluded."
-            : "Your attendance chart starts after your first settlement."}
+            : "Your attendance chart starts after your first event ends."}
         </p>
       </figure>
       <figure className="profile-chart">
