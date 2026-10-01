@@ -20,7 +20,6 @@ import {
   Check,
   Clock3,
   MapPin,
-  Users,
 } from "lucide-react";
 import {
   amount,
@@ -216,17 +215,6 @@ export function EventDetail({
               <span>
                 <strong>
                   {event.metadata?.location || "Location to be announced"}
-                </strong>
-              </span>
-            </div>
-            <div>
-              <span className="detail-fact-icon">
-                <Users size={20} />
-              </span>
-              <span>
-                <strong>
-                  {event.participantCount} / {event.maxParticipant} spots
-                  committed
                 </strong>
               </span>
             </div>
