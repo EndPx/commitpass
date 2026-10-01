@@ -82,7 +82,8 @@ const processEvent = (
     result.txStatus !== TxStatus.SUCCESS ||
     result.receiverContractExecutionStatus !==
       EVM_PB.ReceiverContractExecutionStatus.SUCCESS ||
-    !result.txHash?.length
+    result.txHash?.length !== 32 ||
+    !result.txHash.some((byte) => byte !== 0)
   ) {
     throw new Error(
       `Lifecycle write failed for ${vaultAddress}: tx=${result.txStatus}, receiver=${result.receiverContractExecutionStatus}`,

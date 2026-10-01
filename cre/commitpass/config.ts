@@ -20,7 +20,8 @@ export const apiUrlSchema = z
 
 export const configSchema = z
   .object({
-    schedule: z.string().min(1).default("0 * * * * *"),
+    // Factory batches rotate by minute slot; a different interval can skip vaults.
+    schedule: z.literal("0 * * * * *").default("0 * * * * *"),
     factory: addressSchema.refine(
       (value) => value !== zeroAddress,
       "Configure the event factory",
