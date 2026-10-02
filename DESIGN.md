@@ -54,6 +54,17 @@ Breakpoints: 600px, 900px, 1200px. Pin only at >=900px and height >=700px.
 Smaller/shorter screens keep normal document flow and animate three posters
 toward a compact reservation preview during scroll, without pinning. Desktop
 landing navigation uses equal outer grid tracks and sits at the viewport center.
+The landing header contains only Brand and Sign in, aligned to opposite sides.
+Below 900px, keep the hero close to the available viewport height (720px minimum),
+with posters at the upper corners and sides around the centered copy, never a
+separate poster row at 57-63% of an oversized hero. Below 600px, show a compact
+three-poster fan above the copy: 92-120px posters, 194px copy inset and a 680px
+minimum hero. Scale poster typography with its smaller frame. The compact scroll
+transition fades copy before revealing the centered reservation preview; it does
+not add another below-fold region. Document scrolling owns the entire layout.
+This uses the containment principle of [overlay-stack](https://github.com/changeroa/StyleGallery/blob/main/patterns/overlay-exception/overlay-stack.md):
+keep decorative art and transitioning content within one bounded hero while
+preserving reading/focus order and pointer access to the real CTA links.
 
 ## 5. Reusable components
 

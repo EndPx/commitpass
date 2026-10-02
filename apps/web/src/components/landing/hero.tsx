@@ -85,12 +85,17 @@ export function Hero() {
             scrollTrigger: {
               trigger: stage,
               start: "top top",
-              end: "top -35%",
+              end: "top -15%",
               scrub: 0.5,
               invalidateOnRefresh: true,
             },
           });
           timeline
+            .to(
+              ".hero-copy, .hero-bottom",
+              { y: -24, autoAlpha: 0, duration: 0.35 },
+              0,
+            )
             .to(
               cards,
               {
