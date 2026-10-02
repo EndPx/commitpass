@@ -385,6 +385,12 @@ end time. EMPTY_ENDED is a presentation state, never a fabricated SETTLED log or
 claim allocation. Hide start/waiting/check-in-open messages for this case and
 show that no guest commitments need returning. Funded events continue to use
 confirmed contract lifecycle and allocation states.
+Reservation panels follow booking availability as well as account state.
+Ended/cancelled/full/closed events never show Reserve your spot or Sign in to
+join to anonymous visitors. Show a closed-state panel and, where reservations
+exist, Sign in to view reservation. Signed-in participants retain their actual
+ticket, claim/refund and pending-transaction recovery controls; nonparticipants
+cannot create a new wallet or booking from a closed-event prompt.
 The 340px event-vault card uses a 28px total-commitment figure, a compact three
 stage timeline (Commitments, Event, Returns), a two-column financial breakdown,
 and a proportional returned/available bar derived from Envio participant data.

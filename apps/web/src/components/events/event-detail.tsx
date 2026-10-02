@@ -40,6 +40,7 @@ import {
 import { useAccount } from "./account-context";
 import { EventCover } from "./event-cover";
 import { EventVaultCard } from "./event-vault-card";
+import { hasOpenSpots } from "./event-list-card";
 import { EventLocation } from "./event-location";
 import { usePageAppearance } from "./page-theme";
 import { usePreferences } from "./preferences";
@@ -605,6 +606,29 @@ function ReservationPanel({
     !live.settled &&
     live.timestamp < live.deadline &&
     live.count < live.capacity;
+  const canReserve = hasOpenSpots(
+    event,
+    live ? Number(live.timestamp) * 1000 : Date.now(),
+  );
+  const finished =
+    ["SETTLED", "REFUNDED", "CANCELLED", "EMPTY_ENDED"].includes(
+      event.status,
+    ) || isEmptyEventEnded(event);
+  const closedTitle =
+    event.status === "CANCELLED"
+      ? "Event cancelled"
+      : finished
+        ? "Event ended"
+        : ["ACTIVE", "SETTLEMENT_REQUESTED"].includes(event.status)
+          ? "Reservations closed"
+          : statusLabel(event) === "Full"
+            ? "Event full"
+            : "Registration closed";
+  const closedMessage = finished
+    ? event.status === "CANCELLED"
+      ? "This event was cancelled. If you reserved a spot, sign in to view your reservation and any available refund."
+      : "This event has ended. If you reserved a spot, sign in to view your reservation and any available return."
+    : "New reservations are closed. If you already reserved a spot, sign in to view your reservation.";
   if (live?.status === "EMPTY_ENDED" || isEmptyEventEnded(event))
     return (
       <section className="reservation-panel">
@@ -615,6 +639,33 @@ function ReservationPanel({
           No guests reserved a spot before this event ended. Registration is
           closed.
         </p>
+      </section>
+    );
+  if (
+    !canReserve &&
+    (!authenticated ||
+      (!pending && participation && !deposited) ||
+      (!wallet && session?.wallets.length === 0))
+  )
+    return (
+      <section className="reservation-panel">
+        <div className="reservation-panel-heading">
+          <strong>{closedTitle}</strong>
+        </div>
+        <p>
+          {authenticated
+            ? "New reservations are closed for this event."
+            : closedMessage}
+        </p>
+        {!authenticated && event.participantCount > 0 && (
+          <Link
+            className="button button--dark"
+            href={`/signin?next=${encodeURIComponent(`/events/${event.vault}`)}`}
+          >
+            Sign in to view reservation
+            <ArrowUpRight size={16} />
+          </Link>
+        )}
       </section>
     );
   return (
@@ -632,11 +683,17 @@ function ReservationPanel({
       <section className="reservation-panel">
         <div className="reservation-panel-heading">
           <strong>
-            {deposited ? "Your reservation" : "Reserve your spot"}
+            {deposited
+              ? "Your reservation"
+              : canReserve
+                ? "Reserve your spot"
+                : closedTitle}
           </strong>
-          <span>
-            {amount(event.stakeAmount)} <small>USDC</small>
-          </span>
+          {(deposited || canReserve) && (
+            <span>
+              {amount(event.stakeAmount)} <small>USDC</small>
+            </span>
+          )}
         </div>
         <p>
           {!authenticated
@@ -649,7 +706,9 @@ function ReservationPanel({
                   ? live?.settled && live?.outcome === 1
                     ? "No attendance was confirmed. Your commitment was forfeited: 50% to CommitPass and 50% to attendees."
                     : "You’re on the list. Your host will confirm your attendance at the event."
-                  : "A refundable commitment. Show up, check in, and collect your return after the event ends."}
+                  : canReserve
+                    ? "A refundable commitment. Show up, check in, and collect your return after the event ends."
+                    : "Checking your reservation. New reservations are closed."}
         </p>
         {!authenticated ? (
           <Link
@@ -659,6 +718,17 @@ function ReservationPanel({
             Sign in to join
             <ArrowUpRight size={16} />
           </Link>
+        ) : !wallet && !canReserve ? (
+          <button
+            className="button"
+            disabled={busy}
+            onClick={() => {
+              refreshSession();
+              setReload((value) => value + 1);
+            }}
+          >
+            Reconnect reservation wallet
+          </button>
         ) : !wallet ? (
           <button
             className="button button--dark"
