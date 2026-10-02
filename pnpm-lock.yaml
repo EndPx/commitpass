@@ -44,6 +44,9 @@ importers:
       '@privy-io/react-auth':
         specifier: 3.45.0
         version: 3.45.0(@solana-program/system@0.10.0(@solana/kit@5.5.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)))(@solana-program/token@0.9.0(@solana/kit@5.5.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)))(@solana/kit@5.5.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10))(@solana/sysvars@5.5.1(typescript@5.9.3))(@stripe/stripe-js@1.54.2)(@tanstack/query-core@5.104.0)(@tanstack/react-query@5.104.0(react@19.1.9))(@types/react@19.1.17)(bufferutil@4.1.0)(react-dom@19.1.9(react@19.1.9))(react@19.1.9)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.1.9))(utf-8-validate@5.0.10)(zod@3.25.76)
+      '@yudiel/react-qr-scanner':
+        specifier: 2.4.0
+        version: 2.4.0(@types/emscripten@1.41.6)(react-dom@19.1.9(react@19.1.9))(react@19.1.9)
       '@zxing/browser':
         specifier: 0.2.1
         version: 0.2.1(@zxing/library@0.23.0)
@@ -1681,6 +1684,9 @@ packages:
   '@types/debug@4.1.13':
     resolution: {integrity: sha512-KSVgmQmzMwPlmtljOomayoR89W4FynCAi3E8PPs7vmDVPe84hT+vGPKkJfThkmXs0x0jAaa9U8uW8bbfyS2fWw==}
 
+  '@types/emscripten@1.41.6':
+    resolution: {integrity: sha512-uN+9i8bFT5CUcZfyIEYDrSueACEyKGbUs5kC/72DGlZZoinh84sJfVV0i8UOJD1asdzkvLPBRrKs41kZ8MdEXg==}
+
   '@types/lodash@4.17.25':
     resolution: {integrity: sha512-+K1NIO8I+F9/wNulfVvu23QYd0Pe9/OCqRrim4NoYIf1VoEDL90Ve4ClzpyqBLc7NpGGWRvYNCKZ1BE/Jpf8dQ==}
 
@@ -1878,6 +1884,12 @@ packages:
   '@walletconnect/window-metadata@1.0.1':
     resolution: {integrity: sha512-9koTqyGrM2cqFRW517BPY/iEtUDx2r1+Pwwu5m7sJ7ka79wi3EyqhqcICk/yDmv6jAS1rjKgTKXlEhanYjijcA==}
 
+  '@yudiel/react-qr-scanner@2.4.0':
+    resolution: {integrity: sha512-Bx8Xnz42cAfeKs1Em1oh8ESvnPbvhqXo/Us1jgaJr0U/dmnIvozLAfH0qlompczETOJQpZbIfRWkdvR+Z9q8Sw==}
+    peerDependencies:
+      react: ^17 || ^18 || ^19
+      react-dom: ^17 || ^18 || ^19
+
   '@zxing/browser@0.2.1':
     resolution: {integrity: sha512-92pVfVDUXbc15xu9vIEmhNyqIEASMEkDF92CwT6T+7sg2EHXJRktH9CQKoQSXe51UtbNsj+Fm09H/JBWHMs/Sw==}
     peerDependencies:
@@ -1994,6 +2006,9 @@ packages:
 
   axios@1.20.0:
     resolution: {integrity: sha512-r8aOh8j9cGKpgQAqpzrUHnSIc6a59Y3Xf/cv8sy1DrHCkZHzQGEuoq1tARk6qSyDdtQGSDgpb9kFlruzPvrgwg==}
+
+  barcode-detector@3.0.6:
+    resolution: {integrity: sha512-v4xTr6B+FINl/p1RDl38qzIwF+Repfo+k/a/HlKTJKAJpNvACD6v7AH7LSPvfR4AdzXXuwai04huA4TWn02Znw==}
 
   base-x@5.0.1:
     resolution: {integrity: sha512-M7uio8Zt++eg3jPj+rHMfCC+IuygQHHCOU+IYsVtik6FWjuYpVt/+MRKcgsAMHh8mMFAwnB+Bs+mTrFiXjMzKg==}
@@ -3358,6 +3373,9 @@ packages:
   scheduler@0.27.0:
     resolution: {integrity: sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q==}
 
+  sdp@3.2.2:
+    resolution: {integrity: sha512-xZocWwfyp4hkbN4hLWxMjmv2Q8aNa9MhmOZ7L9aCZPT+dZsgRr6wZRrSYE3HTdyk/2pZKPSgqI7ns7Een1xMSA==}
+
   secure-json-parse@2.7.0:
     resolution: {integrity: sha512-6aU+Rwsezw7VR8/nyvKTx8QpWH9FrcYiXXlqC4z5d5XQBDRqtbfsRjnwGyqbi3gddNtWHuEk9OANUotL26qKUw==}
 
@@ -3855,6 +3873,10 @@ packages:
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
 
+  webrtc-adapter@9.0.3:
+    resolution: {integrity: sha512-5fALBcroIl31OeXAdd1YUntxiZl1eHlZZWzNg3U4Fn+J9/cGL3eT80YlrsWGvj2ojuz1rZr2OXkgCzIxAZ7vRQ==}
+    engines: {node: '>=6.0.0', npm: '>=3.10.0'}
+
   whatwg-url@5.0.0:
     resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
 
@@ -4048,6 +4070,11 @@ packages:
         optional: true
       use-sync-external-store:
         optional: true
+
+  zxing-wasm@2.2.2:
+    resolution: {integrity: sha512-Q9/B9whEwAUABvr7ScHl36wVZTBWVHAaumx45uGQLl2GGRp5ZRtDtwbz5scOwl/xzL07fximIqoQqqmzf9eJJA==}
+    peerDependencies:
+      '@types/emscripten': '>=1.39.6'
 
 snapshots:
 
@@ -6225,6 +6252,8 @@ snapshots:
     dependencies:
       '@types/ms': 2.1.0
 
+  '@types/emscripten@1.41.6': {}
+
   '@types/lodash@4.17.25': {}
 
   '@types/ms@2.1.0': {}
@@ -7314,6 +7343,15 @@ snapshots:
       '@walletconnect/window-getters': 1.0.1
       tslib: 1.14.1
 
+  '@yudiel/react-qr-scanner@2.4.0(@types/emscripten@1.41.6)(react-dom@19.1.9(react@19.1.9))(react@19.1.9)':
+    dependencies:
+      barcode-detector: 3.0.6(@types/emscripten@1.41.6)
+      react: 19.1.9
+      react-dom: 19.1.9(react@19.1.9)
+      webrtc-adapter: 9.0.3
+    transitivePeerDependencies:
+      - '@types/emscripten'
+
   '@zxing/browser@0.2.1(@zxing/library@0.23.0)':
     dependencies:
       '@zxing/library': 0.23.0
@@ -7429,6 +7467,12 @@ snapshots:
     transitivePeerDependencies:
       - debug
       - supports-color
+
+  barcode-detector@3.0.6(@types/emscripten@1.41.6):
+    dependencies:
+      zxing-wasm: 2.2.2(@types/emscripten@1.41.6)
+    transitivePeerDependencies:
+      - '@types/emscripten'
 
   base-x@5.0.1: {}
 
@@ -8897,6 +8941,8 @@ snapshots:
 
   scheduler@0.27.0: {}
 
+  sdp@3.2.2: {}
+
   secure-json-parse@2.7.0: {}
 
   secure-json-parse@4.1.0: {}
@@ -9451,6 +9497,10 @@ snapshots:
 
   webidl-conversions@3.0.1: {}
 
+  webrtc-adapter@9.0.3:
+    dependencies:
+      sdp: 3.2.2
+
   whatwg-url@5.0.0:
     dependencies:
       tr46: 0.0.3
@@ -9644,3 +9694,8 @@ snapshots:
       '@types/react': 19.1.17
       react: 19.1.9
       use-sync-external-store: 1.4.0(react@19.1.9)
+
+  zxing-wasm@2.2.2(@types/emscripten@1.41.6):
+    dependencies:
+      '@types/emscripten': 1.41.6
+      type-fest: 5.10.0

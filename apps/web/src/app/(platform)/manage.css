@@ -483,3 +483,167 @@
     flex-shrink: 0;
   }
 }
+.guest-camera-frame--focused {
+  aspect-ratio: 1;
+  background: #14151a;
+  border-color: color-mix(in srgb, var(--ink) 14%, transparent);
+}
+.guest-camera-frame--focused .guest-live-scanner {
+  position: absolute;
+  inset: 0;
+}
+.guest-camera-frame--focused video {
+  object-fit: cover;
+}
+.guest-qr-idle {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+.guest-qr-focus {
+  position: relative;
+  width: 68%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  color: rgb(255 255 255 / 45%);
+  box-shadow: 0 0 0 160px rgb(0 0 0 / 35%);
+  border-radius: 12px;
+}
+.guest-qr-focus i {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgb(255 255 255 / 85%);
+}
+.guest-qr-focus i:nth-child(1) {
+  top: 0;
+  left: 0;
+  border-right: 0;
+  border-bottom: 0;
+  border-top-left-radius: 12px;
+}
+.guest-qr-focus i:nth-child(2) {
+  top: 0;
+  right: 0;
+  border-left: 0;
+  border-bottom: 0;
+  border-top-right-radius: 12px;
+}
+.guest-qr-focus i:nth-child(3) {
+  bottom: 0;
+  right: 0;
+  border-left: 0;
+  border-top: 0;
+  border-bottom-right-radius: 12px;
+}
+.guest-qr-focus i:nth-child(4) {
+  bottom: 0;
+  left: 0;
+  border-right: 0;
+  border-top: 0;
+  border-bottom-left-radius: 12px;
+}
+.guest-camera-status {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  z-index: 3;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgb(0 0 0 / 55%);
+  color: white;
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.guest-qr-guide {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+  margin: 12px 0 20px;
+}
+.guest-camera-device {
+  position: absolute;
+  z-index: 4;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: white;
+}
+.guest-camera-device select {
+  flex: 1;
+  min-width: 0;
+  min-height: 36px;
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: 8px;
+  background: rgb(0 0 0 / 65%);
+  color: white;
+  padding: 6px;
+  font: inherit;
+}
+.guest-scan-result {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+.guest-scan-result > svg {
+  color: var(--green);
+}
+.guest-scan-result h3 {
+  font-size: 20px;
+  font-weight: 550;
+}
+.guest-scan-result p {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.guest-scan-result code {
+  font-size: 12px;
+  line-height: 1.8;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+  overflow-wrap: anywhere;
+}
+.guest-scan-result .button {
+  width: 100%;
+}
+.event-pass-qr-expand {
+  display: grid;
+  place-items: center;
+  background: white;
+  border: 0;
+  padding: 0;
+  cursor: zoom-in;
+  width: 144px;
+  height: 144px;
+}
+.event-pass-qr img {
+  image-rendering: pixelated;
+}
+.expanded-reservation-qr {
+  display: block;
+  width: min(100%, 360px);
+  height: auto;
+  aspect-ratio: 1;
+  margin: 24px auto;
+  background: white;
+  border-radius: 12px;
+  image-rendering: pixelated;
+}

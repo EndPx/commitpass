@@ -374,6 +374,18 @@ close/unmount and provide a visible camera error with image/manual fallback.
 The organizer confirms attendance with the existing authenticated API, which
 continues to validate organizer, deposit and event state. On mobile the tabs
 remain visible, editor rows wrap and table scrolling is confined to the table.
+Camera scanning follows ATFi-Event/frontend QRScanner.tsx at commit
+5117e73b667f23f72a615ee004f9daa7797f1c84: use its locked
+@yudiel/react-qr-scanner 2.4.0 camera engine and finder, QR-only detection,
+single-result pause and scan-again state. Keep CommitPass's event/wallet URL
+validation and explicit attendance confirmation. Mount the scanner only after
+Start camera, prefer rear-facing 1280x720 capture, expose available camera
+selection and supported zoom/torch controls. Show a square focused viewport,
+dimmed area around a clear finder, camera-ready status and legible placement
+guidance. Stop capture by unmounting it on close, error or recognition. A read
+shows the wallet with View participant; do not claim check-in from a decoded
+QR alone. QR pass raster resolution is 512px with a 4-module quiet border and
+an enlarged-view action so a dense reservation URL can be presented clearly.
 
 ### Vault insights
 

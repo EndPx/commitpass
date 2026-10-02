@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
+import { EditorDialog } from "./editor-dialog";
 import { usePrivy } from "@privy-io/react-auth";
 import { CalendarPlus, Check, Download, Ticket } from "lucide-react";
 import type { EventSummary } from "@commitpass/shared";
@@ -27,6 +28,7 @@ export function EventPass({
   const { timezone } = usePreferences();
   const [qr, setQr] = useState("");
   const [qrError, setQrError] = useState(false);
+  const [expandedQr, setExpandedQr] = useState(false);
   const [attendance, setAttendance] = useState<boolean | null>(null);
   const [attendanceError, setAttendanceError] = useState(false);
   useEffect(() => {
@@ -35,8 +37,8 @@ export function EventPass({
     setQrError(false);
     const link = `${window.location.origin}/events/${event.vault}/manage?guest=${wallet}`;
     void QRCode.toDataURL(link, {
-      width: 256,
-      margin: 2,
+      width: 512,
+      margin: 4,
       errorCorrectionLevel: "M",
       color: { dark: "#252622", light: "#ffffff" },
     })
@@ -168,12 +170,18 @@ export function EventPass({
         </div>
         <div className="event-pass-qr">
           {qr ? (
-            <img
-              src={qr}
-              alt="Event pass QR code for the host to find your reservation"
-              width={144}
-              height={144}
-            />
+            <button
+              className="event-pass-qr-expand"
+              aria-label="Show larger reservation QR"
+              onClick={() => setExpandedQr(true)}
+            >
+              <img
+                src={qr}
+                alt="Event pass QR code for the host to find your reservation"
+                width={144}
+                height={144}
+              />
+            </button>
           ) : (
             <span>
               {qrError
@@ -183,6 +191,22 @@ export function EventPass({
           )}
         </div>
       </div>
+      {expandedQr && qr && (
+        <EditorDialog
+          title="Your reservation QR"
+          description="Show this code to the organizer. Keep the whole QR visible."
+          onClose={() => setExpandedQr(false)}
+        >
+          <img
+            className="expanded-reservation-qr"
+            src={qr}
+            alt="Large reservation QR"
+          />
+          <p className="editor-help">
+            {eventTitle(event)} · {shorten(wallet)}
+          </p>
+        </EditorDialog>
+      )}
       <div className="event-pass-actions">
         <button type="button" onClick={calendar}>
           <CalendarPlus size={15} /> Add to calendar

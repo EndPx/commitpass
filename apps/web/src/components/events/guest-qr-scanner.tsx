@@ -1,9 +1,16 @@
 "use client";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import type { IScannerControls } from "@zxing/browser";
-import { Camera, ImagePlus, QrCode } from "lucide-react";
+import dynamic from "next/dynamic";
+import {
+  Camera,
+  CheckCircle2,
+  ImagePlus,
+  LoaderCircle,
+  QrCode,
+  ScanLine,
+} from "lucide-react";
 import { EditorDialog } from "./editor-dialog";
-
+const GuestCamera = dynamic(() => import("./guest-camera"), { ssr: false });
 function reservationWallet(text: string, vault: string) {
   let url: URL;
   try {
@@ -26,6 +33,7 @@ function reservationWallet(text: string, vault: string) {
     throw new Error("This pass does not contain a valid guest wallet.");
   return wallet;
 }
+
 export function GuestQrScanner({
   vault,
   onGuest,
@@ -35,81 +43,67 @@ export function GuestQrScanner({
   onGuest: (wallet: string) => void;
   onClose: () => void;
 }) {
-  const imageInput = useRef<HTMLInputElement>(null);
-  const video = useRef<HTMLVideoElement>(null),
-    controls = useRef<IScannerControls | null>(null),
+  const imageInput = useRef<HTMLInputElement>(null),
     mounted = useRef(true),
-    starting = useRef(false);
-  const [active, setActive] = useState(false),
-    [busy, setBusy] = useState(false),
+    captured = useRef(false);
+  const [cameraOn, setCameraOn] = useState(false),
+    [cameraReady, setCameraReady] = useState(false),
+    [deviceId, setDeviceId] = useState("");
+  const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
-    [link, setLink] = useState("");
-  function stop() {
-    controls.current?.stop();
-    controls.current = null;
-    const stream = video.current?.srcObject;
-    if (typeof MediaStream !== "undefined" && stream instanceof MediaStream)
-      stream.getTracks().forEach((track) => track.stop());
-    if (video.current) video.current.srcObject = null;
-    if (mounted.current) setActive(false);
-  }
+    [link, setLink] = useState(""),
+    [found, setFound] = useState("");
   useEffect(() => {
     mounted.current = true;
     return () => {
       mounted.current = false;
-      stop();
     };
   }, []);
   function accept(text: string) {
-    const wallet = reservationWallet(text, vault);
-    stop();
-    onGuest(wallet);
-    onClose();
-  }
-  async function camera() {
-    if (starting.current || active) return;
-    starting.current = true;
-    setBusy(true);
-    setError("");
+    if (captured.current) return;
+    captured.current = true;
+    setCameraOn(false);
+    setCameraReady(false);
     try {
-      const { BrowserQRCodeReader } = await import("@zxing/browser");
-      if (!mounted.current) return;
-      const scanner = await new BrowserQRCodeReader().decodeFromConstraints(
-        { video: { facingMode: { ideal: "environment" } }, audio: false },
-        video.current!,
-        (result, _error, scannerControls) => {
-          if (!result || !mounted.current) return;
-          try {
-            const wallet = reservationWallet(result.getText(), vault);
-            scannerControls.stop();
-            stop();
-            onGuest(wallet);
-            onClose();
-          } catch (value) {
-            setError(
-              value instanceof Error
-                ? value.message
-                : "Could not read this pass.",
-            );
-          }
-        },
+      setFound(reservationWallet(text, vault));
+      setError("");
+    } catch (value) {
+      setError(
+        value instanceof Error
+          ? value.message
+          : "Could not read this reservation.",
       );
-      if (!mounted.current) scanner.stop();
-      else {
-        controls.current = scanner;
-        setActive(true);
-      }
-    } catch {
-      if (mounted.current) {
-        stop();
-        setError(
-          "Camera unavailable. Allow camera access, upload a QR image, or paste the reservation link.",
-        );
-      }
-    } finally {
-      starting.current = false;
-      if (mounted.current) setBusy(false);
     }
+  }
+  function start() {
+    captured.current = false;
+    setFound("");
+    setError("");
+    setCameraReady(false);
+    setCameraOn(true);
+  }
+  function stop() {
+    setCameraOn(false);
+    setCameraReady(false);
+  }
+  function cameraError(value: unknown) {
+    stop();
+    captured.current = false;
+    const name =
+      value instanceof DOMException
+        ? value.name
+        : value instanceof Error
+          ? value.name
+          : "";
+    setError(
+      name === "NotAllowedError"
+        ? "Camera access was denied. Allow it in your browser, then try again."
+        : name === "NotFoundError"
+          ? "No camera found. Connect a camera or upload a QR image."
+          : name === "NotReadableError"
+            ? "The camera is busy in another app. Close it there and retry."
+            : "The camera could not start. Try another camera, upload a QR image, or paste your reservation link.",
+    );
   }
   async function image(file?: File) {
     if (!file || busy) return;
@@ -121,6 +115,8 @@ export function GuestQrScanner({
       return;
     }
     stop();
+    captured.current = false;
+    setFound("");
     setBusy(true);
     setError("");
     const url = URL.createObjectURL(file);
@@ -128,13 +124,10 @@ export function GuestQrScanner({
       const { BrowserQRCodeReader } = await import("@zxing/browser");
       const result = await new BrowserQRCodeReader().decodeFromImageUrl(url);
       if (mounted.current) accept(result.getText());
-    } catch (value) {
+    } catch {
       if (mounted.current)
         setError(
-          value instanceof Error &&
-            /pass|event|wallet|website|CommitPass/.test(value.message)
-            ? value.message
-            : "No reservation QR found in this image.",
+          "No QR found in this image. Use a clear, complete picture of the reservation QR.",
         );
     } finally {
       URL.revokeObjectURL(url);
@@ -143,80 +136,143 @@ export function GuestQrScanner({
   }
   function submit(form: FormEvent) {
     form.preventDefault();
-    setError("");
-    try {
-      accept(link.trim());
-    } catch (value) {
-      setError(
-        value instanceof Error ? value.message : "Invalid reservation link.",
-      );
-    }
+    captured.current = false;
+    accept(link.trim());
   }
   return (
     <EditorDialog
       title="Scan guest QR"
-      description="Find a reservation, then confirm the guest’s attendance in the table."
-      icon={<QrCode size={24} />}
+      description="Center the reservation QR inside the frame. Hold it steady until it’s read."
+      icon={<ScanLine size={24} />}
       onClose={onClose}
     >
-      <div className="guest-camera-frame">
-        <video ref={video} muted playsInline aria-label="QR camera preview" />
-        {!active && (
-          <span>
-            <QrCode size={48} />
-            Camera preview
-          </span>
-        )}
-      </div>
-      <div className="guest-scan-actions">
-        <button
-          className="button"
-          onClick={active ? stop : camera}
-          disabled={busy}
-        >
-          <Camera size={16} />
-          {busy ? "Preparing…" : active ? "Stop camera" : "Start camera"}
-        </button>
-        <button
-          className="button"
-          type="button"
-          disabled={busy}
-          onClick={() => imageInput.current?.click()}
-        >
-          <ImagePlus size={16} />
-          Upload QR
-        </button>
-        <input
-          ref={imageInput}
-          hidden
-          type="file"
-          accept="image/png,image/jpeg,image/webp"
-          disabled={busy}
-          onChange={(event) => {
-            void image(event.target.files?.[0]);
-            event.target.value = "";
-          }}
-        />
-      </div>
-      <form className="guest-scan-manual" onSubmit={submit}>
-        <label htmlFor="guest-reservation-link">
-          Or paste a reservation link
-        </label>
-        <input
-          id="guest-reservation-link"
-          value={link}
-          onChange={(e) => setLink(e.target.value)}
-          placeholder="https://…/manage?guest=0x…"
-          required
-        />
-        <button className="button" disabled={busy || !link.trim()}>
-          Find guest
-        </button>
-      </form>
-      {error && (
-        <p className="form-error" role="alert">
-          {error}
-        </p>
+      {found ? (
+        <div className="guest-scan-result" role="status">
+          <CheckCircle2 size={36} />
+          <h3>Reservation QR read</h3>
+          <p>Check the matching participant before confirming attendance.</p>
+          <code>{found}</code>
+          <button
+            className="button button--dark"
+            onClick={() => {
+              onGuest(found);
+              onClose();
+            }}
+          >
+            View participant
+          </button>
+          <button className="auth-text-button" onClick={start}>
+            Scan another QR
+          </button>
+        </div>
+      ) : (
+        <>
+          <div
+            className={`guest-camera-frame guest-camera-frame--focused${cameraOn ? " is-scanning" : ""}`}
+          >
+            {cameraOn && (
+              <GuestCamera
+                deviceId={deviceId}
+                onDeviceChange={(id) => {
+                  setDeviceId(id);
+                  setCameraReady(false);
+                }}
+                onReady={() => setCameraReady(true)}
+                onError={cameraError}
+                onScan={(codes) => {
+                  const first = codes[0];
+                  if (first && !captured.current) accept(first.rawValue);
+                }}
+              />
+            )}
+            {!cameraOn && (
+              <div className="guest-qr-idle">
+                <div className="guest-qr-focus">
+                  <i />
+                  <i />
+                  <i />
+                  <i />
+                  <QrCode size={56} />
+                </div>
+              </div>
+            )}
+            <div className="guest-camera-status" role="status">
+              {busy ? (
+                <>
+                  <LoaderCircle size={15} />
+                  Reading image…
+                </>
+              ) : cameraOn ? (
+                cameraReady ? (
+                  "Keep the QR inside the frame"
+                ) : (
+                  "Connecting camera…"
+                )
+              ) : (
+                "Ready to scan"
+              )}
+            </div>
+          </div>
+          <p className="guest-qr-guide">
+            Use good lighting. Move the QR closer until it fills the frame,
+            keeping all four corners visible.
+          </p>
+          <div className="guest-scan-actions">
+            <button
+              type="button"
+              className="button button--dark"
+              onClick={cameraOn ? stop : start}
+              disabled={busy}
+            >
+              <Camera size={16} />
+              {cameraOn
+                ? "Stop camera"
+                : error
+                  ? "Retry camera"
+                  : "Start camera"}
+            </button>
+            <button
+              className="button"
+              type="button"
+              disabled={busy}
+              onClick={() => imageInput.current?.click()}
+            >
+              <ImagePlus size={16} />
+              Upload QR
+            </button>
+            <input
+              ref={imageInput}
+              hidden
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              disabled={busy}
+              onChange={(event) => {
+                void image(event.target.files?.[0]);
+                event.target.value = "";
+              }}
+            />
+          </div>
+          <form className="guest-scan-manual" onSubmit={submit}>
+            <label htmlFor="guest-reservation-link">
+              Or paste a reservation link
+            </label>
+            <input
+              id="guest-reservation-link"
+              value={link}
+              onChange={(event) => setLink(event.target.value)}
+              placeholder="https://…/manage?guest=0x…"
+              required
+            />
+            <button className="button" disabled={busy || !link.trim()}>
+              Read reservation
+            </button>
+          </form>
+          {error && (
+            <p className="form-error" role="alert">
+              {error}
+            </p>
+          )}
+        </>
       )}
     </EditorDialog>
   );
