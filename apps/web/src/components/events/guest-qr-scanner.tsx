@@ -44,6 +44,7 @@ export function GuestQrScanner({
   onClose: () => void;
 }) {
   const imageInput = useRef<HTMLInputElement>(null),
+    toast = useRef<HTMLDivElement>(null),
     mounted = useRef(true),
     captured = useRef(false),
     lastValue = useRef(""),
@@ -63,8 +64,14 @@ export function GuestQrScanner({
   }, []);
   useEffect(() => {
     if (!notice) return;
+    const notification = toast.current;
+    notification?.showPopover?.();
     const timer = setTimeout(() => setNotice(null), 5000);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      if (notification?.isConnected && notification.matches(":popover-open"))
+        notification.hidePopover();
+    };
   }, [notice]);
   async function finishCheckIn(wallet: string) {
     setBusy(true);
@@ -279,7 +286,13 @@ export function GuestQrScanner({
           </button>
         </form>
         {notice && (
-          <div className="guest-checkin-toast" role="status" aria-live="polite">
+          <div
+            ref={toast}
+            popover="manual"
+            className="guest-checkin-toast"
+            role="status"
+            aria-live="polite"
+          >
             <CheckCircle2 size={22} />
             <div>
               <strong>{notice.name} checked in</strong>

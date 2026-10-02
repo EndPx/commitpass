@@ -669,6 +669,8 @@
 }
 .guest-checkin-toast {
   position: fixed;
+  margin: 0;
+  inset: auto 24px 24px auto;
   right: 24px;
   bottom: 24px;
   z-index: 100;
