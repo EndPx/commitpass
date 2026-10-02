@@ -12,7 +12,7 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 export function Hero() {
   const root = useRef<HTMLElement>(null);
-  const [commitment, reward] = project.tagline.split(". ");
+  const [commitment, eventContext] = project.tagline.split(" for ");
   useGSAP(
     () => {
       const mm = gsap.matchMedia();
@@ -156,9 +156,9 @@ export function Hero() {
           GOOD PLANS DESERVE A FULL HOUSE.
         </p>
         <h1 id="hero-title">
-          {commitment}.
+          {commitment}
           <br />
-          <em>{reward}</em>
+          <em>for {eventContext}</em>
         </h1>
         <p className="hero-description">
           Create an event. Reserve a spot with a refundable deposit.

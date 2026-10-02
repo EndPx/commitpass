@@ -41,8 +41,8 @@ short emotional emphasis and selected posters. Fonts are self-hosted by Next.
 Type scale: 12, 13, 14, 16, 18, 20, 24, 32, 40, 56, 80, 96px. Hero fluid
 48–96px, tracking -0.065em, line-height 1.02. Section headings 36–64px.
 Body 16–18px, line-height 1.65. Eyebrows 12px with 0.12em tracking.
-The landing hero uses the shared project tagline: Commit to show up. Get
-rewarded when you do. Its second sentence retains the existing serif emphasis.
+The landing hero uses the shared project tagline: Onchain commitments for
+events. The words for events retain the existing serif emphasis.
 The small eyebrow reads Good plans deserve a full house. Page and Open Graph
 titles use the shared tagline. Compact heroes grow with text and reserve 96px
 below the copy for bottom navigation, avoiding collisions on short phones.
