@@ -4,7 +4,7 @@
 
 An event platform on Monad where guests reserve a spot with a refundable deposit and share rewards from people who don't show up.
 
-[Documentation source](docs/gitbook/README.md) · [Documentation contents](docs/gitbook/SUMMARY.md)
+[Live documentation](https://sama-3.gitbook.io/commitpass-docs/documentation/) · [Documentation source](docs/gitbook/README.md) · [Documentation contents](docs/gitbook/SUMMARY.md)
 
 Participants reserve a place by depositing a fixed commitment into an event contract. Organizers record attendance. At settlement, attendees become eligible to claim their commitment, half of forfeited no-show deposits, and all recovered yield. The other half of no-show commitments goes to CommitPass. Valid zero-attendance settlement refunds all depositors; a host cancellation before start opens full refunds. See [settlement policy](contracts/SETTLEMENT.md). The legacy deployment retains its immutable pre-policy behavior; the current USDC deployment includes the updated policy.
 

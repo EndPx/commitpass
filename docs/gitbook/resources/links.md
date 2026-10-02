@@ -11,7 +11,7 @@ description: Application links, implementation evidence and primary references.
 - [Completed demo event](https://commitpass-event.vercel.app/events/0x5f50ad692ee6e5196d7186b2a57c637e46b9e3a8)
 - [Source repository](https://github.com/EndPx/commitpass)
 - [Current deployment manifest](https://github.com/EndPx/commitpass/blob/main/packages/shared/src/deployments/monad-testnet.json)
-- [Live execution evidence](https://github.com/EndPx/commitpass/blob/main/cre/evidence/frontend-monad-broadcast-2026-10-01.json)
+- [Live execution evidence](https://github.com/EndPx/commitpass/blob/main/cre/evidence/frontend-direct-vault-2026-10-01.json)
 
 ## Network and faucets
 

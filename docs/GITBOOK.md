@@ -15,9 +15,26 @@ draft is not the publication source. A locally generated ZIP remains available
 as a portable source archive. Disable optional AI rewriting for any future import
 so exact addresses, transaction hashes and financial rules are preserved.
 
-The source and GitBook publication are separate states. Record the actual space
-and public site URLs here after the import and public page have been verified.
-Git Sync is not configured by adding these files.
+The source and GitBook publication are separate states. The new **CommitPass Docs**
+space is `Qj2n5Ncj6oUIdiZIiGiC`, attached to site `site_NQTJv` in the existing
+organization `LK8smR7zW0i2kkjHonHg`. Git Sync was configured for `EndPx/commitpass`,
+`main`, `docs/gitbook`, with GitHub as the initial source. The 19-page navigation,
+internal links and branded cover were verified in the GitBook preview.
+
+- Editor: <https://app.gitbook.com/o/LK8smR7zW0i2kkjHonHg/sites/site_NQTJv>
+- Preview: <https://app.gitbook.com/o/LK8smR7zW0i2kkjHonHg/sites/site_NQTJv/preview>
+- Public site: <https://sama-3.gitbook.io/commitpass-docs/>.
+- Documentation: <https://sama-3.gitbook.io/commitpass-docs/documentation/>.
+- Source refresh: `48e35a9`, 2 October 2026. Git Sync reported a successful
+  GitHub import and the current smart-contract content was read back through
+  the connected GitBook API.
+- Home application links were published through change request #3.
+- The GitBook API confirms this site is already published. Earlier security
+  errors are historical; the original ZIP-import draft is not the content source.
+
+Use the connected GitBook API with the existing site and spaces. Git Sync follows
+the configured repository automatically. Manual git-import calls are rejected
+when the space already has Git Sync configured. Do not create duplicate docs.
 
 ## Original cover artwork
 
@@ -34,7 +51,7 @@ modification. Its original provenance is recorded in `apps/web/public/brand/READ
 
 ## Branded cover revision
 
-The published cover uses `gitbook/assets/commitpass-community-v2.png`. It was edited
+The current cover uses `gitbook/assets/commitpass-community-v2.png`. It was edited
 with the built-in image tool using the original cover as the target and the actual
 application mark as the insert reference. The original file remains available.
 
