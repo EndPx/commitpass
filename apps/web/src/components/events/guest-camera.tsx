@@ -36,7 +36,7 @@ export default function GuestCamera({
           onError={onError}
           formats={["qr_code"]}
           scanDelay={350}
-          allowMultiple={false}
+          allowMultiple={true}
           sound={false}
           constraints={{
             facingMode: deviceId ? undefined : { ideal: "environment" },

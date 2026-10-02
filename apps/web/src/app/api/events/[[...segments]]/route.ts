@@ -63,6 +63,12 @@ export async function GET(request: Request, context: Context) {
     const [vault, resource, wallet] = segments;
     if (!vault || !address.test(vault) || segments.length > 3)
       throw new ApiError(404);
+    if (resource === "guest-profiles") {
+      const wallets = (query.get("wallets") ?? "").split(",");
+      if (wallets.length > 100 || wallets.some((item) => !address.test(item)))
+        throw new ApiError(400);
+      search.set("wallets", wallets.join(","));
+    }
     if (segments.length === 1) {
       const result = await apiRead<{ data: IndexedEvent }>(
         `/v1/events/${vault}`,

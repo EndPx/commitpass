@@ -667,3 +667,41 @@
   font-size: 24px;
   overflow-wrap: anywhere;
 }
+.guest-checkin-toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(360px, calc(100vw - 32px));
+  padding: 16px 20px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--white);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 12%);
+  color: var(--green);
+  pointer-events: none;
+}
+.guest-checkin-toast div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.guest-checkin-toast strong {
+  color: var(--ink);
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+.guest-checkin-toast span {
+  color: var(--muted);
+  font-size: 12px;
+}
+@media (max-width: 600px) {
+  .guest-checkin-toast {
+    top: max(16px, env(safe-area-inset-top));
+    right: 16px;
+    bottom: auto;
+  }
+}

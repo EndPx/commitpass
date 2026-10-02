@@ -377,12 +377,12 @@ remain visible, editor rows wrap and table scrolling is confined to the table.
 Camera scanning follows ATFi-Event/frontend QRScanner.tsx at commit
 5117e73b667f23f72a615ee004f9daa7797f1c84: use its locked
 @yudiel/react-qr-scanner 2.4.0 camera engine and finder, QR-only detection,
-single-result pause and scan-again state. Keep CommitPass's event/wallet URL
+continuous scanning and per-pass duplicate suppression. Keep CommitPass's event/wallet URL
 validation and owner-authorized automatic attendance recording. Mount the scanner only after
 Start camera, prefer rear-facing 1280x720 capture, expose available camera
 selection and supported zoom/torch controls. Show a square focused viewport,
 dimmed area around a clear finder, camera-ready status and legible placement
-guidance. Stop capture by unmounting it on close, error or recognition. A read
+guidance. Stop capture by unmounting it on close, camera error or explicit Stop. A read
 shows the guest name after the check-in API confirms attendance; do not claim
 check-in from a decoded QR alone. QR pass raster resolution is 512px with a 4-module quiet border and
 an enlarged-view action so a dense reservation URL can be presented clearly.
@@ -447,8 +447,10 @@ typography, borders, surfaces and palette; never copy Luma branding or portraits
 ## Guest recognition and mobile vault disclosure
 
 QR recognition automatically requests attendance through the existing owner-only
-check-in endpoint. Stop capture on recognition; show Checking in while the API
-runs and Guest checked in only after its successful response. Duplicate scans
+check-in endpoint. Keep capture active on recognition; show Checking reservation
+while the API runs and a name-based success notification only after its successful response.
+Place notifications at bottom-right on desktop and at the safe-area top on mobile,
+expire after 5 seconds and keep the scanner ready for the next guest. Duplicate scans
 reuse the existing record. Closed windows and unregistered passes show an error
 with retry, never a successful check-in. Use chosen profile names as the primary
 identity in the scan result and participant table. Resolve names from verified,

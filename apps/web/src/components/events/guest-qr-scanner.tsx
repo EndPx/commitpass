@@ -37,40 +37,43 @@ function reservationWallet(text: string, vault: string) {
 export function GuestQrScanner({
   vault,
   onCheckIn,
-  onGuest,
   onClose,
 }: {
   vault: string;
   onCheckIn: (wallet: string) => Promise<{ name: string }>;
-  onGuest: (wallet: string) => void;
   onClose: () => void;
 }) {
   const imageInput = useRef<HTMLInputElement>(null),
     mounted = useRef(true),
-    captured = useRef(false);
+    captured = useRef(false),
+    lastValue = useRef(""),
+    completed = useRef(new Set<string>());
   const [cameraOn, setCameraOn] = useState(false),
     [cameraReady, setCameraReady] = useState(false),
     [deviceId, setDeviceId] = useState("");
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
-    [link, setLink] = useState(""),
-    [found, setFound] = useState("");
-  const [guestName, setGuestName] = useState(""),
-    [checkedIn, setCheckedIn] = useState(false);
+    [link, setLink] = useState("");
+  const [notice, setNotice] = useState<{ name: string } | null>(null);
   useEffect(() => {
     mounted.current = true;
     return () => {
       mounted.current = false;
     };
   }, []);
+  useEffect(() => {
+    if (!notice) return;
+    const timer = setTimeout(() => setNotice(null), 5000);
+    return () => clearTimeout(timer);
+  }, [notice]);
   async function finishCheckIn(wallet: string) {
     setBusy(true);
     setError("");
     try {
       const result = await onCheckIn(wallet);
       if (mounted.current) {
-        setGuestName(result.name);
-        setCheckedIn(true);
+        completed.current.add(wallet.toLowerCase());
+        setNotice(result);
       }
     } catch (value) {
       if (mounted.current)
@@ -81,16 +84,19 @@ export function GuestQrScanner({
         );
     } finally {
       if (mounted.current) setBusy(false);
+      captured.current = false;
     }
   }
   async function accept(text: string) {
-    if (captured.current) return;
+    if (captured.current || lastValue.current === text) return;
+    lastValue.current = text;
     captured.current = true;
-    setCameraOn(false);
-    setCameraReady(false);
     try {
       const wallet = reservationWallet(text, vault);
-      setFound(wallet);
+      if (completed.current.has(wallet.toLowerCase())) {
+        captured.current = false;
+        return;
+      }
       setError("");
       await finishCheckIn(wallet);
     } catch (value) {
@@ -99,13 +105,12 @@ export function GuestQrScanner({
           ? value.message
           : "Could not read this reservation.",
       );
+      captured.current = false;
     }
   }
   function start() {
     captured.current = false;
-    setFound("");
-    setGuestName("");
-    setCheckedIn(false);
+    lastValue.current = "";
     setError("");
     setCameraReady(false);
     setCameraOn(true);
@@ -144,7 +149,7 @@ export function GuestQrScanner({
     }
     stop();
     captured.current = false;
-    setFound("");
+    lastValue.current = "";
     setBusy(true);
     setError("");
     const url = URL.createObjectURL(file);
@@ -164,184 +169,140 @@ export function GuestQrScanner({
   }
   function submit(form: FormEvent) {
     form.preventDefault();
-    captured.current = false;
+    if (captured.current) return;
+    lastValue.current = "";
     void accept(link.trim());
   }
   return (
     <EditorDialog
       title="Scan guest QR"
-      description="Center the reservation QR inside the frame. A valid pass checks the guest in automatically."
+      description="Keep the QR inside the frame. Guests check in automatically; the camera stays ready for the next pass."
       icon={<ScanLine size={24} />}
       onClose={onClose}
-      busy={busy}
+      busy={false}
     >
-      {found ? (
-        <div className="guest-scan-result" role="status">
-          {busy ? (
-            <LoaderCircle size={36} />
-          ) : checkedIn ? (
-            <CheckCircle2 size={36} />
-          ) : (
-            <QrCode size={36} />
-          )}
-          <h3>
-            {busy
-              ? "Checking in…"
-              : checkedIn
-                ? "Guest checked in"
-                : "Check-in unsuccessful"}
-          </h3>
-          {checkedIn && (
-            <strong className="guest-scan-name">{guestName}</strong>
-          )}
-          <p>
-            {busy
-              ? "Matching the reservation and recording attendance."
-              : checkedIn
-                ? "Attendance is recorded. You can scan the next guest."
-                : "The pass was read, but attendance has not been recorded."}
-          </p>
-          {error && (
-            <p className="form-error" role="alert">
-              {error}
-            </p>
-          )}
-          {!checkedIn && !busy && (
-            <button
-              className="button button--dark"
-              onClick={() => void finishCheckIn(found)}
-            >
-              Retry check-in
-            </button>
-          )}
-          {checkedIn && (
-            <button
-              className="button"
-              onClick={() => {
-                onGuest(found);
-                onClose();
+      <>
+        <div
+          className={`guest-camera-frame guest-camera-frame--focused${cameraOn ? " is-scanning" : ""}`}
+        >
+          {cameraOn && (
+            <GuestCamera
+              deviceId={deviceId}
+              onDeviceChange={(id) => {
+                setDeviceId(id);
+                setCameraReady(false);
               }}
-            >
-              View participant
-            </button>
+              onReady={() => setCameraReady(true)}
+              onError={cameraError}
+              onScan={(codes) => {
+                const first = codes[0];
+                if (first && !captured.current) void accept(first.rawValue);
+              }}
+            />
           )}
-          <button
-            className={checkedIn ? "button button--dark" : "auth-text-button"}
-            disabled={busy}
-            onClick={start}
-          >
-            Scan another QR
-          </button>
-        </div>
-      ) : (
-        <>
-          <div
-            className={`guest-camera-frame guest-camera-frame--focused${cameraOn ? " is-scanning" : ""}`}
-          >
-            {cameraOn && (
-              <GuestCamera
-                deviceId={deviceId}
-                onDeviceChange={(id) => {
-                  setDeviceId(id);
-                  setCameraReady(false);
-                }}
-                onReady={() => setCameraReady(true)}
-                onError={cameraError}
-                onScan={(codes) => {
-                  const first = codes[0];
-                  if (first && !captured.current) void accept(first.rawValue);
-                }}
-              />
-            )}
-            {!cameraOn && (
-              <div className="guest-qr-idle">
-                <div className="guest-qr-focus">
-                  <i />
-                  <i />
-                  <i />
-                  <i />
-                  <QrCode size={56} />
-                </div>
+          {!cameraOn && (
+            <div className="guest-qr-idle">
+              <div className="guest-qr-focus">
+                <i />
+                <i />
+                <i />
+                <i />
+                <QrCode size={56} />
               </div>
-            )}
-            <div className="guest-camera-status" role="status">
-              {busy ? (
-                <>
-                  <LoaderCircle size={15} />
-                  Reading image…
-                </>
-              ) : cameraOn ? (
-                cameraReady ? (
-                  "Keep the QR inside the frame"
-                ) : (
-                  "Connecting camera…"
-                )
+            </div>
+          )}
+          <div className="guest-camera-status" role="status">
+            {busy ? (
+              <>
+                <LoaderCircle size={15} />
+                Reading image…
+              </>
+            ) : cameraOn ? (
+              cameraReady ? (
+                "Keep the QR inside the frame"
               ) : (
-                "Ready to scan"
-              )}
+                "Connecting camera…"
+              )
+            ) : (
+              "Ready to scan"
+            )}
+          </div>
+        </div>
+        <p className="guest-qr-guide">
+          Use good lighting. Move the QR closer until it fills the frame,
+          keeping all four corners visible.
+        </p>
+        <div className="guest-scan-actions">
+          <button
+            type="button"
+            className="button button--dark"
+            onClick={cameraOn ? stop : start}
+            disabled={busy}
+          >
+            <Camera size={16} />
+            {cameraOn ? "Stop camera" : error ? "Retry camera" : "Start camera"}
+          </button>
+          <button
+            className="button"
+            type="button"
+            disabled={busy}
+            onClick={() => imageInput.current?.click()}
+          >
+            <ImagePlus size={16} />
+            Upload QR
+          </button>
+          <input
+            ref={imageInput}
+            hidden
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            disabled={busy}
+            onChange={(event) => {
+              void image(event.target.files?.[0]);
+              event.target.value = "";
+            }}
+          />
+        </div>
+        <form className="guest-scan-manual" onSubmit={submit}>
+          <label htmlFor="guest-reservation-link">
+            Or paste a reservation link
+          </label>
+          <input
+            id="guest-reservation-link"
+            value={link}
+            onChange={(event) => setLink(event.target.value)}
+            placeholder="https://…/manage?guest=0x…"
+            required
+          />
+          <button className="button" disabled={busy || !link.trim()}>
+            Read reservation
+          </button>
+        </form>
+        {notice && (
+          <div className="guest-checkin-toast" role="status" aria-live="polite">
+            <CheckCircle2 size={22} />
+            <div>
+              <strong>{notice.name} checked in</strong>
+              <span>Ready for the next guest</span>
             </div>
           </div>
-          <p className="guest-qr-guide">
-            Use good lighting. Move the QR closer until it fills the frame,
-            keeping all four corners visible.
-          </p>
-          <div className="guest-scan-actions">
+        )}
+        {error && (
+          <div className="form-error" role="alert">
+            <p>{error}</p>
             <button
-              type="button"
-              className="button button--dark"
-              onClick={cameraOn ? stop : start}
+              className="auth-text-button"
               disabled={busy}
-            >
-              <Camera size={16} />
-              {cameraOn
-                ? "Stop camera"
-                : error
-                  ? "Retry camera"
-                  : "Start camera"}
-            </button>
-            <button
-              className="button"
-              type="button"
-              disabled={busy}
-              onClick={() => imageInput.current?.click()}
-            >
-              <ImagePlus size={16} />
-              Upload QR
-            </button>
-            <input
-              ref={imageInput}
-              hidden
-              type="file"
-              accept="image/png,image/jpeg,image/webp"
-              disabled={busy}
-              onChange={(event) => {
-                void image(event.target.files?.[0]);
-                event.target.value = "";
+              onClick={() => {
+                lastValue.current = "";
+                setError("");
               }}
-            />
-          </div>
-          <form className="guest-scan-manual" onSubmit={submit}>
-            <label htmlFor="guest-reservation-link">
-              Or paste a reservation link
-            </label>
-            <input
-              id="guest-reservation-link"
-              value={link}
-              onChange={(event) => setLink(event.target.value)}
-              placeholder="https://…/manage?guest=0x…"
-              required
-            />
-            <button className="button" disabled={busy || !link.trim()}>
-              Read reservation
+            >
+              Try this QR again
             </button>
-          </form>
-          {error && (
-            <p className="form-error" role="alert">
-              {error}
-            </p>
-          )}
-        </>
-      )}
+          </div>
+        )}
+      </>
     </EditorDialog>
   );
 }

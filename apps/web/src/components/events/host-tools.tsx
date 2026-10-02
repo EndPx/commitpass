@@ -462,10 +462,6 @@ function ParticipantsPanel({ event }: { event: EventSummary }) {
             return { name };
           }}
           onClose={() => setScanOpen(false)}
-          onGuest={(wallet) => {
-            setFilter("all");
-            setSearch(wallet);
-          }}
         />
       )}
     </section>
