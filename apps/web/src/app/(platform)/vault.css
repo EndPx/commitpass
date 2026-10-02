@@ -284,3 +284,39 @@
     margin-top: 0;
   }
 }
+.vault-mobile-toggle,
+.vault-mobile-summary {
+  display: none;
+}
+@media (max-width: 600px) {
+  .vault-mobile-toggle {
+    display: grid;
+    place-items: center;
+    min-width: 44px;
+    min-height: 44px;
+    margin: -12px -12px -12px 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .vault-mobile-toggle[aria-expanded="true"] svg {
+    transform: rotate(180deg);
+  }
+  .vault-mobile-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 20px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .vault-mobile-summary strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .vault-details:not(.is-expanded) {
+    display: none;
+  }
+}

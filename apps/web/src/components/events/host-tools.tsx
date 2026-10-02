@@ -93,6 +93,16 @@ function ParticipantsPanel({ event }: { event: EventSummary }) {
   const { getAccessToken } = usePrivy();
   const [participants, setParticipants] = useState<IndexedParticipant[]>([]),
     [checked, setChecked] = useState<string[]>([]);
+  const [names, setNames] = useState<Record<string, string>>({});
+  async function guestNames(wallets: string[], token: string) {
+    if (!wallets.length) return {};
+    const result = await jsonRequest<{ names: Record<string, string> }>(
+      `/api/events/${event.vault}/guest-profiles?wallets=${encodeURIComponent(wallets.join(","))}`,
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+    setNames((current) => ({ ...current, ...result.names }));
+    return result.names;
+  }
   const [cursor, setCursor] = useState<string | null>(null),
     [indexedStatus, setIndexedStatus] = useState("");
   const [loaded, setLoaded] = useState(false),
@@ -152,6 +162,10 @@ function ParticipantsPanel({ event }: { event: EventSummary }) {
       setChecked(attendance.checkIns.map((item) => item.wallet.toLowerCase()));
       setLoaded(true);
       setIndexedStatus(indexed.data.status);
+      await guestNames(
+        people.data.map((person) => person.wallet),
+        token,
+      );
     } catch (value) {
       setError(
         value instanceof Error ? value.message : "Could not load participants.",
@@ -180,7 +194,9 @@ function ParticipantsPanel({ event }: { event: EventSummary }) {
       setChecked((current) => [
         ...new Set([...current, person.wallet.toLowerCase()]),
       ]);
-      setMessage(`${shorten(person.wallet)} checked in.`);
+      setMessage(
+        `${names[person.wallet.toLowerCase()] || "Guest"} checked in.`,
+      );
     } catch (value) {
       setError(
         value instanceof Error ? value.message : "Could not record attendance.",
@@ -196,7 +212,10 @@ function ParticipantsPanel({ event }: { event: EventSummary }) {
       : checked.includes(person.wallet.toLowerCase()) || person.attended;
   const visible = participants.filter(
     (person) =>
-      person.wallet.toLowerCase().includes(search.trim().toLowerCase()) &&
+      (person.wallet.toLowerCase().includes(search.trim().toLowerCase()) ||
+        (names[person.wallet.toLowerCase()] || "")
+          .toLowerCase()
+          .includes(search.trim().toLowerCase())) &&
       (filter === "all" ||
         (filter === "checked" ? isPresent(person) : !isPresent(person))),
   );
@@ -224,10 +243,10 @@ function ParticipantsPanel({ event }: { event: EventSummary }) {
           <Search size={17} />
           <input
             type="search"
-            aria-label="Search participant wallet"
+            aria-label="Search participant name or wallet"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search wallet address"
+            placeholder="Search name or wallet"
           />
         </label>
         <select
@@ -269,7 +288,7 @@ function ParticipantsPanel({ event }: { event: EventSummary }) {
         <table className="participant-table">
           <thead>
             <tr>
-              <th>Participant wallet</th>
+              <th>Participant</th>
               <th>Commitment</th>
               <th>Attendance</th>
               <th>Return</th>
@@ -293,11 +312,18 @@ function ParticipantsPanel({ event }: { event: EventSummary }) {
                   <td>
                     <div className="participant-wallet">
                       <span className="host-avatar" aria-hidden="true">
-                        {person.wallet.slice(2, 3).toUpperCase()}
+                        {(names[person.wallet.toLowerCase()] || "Guest")
+                          .slice(0, 1)
+                          .toUpperCase()}
                       </span>
-                      <code title={person.wallet}>
-                        {shorten(person.wallet)}
-                      </code>
+                      <div className="participant-identity">
+                        <strong>
+                          {names[person.wallet.toLowerCase()] || "Guest"}
+                        </strong>
+                        <code title={person.wallet}>
+                          {shorten(person.wallet)}
+                        </code>
+                      </div>
                       <button
                         aria-label={`Copy wallet ${shorten(person.wallet)}`}
                         onClick={async () => {
@@ -381,7 +407,7 @@ function ParticipantsPanel({ event }: { event: EventSummary }) {
                       {search || filter !== "all"
                         ? cursor
                           ? "Load more participants or clear your filters."
-                          : "Try another wallet or clear your filters."
+                          : "Try another name or wallet, or clear your filters."
                         : "Guests will appear here after their commitment is confirmed."}
                     </p>
                     {(search || filter !== "all") && (
@@ -417,13 +443,28 @@ function ParticipantsPanel({ event }: { event: EventSummary }) {
       {scanOpen && (
         <QrScanner
           vault={event.vault}
+          onCheckIn={async (wallet) => {
+            const token = await getAccessToken();
+            if (!token) throw new Error("Please sign in again.");
+            const profile = await guestNames([wallet], token);
+            const name = profile[wallet.toLowerCase()] || "Guest";
+            await jsonRequest(
+              `/api/events/${event.vault}/check-ins/${wallet}`,
+              {
+                method: "PUT",
+                headers: { Authorization: `Bearer ${token}` },
+              },
+            );
+            setChecked((current) => [
+              ...new Set([...current, wallet.toLowerCase()]),
+            ]);
+            setMessage(`${name} checked in.`);
+            return { name };
+          }}
           onClose={() => setScanOpen(false)}
           onGuest={(wallet) => {
             setFilter("all");
             setSearch(wallet);
-            setMessage(
-              "Pass read. Confirm the matching reservation with Check in.",
-            );
           }}
         />
       )}

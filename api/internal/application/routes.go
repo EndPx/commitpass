@@ -71,6 +71,7 @@ func Register(mux *http.ServeMux) (func(), error) {
 	mux.HandleFunc("GET /v1/events/{vault}/metadata", s.metadata)
 	mux.Handle("PUT /v1/events/{vault}/metadata", s.authenticated(http.HandlerFunc(s.saveMetadata)))
 	mux.Handle("GET /v1/events/{vault}/check-ins", s.authenticated(http.HandlerFunc(s.checkIns)))
+	mux.Handle("GET /v1/events/{vault}/guest-profiles", s.authenticated(http.HandlerFunc(s.guestProfiles)))
 	mux.Handle("PUT /v1/events/{vault}/check-ins/{wallet}", s.authenticated(http.HandlerFunc(s.checkIn)))
 	mux.HandleFunc("GET /v1/attendance-snapshots/{chainId}/{vault}/{eventId}/{cutoff}", s.snapshot)
 	mux.HandleFunc("POST /v1/attendance-snapshots/{chainId}/{vault}/{eventId}/{cutoff}", s.snapshot)

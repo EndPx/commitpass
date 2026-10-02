@@ -647,3 +647,23 @@
   border-radius: 12px;
   image-rendering: pixelated;
 }
+.participant-identity {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.participant-identity strong {
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.participant-identity code {
+  color: var(--muted);
+  font-size: 11px;
+}
+.guest-scan-name {
+  display: block;
+  margin: 16px 0;
+  font-size: 24px;
+  overflow-wrap: anywhere;
+}

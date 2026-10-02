@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePrivy, useSendTransaction, useWallets } from "@privy-io/react-auth";
-import { encodeFunctionData, type Hash } from "viem";
+import { encodeFunctionData, formatEther, type Hash } from "viem";
 import {
   eventVaultAbi,
   MONAD_TESTNET,
@@ -148,9 +148,29 @@ export function HostManagement({
           functionName,
         });
       }
+      const signer = wallet.address as `0x${string}`;
+      const [estimate, gasPrice, balance] = await Promise.all([
+        chainClient.estimateGas({ account: signer, to, data, value: 0n }),
+        chainClient.getGasPrice(),
+        chainClient.getBalance({ address: signer }),
+      ]);
+      const gasLimit = (estimate * 120n + 99n) / 100n;
+      if (balance < gasLimit * gasPrice)
+        throw new Error(
+          `Your organizer wallet needs about ${formatEther(gasLimit * gasPrice)} MON for gas. Use the faucet to add test MON, then retry.`,
+        );
       setMessage("Confirm this request in your wallet.");
       const tx = await sendTransaction(
-        { to, chainId: MONAD_TESTNET.chainId, data },
+        {
+          from: signer,
+          to,
+          chainId: MONAD_TESTNET.chainId,
+          data,
+          value: 0n,
+          gasLimit,
+          gasPrice,
+          type: 0,
+        },
         { address: wallet.address, uiOptions: { showWalletUIs: true } },
       );
       setPending(tx.hash);

@@ -378,13 +378,13 @@ Camera scanning follows ATFi-Event/frontend QRScanner.tsx at commit
 5117e73b667f23f72a615ee004f9daa7797f1c84: use its locked
 @yudiel/react-qr-scanner 2.4.0 camera engine and finder, QR-only detection,
 single-result pause and scan-again state. Keep CommitPass's event/wallet URL
-validation and explicit attendance confirmation. Mount the scanner only after
+validation and owner-authorized automatic attendance recording. Mount the scanner only after
 Start camera, prefer rear-facing 1280x720 capture, expose available camera
 selection and supported zoom/torch controls. Show a square focused viewport,
 dimmed area around a clear finder, camera-ready status and legible placement
 guidance. Stop capture by unmounting it on close, error or recognition. A read
-shows the wallet with View participant; do not claim check-in from a decoded
-QR alone. QR pass raster resolution is 512px with a 4-module quiet border and
+shows the guest name after the check-in API confirms attendance; do not claim
+check-in from a decoded QR alone. QR pass raster resolution is 512px with a 4-module quiet border and
 an enlarged-view action so a dense reservation URL can be presented clearly.
 
 ### Vault insights
@@ -443,3 +443,18 @@ The welcome is user-dismissed, without a forced timer. Entrance is opacity/y12px
 over 450ms; reduced motion renders the complete state immediately. Keep dark
 mode, focus rings, error/retry states, and 44px targets throughout. Reuse existing
 typography, borders, surfaces and palette; never copy Luma branding or portraits.
+
+## Guest recognition and mobile vault disclosure
+
+QR recognition automatically requests attendance through the existing owner-only
+check-in endpoint. Stop capture on recognition; show Checking in while the API
+runs and Guest checked in only after its successful response. Duplicate scans
+reuse the existing record. Closed windows and unregistered passes show an error
+with retry, never a successful check-in. Use chosen profile names as the primary
+identity in the scan result and participant table. Resolve names from verified,
+active wallet links with completed profiles through an organizer-only lookup;
+never use email or untrusted QR text as a display name. Missing profiles use Guest.
+Wallet addresses remain secondary in the table; search matches names or wallets.
+At widths up to 600px, the vault begins collapsed with Event vault, Envio and
+Spots committed count. A 44px disclosure button exposes its existing details,
+announces expanded state and references the detail region. Desktop stays expanded.

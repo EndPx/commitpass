@@ -88,14 +88,20 @@ export async function GET(request: Request, context: Context) {
     }
     if (
       wallet ||
-      !["metadata", "participants", "activity", "check-ins"].includes(
-        resource ?? "",
-      )
+      ![
+        "metadata",
+        "participants",
+        "activity",
+        "check-ins",
+        "guest-profiles",
+      ].includes(resource ?? "")
     )
       throw new ApiError(404);
     const result = await apiRead(
       `/v1/events/${vault}/${resource}?${search}`,
-      resource === "check-ins" ? { token: bearer(request) } : {},
+      resource === "check-ins" || resource === "guest-profiles"
+        ? { token: bearer(request) }
+        : {},
     );
     return NextResponse.json(result, { headers });
   } catch (error) {

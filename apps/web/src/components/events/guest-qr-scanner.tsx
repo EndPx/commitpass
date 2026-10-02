@@ -36,10 +36,12 @@ function reservationWallet(text: string, vault: string) {
 
 export function GuestQrScanner({
   vault,
+  onCheckIn,
   onGuest,
   onClose,
 }: {
   vault: string;
+  onCheckIn: (wallet: string) => Promise<{ name: string }>;
   onGuest: (wallet: string) => void;
   onClose: () => void;
 }) {
@@ -53,20 +55,44 @@ export function GuestQrScanner({
     [error, setError] = useState(""),
     [link, setLink] = useState(""),
     [found, setFound] = useState("");
+  const [guestName, setGuestName] = useState(""),
+    [checkedIn, setCheckedIn] = useState(false);
   useEffect(() => {
     mounted.current = true;
     return () => {
       mounted.current = false;
     };
   }, []);
-  function accept(text: string) {
+  async function finishCheckIn(wallet: string) {
+    setBusy(true);
+    setError("");
+    try {
+      const result = await onCheckIn(wallet);
+      if (mounted.current) {
+        setGuestName(result.name);
+        setCheckedIn(true);
+      }
+    } catch (value) {
+      if (mounted.current)
+        setError(
+          value instanceof Error
+            ? value.message
+            : "Could not check in this guest. Try again.",
+        );
+    } finally {
+      if (mounted.current) setBusy(false);
+    }
+  }
+  async function accept(text: string) {
     if (captured.current) return;
     captured.current = true;
     setCameraOn(false);
     setCameraReady(false);
     try {
-      setFound(reservationWallet(text, vault));
+      const wallet = reservationWallet(text, vault);
+      setFound(wallet);
       setError("");
+      await finishCheckIn(wallet);
     } catch (value) {
       setError(
         value instanceof Error
@@ -78,6 +104,8 @@ export function GuestQrScanner({
   function start() {
     captured.current = false;
     setFound("");
+    setGuestName("");
+    setCheckedIn(false);
     setError("");
     setCameraReady(false);
     setCameraOn(true);
@@ -123,7 +151,7 @@ export function GuestQrScanner({
     try {
       const { BrowserQRCodeReader } = await import("@zxing/browser");
       const result = await new BrowserQRCodeReader().decodeFromImageUrl(url);
-      if (mounted.current) accept(result.getText());
+      if (mounted.current) await accept(result.getText());
     } catch {
       if (mounted.current)
         setError(
@@ -137,31 +165,71 @@ export function GuestQrScanner({
   function submit(form: FormEvent) {
     form.preventDefault();
     captured.current = false;
-    accept(link.trim());
+    void accept(link.trim());
   }
   return (
     <EditorDialog
       title="Scan guest QR"
-      description="Center the reservation QR inside the frame. Hold it steady until it’s read."
+      description="Center the reservation QR inside the frame. A valid pass checks the guest in automatically."
       icon={<ScanLine size={24} />}
       onClose={onClose}
+      busy={busy}
     >
       {found ? (
         <div className="guest-scan-result" role="status">
-          <CheckCircle2 size={36} />
-          <h3>Reservation QR read</h3>
-          <p>Check the matching participant before confirming attendance.</p>
-          <code>{found}</code>
+          {busy ? (
+            <LoaderCircle size={36} />
+          ) : checkedIn ? (
+            <CheckCircle2 size={36} />
+          ) : (
+            <QrCode size={36} />
+          )}
+          <h3>
+            {busy
+              ? "Checking in…"
+              : checkedIn
+                ? "Guest checked in"
+                : "Check-in unsuccessful"}
+          </h3>
+          {checkedIn && (
+            <strong className="guest-scan-name">{guestName}</strong>
+          )}
+          <p>
+            {busy
+              ? "Matching the reservation and recording attendance."
+              : checkedIn
+                ? "Attendance is recorded. You can scan the next guest."
+                : "The pass was read, but attendance has not been recorded."}
+          </p>
+          {error && (
+            <p className="form-error" role="alert">
+              {error}
+            </p>
+          )}
+          {!checkedIn && !busy && (
+            <button
+              className="button button--dark"
+              onClick={() => void finishCheckIn(found)}
+            >
+              Retry check-in
+            </button>
+          )}
+          {checkedIn && (
+            <button
+              className="button"
+              onClick={() => {
+                onGuest(found);
+                onClose();
+              }}
+            >
+              View participant
+            </button>
+          )}
           <button
-            className="button button--dark"
-            onClick={() => {
-              onGuest(found);
-              onClose();
-            }}
+            className={checkedIn ? "button button--dark" : "auth-text-button"}
+            disabled={busy}
+            onClick={start}
           >
-            View participant
-          </button>
-          <button className="auth-text-button" onClick={start}>
             Scan another QR
           </button>
         </div>
@@ -181,7 +249,7 @@ export function GuestQrScanner({
                 onError={cameraError}
                 onScan={(codes) => {
                   const first = codes[0];
-                  if (first && !captured.current) accept(first.rawValue);
+                  if (first && !captured.current) void accept(first.rawValue);
                 }}
               />
             )}
