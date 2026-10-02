@@ -30,10 +30,10 @@ In normal settlement, 50% of forfeited no-show principal goes to CommitPass and 
 
 ## Current release
 
-The app runs on **Monad testnet** with Circle’s native testnet USDC. The frontend is hosted on Vercel. The Go API, Envio indexer and recurring CRE CLI simulation run on a VPS. CRE simulations broadcast actual start and settlement transactions through a signed receiver.
+The app runs on **Monad testnet** with Circle’s native testnet USDC. The frontend is hosted on Vercel. The Go API and recurring CRE CLI simulation run on a VPS. Envio is hosted and provides indexed GraphQL reads. CRE broadcasts start and settlement reports through the MockForwarder directly to each event vault.
 
 A one-attendee journey completed through the live frontend and Privy, including creation, deposit, host check-in, CRE execution and claim. [Live execution](deployments/live-execution.md) contains the confirmed receipts and accounting.
 
 Testnet tokens have no financial value. The current yield source is a mock ERC-4626 vault. [Deployment status](deployments/status.md) explains the remaining boundaries, including DON deployment and organic yield.
 
-[Open the app](https://commitpass-kappa.vercel.app/) · [Discover events](https://commitpass-kappa.vercel.app/discover) · [Source](https://github.com/EndPx/commitpass)
+[Open the app](https://commitpass-event.vercel.app/) · [Discover events](https://commitpass-event.vercel.app/discover) · [Source](https://github.com/EndPx/commitpass)

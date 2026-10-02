@@ -4,57 +4,56 @@ description: The application, financial contracts and data services around one e
 
 # System architecture
 
-CommitPass separates financial execution, attendance records and indexed read models.
+CommitPass separates financial execution, attendance records and indexed reads.
 
 ```mermaid
 flowchart TB
-    Guest[Guest or host] --> Web[Next.js app on Vercel]
-    Web --> Privy[Privy authentication and wallet signing]
-    Privy --> Chain[Monad testnet contracts]
+    User[Guest or organizer] --> Web[Next.js app on Vercel]
+    Web --> Privy[Privy authentication and signing]
+    Privy --> Vault[Monad event vault and CRE consumer]
+    Factory[Monad factory] --> Vault
     Web --> API[Go API on VPS]
-    API --> AppDB[Neon application data]
-    Chain --> Envio[Envio HyperIndex on VPS]
-    Envio --> IndexDB[Neon indexed chain data]
-    IndexDB --> API
-    Timer[VPS timer] --> CRE[CRE CLI simulation with broadcast]
+    API --> AppDB[Neon application records]
+    Factory --> Envio[Hosted Envio HyperIndex]
+    Vault --> Envio
+    Envio --> GraphQL[Hosted indexed GraphQL]
+    GraphQL --> API
+    Timer[VPS timer] --> CRE[CRE CLI broadcast simulation]
     CRE --> API
-    CRE --> Receiver[Signed simulation receiver]
-    Receiver --> Chain
+    CRE --> Forwarder[Simulation MockForwarder]
+    Forwarder --> Vault
 ```
 
 ## Financial execution
 
-The factory creates a dedicated vault for each event. Guests deposit USDC directly into that vault. The automation receiver applies authorized start and settlement reports. The vault redeems yield shares, fixes claim allocations and transfers participant claims.
+The factory creates a dedicated vault per event. Guests deposit directly into it. The same vault receives authenticated CRE reports, supplies or redeems yield shares, fixes allocations and transfers claims. There is no separate lifecycle automation contract in the active deployment.
 
-Wallet transactions are signed through Privy. The Go API does not hold participant private keys or replace participant signatures.
+Privy provides authentication and wallet signing. The Go API does not hold participant private keys or replace participant signatures.
 
 ## Attendance and metadata
 
-The Go API manages descriptions, account synchronization, check-ins and frozen attendance snapshots in Neon application tables. These writes require the relevant identity and ownership checks.
+The Go API stores chosen display names, descriptions, covers, themes, check-ins and immutable snapshots in Neon. Organizer writes require verified identity and current event ownership. QR scanning automatically requests check-in; the API enforces deposited membership and the attendance window.
 
-Descriptions and covers enrich an onchain event. They do not determine financial truth. A saved database row is not a deposit, settlement or payout receipt.
+A metadata row is not proof of deposit, settlement or payout.
 
-## Indexed read model
+## Indexed reads
 
-Envio discovers event vaults from the factory, consumes their contract logs and writes the indexed state into a separate database/schema. The Go API reads that state for event discovery, participants, profiles and activity.
+The active indexer is hosted in the EndPx Envio organization. It discovers vaults from factory logs and materializes events, participants, allocations, claims and activity. The Go API reads hosted GraphQL. The earlier self-hosted indexer is stopped.
 
-The active testnet namespace is `envio_usdc_simulation`. Earlier namespaces are preserved and are not combined into current USDC financial totals.
+Profiles and vault cards use indexed records. Financial actions also read current contract state. An allocation is distinct from a completed payout.
 
-## Automation runtime
+## CRE runtime
 
-The current VPS timer repeatedly invokes the cron callback through CRE CLI simulation with `--broadcast`. The workflow has a finalized EVM log callback for organizer lifecycle requests as well. Both callbacks use the same event-processing logic.
+A VPS timer invokes CRE CLI simulation with broadcast. Cron reads bounded factory batches and an EVM log callback processes organizer requests. Both share lifecycle processing. Reports travel through the MockForwarder directly to the event vault.
 
-The runtime reads Monad testnet RPC and the HTTPS attendance API. The signed simulation receiver supplies a specific testnet authorization path while DON deployment remains deferred.
+This is real Monad testnet execution through signed simulation. A Workflow DON deployment and organic yield are not active.
 
-## Deployment split
+| Component | Hosting |
+| --- | --- |
+| Frontend | Vercel |
+| API and CRE CLI timer | VPS |
+| Application records | Neon |
+| Active indexer and indexed GraphQL | Hosted Envio |
+| Factory, event vaults and mock yield source | Monad testnet |
 
-| Component                      | Hosting           |
-| ------------------------------ | ----------------- |
-| Next.js frontend               | Vercel            |
-| Go API                         | VPS, behind HTTPS |
-| Envio indexer                  | VPS               |
-| CRE CLI simulation timer       | VPS               |
-| Application and indexed tables | Neon PostgreSQL   |
-| Event contracts and USDC       | Monad testnet     |
-
-The frontend uses its Vercel URL. The API has a separate HTTPS domain.
+[Smart contracts](smart-contracts.md) · [CRE](chainlink-cre.md) · [Envio](envio-and-profiles.md)

@@ -29,7 +29,7 @@ Onchain integer values and timestamps are decimal strings. Indexed list endpoint
 For example:
 
 ```sh
-curl https://commitpass-api.endpx.cloud/v1/events/0x900ef7f431c1d2344cf07e67a018b252df60ce63
+curl https://commitpass-api.endpx.cloud/v1/events/0x5f50ad692ee6e5196d7186b2a57c637e46b9e3a8
 ```
 
 `/health` proves the process is running. It is not a full database, indexer or chain readiness check.
@@ -60,4 +60,8 @@ The payload includes `version`, `chainId`, `vault`, `eventId`, `cutoff`, `frozen
 
 A snapshot records attendance input. It does not prove redemption, allocation or payout succeeded; those are established by contract receipts and indexed logs.
 
-[API implementation](../../../api/) · [Attendance and trust](../protocol/attendance-and-trust.md)
+[API implementation](https://github.com/EndPx/commitpass/tree/main/api/) · [Attendance and trust](../protocol/attendance-and-trust.md)
+
+## Chosen names and guest lookup
+
+`PUT /v1/me` stores a chosen name and profile completion. `GET /v1/events/{vault}/guest-profiles?wallets=...` requires the current organizer and accepts up to 100 validated wallet addresses. Only names from completed profiles and active verified links are returned. `PUT /v1/events/{vault}/check-ins/{wallet}` validates ownership, membership and the attendance window; retries return existing records.

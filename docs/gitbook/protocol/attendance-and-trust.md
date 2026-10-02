@@ -34,7 +34,7 @@ The workflow checks the response version, event domain, cutoff, frozen state, ad
 
 ## Contract enforcement
 
-The receiver checks authorization, the registered schedule, report expiry, eligible action, snapshot hash and participant membership. The vault performs redemption, allocations and payouts.
+The vault receiver checks the immutable forwarder and report authorization, schedule, expiry, action, snapshot hash and membership. The same vault performs redemption, allocations and payouts.
 
 ## Remaining trust
 

@@ -6,43 +6,33 @@ description: Factory discovery, dedicated event vaults and report authorization.
 
 ## CommitPassFactory
 
-The factory creates and registers event vaults. `createAutomatedEvent(...)` creates an event and registers its automation schedule atomically. The factory's vault registry lets the API, receiver and indexer distinguish supported events from arbitrary addresses.
+`createEvent(...)` deploys and registers a dedicated vault. It installs the organizer, fixed commitment, capacity, registration deadline, event date, settlement time, treasury, yield source and immutable CRE permissions atomically. Capacity is limited to 500 participants.
 
-Each event records a fixed commitment amount, owner, registration deadline, start time, capacity, treasury and configured yield vault.
+The factory exposes `isVault`, `vaultByEventId` and `getBatch(slot)` for discovery. Only registered vaults can call `notifyLifecycleRequested(uint8 action)` through the separate `IEventFactory` interface. The shared factory log is the CRE organizer-request trigger source.
 
-## CommitPassVault
+## CommitPassVault: event and CRE consumer
 
-The event vault:
+Each vault inherits `ReceiverTemplate` and implements `onReport(bytes metadata, bytes report)`. There is no separately deployed lifecycle automation contract in the active architecture.
 
-* Accepts one fixed USDC commitment per depositor while registration is open.
-* Tracks the original depositing address independently of transferable vault shares.
-* Closes registration and deposits pooled assets into the configured ERC-4626 yield source at start.
-* Redeems all yield shares and calculates deterministic allocations at settlement.
-* Finalizes eligible cancellation refunds directly onchain.
-* Allows each entitled depositor to call `claimReward()` once.
+Only the organizer can call `requestStart()` or `requestSettlement()`. These establish eligibility and the cutoff. Only the configured forwarder can deliver lifecycle reports, with the workflow identity or signed testnet authorization validated by the receiver base.
 
-`ClaimAllocated` describes entitlement. `RewardClaimed` describes an actual payout. `SettlementFinalized` records the outcome and financial totals.
+The vault accepts one fixed USDC deposit per participant, closes registration, supplies pooled funds to its configured ERC-4626 source, redeems shares at settlement, fixes claim allocations and transfers each claim once through `claimReward()`. Entitlements belong to original depositors rather than subsequent share-token holders. Organizer ownership cannot be transferred or renounced.
 
-## CommitPassAutomation
+Reports validate chain and vault domain, eligible action, expiry, cutoff, snapshot digest and deposited membership. Duplicate reports do not invest or allocate twice; conflicting snapshots are rejected.
 
-The production receiver registers event schedules, accepts owner lifecycle requests and validates reports from its configured forwarder and workflow ID. It enforces timing, expiry, participant membership, the snapshot digest and one-time execution.
+## ReceiverTemplate
 
-The original DON receiver is retained but unconfigured. The active application uses the separate simulation receiver below.
+This abstract base is included in each vault and is never deployed separately. Forwarder and report authorization are immutable.
 
-## CommitPassSimulationAutomation
+* Standard mode checks a nonzero workflow ID in forwarded metadata.
+* Current simulation mode requires chain ID 10143, an immutable signer and workflow ID zero. It verifies an EIP-712 signature bound to the receiving vault.
 
-This receiver is restricted to Monad testnet chain ID `10143`. It accepts calls from the official simulation MockForwarder and verifies an EIP-712 signature from its immutable operator signer.
-
-The signature binds the report to the chain, receiver and payload. The receiver then runs the shared lifecycle and accounting checks inherited from the production receiver.
-
-Simulation metadata does not carry a production DON workflow ID. The implementation therefore uses explicit signed simulation authorization rather than substituting an invented workflow identity.
+Moving to DON execution requires the actual forwarder and workflow identity in a new immutable configuration.
 
 ## MockYieldVault
 
-The current yield vault is an ERC-4626 fixture backed by Circle's native testnet USDC. It provides the deposit/redeem lifecycle used by the demo, but does not invest in Morpho or generate organic yield.
+The ERC-4626 fixture is backed by Circle native testnet USDC. It exercises deposit and redemption but does not invest in Morpho or generate organic yield.
 
-## Source and deployment
+[Source](https://github.com/EndPx/commitpass/tree/main/contracts/src) · [Active addresses](../deployments/monad-testnet.md) · [Payout rules](../protocol/commitments-and-rewards.md)
 
-[Contract source](../../../contracts/src/) · [Current addresses](../deployments/monad-testnet.md) · [Payout rules](../protocol/commitments-and-rewards.md)
-
-The factory and mock yield vault have recorded source verification. The active signed simulation receiver has a recorded deployment receipt and runtime hash; explorer source verification for that receiver is not claimed. None of these statements constitutes an independent audit.
+The factory and recorded browser-created vault have explorer source verification. Verification is address-specific; later vaults need their exact constructor verified. An independent security audit is not claimed.

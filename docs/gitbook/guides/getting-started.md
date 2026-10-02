@@ -6,11 +6,11 @@ description: Open the app, sign in, and prepare your Monad testnet wallet.
 
 ## Browse first
 
-Open [Discover](https://commitpass-kappa.vercel.app/discover) to explore public events and their details. Browsing does not require an account. Sign in when you want to reserve a place or create an event.
+Open [Discover](https://commitpass-event.vercel.app/discover) to explore public events and their details. Browsing does not require an account. Sign in when you want to reserve a place or create an event.
 
 ## Sign in
 
-Use [Sign in](https://commitpass-kappa.vercel.app/signin) with email or Google. The application uses Privy for authentication and embedded wallet access. After the session is verified, the app opens your event workspace.
+Use [Sign in](https://commitpass-event.vercel.app/signin) with email or Google. The application uses Privy for authentication and embedded wallet access. After verification, choose your public display name and continue through the welcome screen to your workspace. This name is stored separately from email identity.
 
 Your account menu shows your full wallet address with a copy button. Use the address belonging to the wallet you will approve transactions with.
 

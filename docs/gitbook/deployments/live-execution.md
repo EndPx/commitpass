@@ -4,54 +4,30 @@ description: A completed frontend and Privy journey with actual Monad testnet re
 
 # Live execution
 
-On **1 October 2026, Asia/Jakarta**, a one-attendee journey completed through the live CommitPass frontend and an authorized Privy wallet. The actor created an event, approved and deposited USDC, requested start, checked in, requested settlement and claimed their return. CRE CLI simulations on the VPS broadcast the start and settlement transactions.
+On **1 October 2026, Asia/Jakarta**, a single-attendee journey completed through the live frontend and an authorized Privy wallet using the current direct-vault architecture.
 
-## The event
+The [demo event](https://commitpass-event.vercel.app/events/0x5f50ad692ee6e5196d7186b2a57c637e46b9e3a8) used vault `0x5f50AD692ee6e5196d7186b2A57C637E46B9e3A8` and factory `0x94f7408816cc9eAB7e5043E92bdDdDAFf3A9931F`. Commitment was 0.1 USDC, with one depositor and one attendee.
 
-| Field        | Value                                        |
-| ------------ | -------------------------------------------- |
-| Event        | CommitPass frontend E2E · CRE broadcast      |
-| Network      | Monad testnet, `10143`                       |
-| Event vault  | `0x900Ef7F431C1D2344CF07E67A018B252DF60Ce63` |
-| Commitment   | `0.1 USDC`                                   |
-| Participants | One                                          |
-| Attendance   | One checked in                               |
-| Outcome      | Normal settlement                            |
+## Confirmed receipts
 
-[Open the completed event](https://commitpass-kappa.vercel.app/events/0x900ef7f431c1d2344cf07e67a018b252df60ce63).
+| Step | Receipt |
+| --- | --- |
+| create | [0xab53e684…](https://testnet.monadscan.com/tx/0xab53e684269d397555a228509573684ee5405c5c7554a7ee328397f64c812f2e) |
+| deposit | [0x52862089…](https://testnet.monadscan.com/tx/0x52862089e5815a0975c87f278e6612c0dafd0a1244d9f2a7968e4118d72b1ce2) |
+| requestStart | [0x6b04b5c1…](https://testnet.monadscan.com/tx/0x6b04b5c1fa1fa2b2be56332f9ffdafbe2f1e3dd8a296200f26391dd94fc08308) |
+| startCRE | [0x34cbb201…](https://testnet.monadscan.com/tx/0x34cbb201e36da95302b07c521e8c35093f3ae41926aa804f619ca0540fc90620) |
+| requestSettlement | [0xa1cae280…](https://testnet.monadscan.com/tx/0xa1cae280bd0fe3eddf5ba4bc379f65125834df22d9a03d7fd42659734b3e23cc) |
+| settleCRE | [0x33264916…](https://testnet.monadscan.com/tx/0x33264916b712f524a2be5c43597a374a6e9f976eba5f4b68c1bdb3b8afda5b4f) |
+| claim | [0xc7fc87c2…](https://testnet.monadscan.com/tx/0xc7fc87c2f1a70c7bb5808e9d236955bd4c0b9e37eff08e6036a87cb01853b246) |
 
-## Confirmed transactions
+The vault emitted `LifecycleExecuted`. CRE writes came through the simulation MockForwarder. Organizer requests and completed lifecycle writes are separate receipts. The frozen snapshot contained one attendee.
 
-| Step                     | Receipt                                                                                                                 |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
-| Create event             | [0xe39a…eb41](https://testnet.monadexplorer.com/tx/0xe39a877162e371a84fc26782e754c2a963433ba555ba586d2cae35ffb276eb41)  |
-| Approve USDC             | [0xa289…e573](https://testnet.monadexplorer.com/tx/0xa289d3716fee38e25a084c077c2931befedcca93e49fce0dd2b00bf8d766e573)  |
-| Deposit                  | [0xc08a…98ae8](https://testnet.monadexplorer.com/tx/0xc08a11cbdf5dfacd51e6fd8495eba96cf1809b40da8703cb192bb1a99f998ae8) |
-| Host start request       | [0xfd44…be90](https://testnet.monadexplorer.com/tx/0xfd4496cab77d4f934a5edb23e45f04d7a0412a47cc343edd61ec0a543e20be90)  |
-| CRE start broadcast      | [0x043f…afa0](https://testnet.monadexplorer.com/tx/0x043fc16fd3c5ddb698c626dc346e12645fc0263037278462335906ef12eaafa0)  |
-| Host settlement request  | [0x410d…19f5](https://testnet.monadexplorer.com/tx/0x410d3bc82f844a7f7dd4ba0bc15cb37f8f81c5d7718a12c635420fa2a69419f5)  |
-| CRE settlement broadcast | [0x9d40…bb14](https://testnet.monadexplorer.com/tx/0x9d409d87e4dffa3c6dd6a8f3b006e999687c659c9214cc320409fdfbbc84bb14)  |
-| Participant claim        | [0x4b04…34b9](https://testnet.monadexplorer.com/tx/0x4b0435b834d8c30cedace6e9882aad19a3f8264014ab9ffd3ce994f7754134b9)  |
+## Accounting
 
-Check-in was an authenticated application write, not a standalone participant chain transaction. The frozen snapshot contained one attendee and its hash matched the accepted settlement report.
+Commitment, allocation and completed claim were each 0.1 USDC (100,000 raw units). Yield and protocol revenue were zero. The wallet moved from 1 USDC to 0.9 and back to 1 after claim; the vault had zero USDC remaining. MON gas was paid separately.
 
-## Final accounting
+Envio indexed lifecycle, allocation and payout. An allocation is not a payment; the claim receipt establishes the completed return.
 
-| Quantity                   | USDC  | Raw units |
-| -------------------------- | ----- | --------- |
-| Participant deposit        | `0.1` | `100000`  |
-| Final allocation           | `0.1` | `100000`  |
-| Confirmed claim            | `0.1` | `100000`  |
-| Protocol revenue           | `0`   | `0`       |
-| Realized yield             | `0`   | `0`       |
-| Wallet balance after claim | `1`   | `1000000` |
+## Scope
 
-The wallet started with a funded **1 USDC**, held **0.9 USDC** after the commitment, and returned to **1 USDC** after claiming. MON gas was paid separately.
-
-Envio indexed the creation, deposit, lifecycle requests, completed lifecycle writes, attendance settlement, allocation and claim. The profile showed one event joined, one event hosted, 100% attendance for this scenario, 0.1 USDC received and zero remaining commitment or claimable return.
-
-## Scope of this record
-
-This confirms a **single-attendee normal flow** through the real frontend, Privy, the Go check-in API, Envio and CRE broadcast. It does not establish a deployed DON, organic yield, or browser coverage of no-show splitting, cancellation and zero-attendance refunds.
-
-The structured [evidence file](https://github.com/EndPx/commitpass/blob/main/cre/evidence/frontend-monad-broadcast-2026-10-01.json) includes receipt status, block references, the immutable snapshot and final contract totals.
+This proves the current single-attendee frontend flow. It does not prove DON deployment, organic yield or a live browser no-show split. [Structured evidence](https://github.com/EndPx/commitpass/blob/main/cre/evidence/frontend-direct-vault-2026-10-01.json) records receipts, the snapshot, verification and exact accounting. Separate-receiver records describe historical immutable contracts.

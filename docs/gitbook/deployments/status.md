@@ -4,7 +4,7 @@ description: What is working in the current testnet release and what remains sep
 
 # Deployment status
 
-Status recorded **1 October 2026**. Runtime availability can change; use the app and receipt links to inspect the current state.
+Status recorded **2 October 2026**. Runtime availability can change; use the app and receipt links to inspect the current state.
 
 ## Available
 
@@ -13,15 +13,15 @@ Status recorded **1 October 2026**. Runtime availability can change; use the app
 | Application   | Hosted Next.js frontend, discovery, event editor, guest pass, host management and profile |
 | Accounts      | Privy authentication and embedded wallet transaction signing                              |
 | Asset         | Circle native Monad testnet USDC                                                          |
-| Contracts     | Factory, dedicated event vaults, mock yield vault and signed simulation receiver          |
+| Contracts     | Factory, dedicated event vaults, mock yield source; each vault is its own CRE consumer          |
 | Attendance    | Owner-authorized check-ins and immutable snapshots through the Go API                     |
-| Indexing      | Envio-backed event, participant, activity and profile reads                               |
+| Indexing      | Hosted Envio event, participant, activity and profile reads                               |
 | CRE execution | Recurring VPS simulation with real testnet broadcast                                      |
 | Main flow     | Completed one-attendee frontend journey through claim                                     |
 
 ## Execution boundaries
 
-**CRE:** The CLI/WASM workflow runs from a VPS timer. The active signed receiver is specific to testnet simulation. A deployed Workflow DON is not active.
+**CRE:** The CLI/WASM workflow runs from a VPS timer. Each active vault accepts signed simulation reports through its immutable forwarder. A deployed Workflow DON is not active.
 
 **Yield:** The current vault is a mock ERC-4626 fixture. There is no live Morpho/Clearstar allocation or organic yield in this release.
 

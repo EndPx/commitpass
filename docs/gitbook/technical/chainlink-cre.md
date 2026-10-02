@@ -4,67 +4,34 @@ description: Shared trigger logic, validated snapshots and real testnet broadcas
 
 # Chainlink CRE
 
-CRE orchestrates two actions: starting an event and settling it from a finalized attendance snapshot. The contracts decide whether the requested action is authorized and due.
+CRE orchestrates start and settlement using frozen attendance snapshots. Each event vault is its own consumer and enforces the financial transition.
 
-## Two triggers, one processing path
+## Triggers and discovery
 
-| Trigger | Callback input                                | Use                                              |
-| ------- | --------------------------------------------- | ------------------------------------------------ |
-| Cron    | Recurring time slot                           | Discover registered events whose actions are due |
-| EVM log | Finalized `LifecycleRequested(address,uint8)` | Process an organizer's lifecycle request         |
+The cron schedule is `0 * * * * *`. It reads `getBatch(slot)` from the factory: at most two vaults per minute slot, rotated through the registry. Larger registries may wait for their slot.
 
-The cron expression is `0 * * * * *`, once per minute. The EVM log trigger uses finalized confidence. Both callbacks read current contract state before acting.
+The finalized EVM log trigger listens to factory `LifecycleRequested(address,uint8)`. Both handlers share processing logic and read the current vault state. Old request logs do not override current eligibility.
 
-For bounded cron work, the receiver returns up to two registered vaults per time slot using round-robin discovery. As the event registry grows, an eligible event may wait for its slot; the current demo is not an instant-processing guarantee.
+## Start and settlement
 
-## Start
+Start reports go directly to the vault, which closes registration and deposits pooled commitments into its ERC-4626 source.
 
-The workflow reads eligibility from the receiver and constructs a start report. The receiver validates the report and calls the vault to close registration and deposit pooled assets. Duplicate execution does not deposit again.
+For settlement, CRE fetches a frozen snapshot from the authenticated HTTPS API and checks version, event domain, cutoff, address ordering and digest. The vault independently validates the report before redemption and allocation.
 
-## Settle
-
-The workflow requests a frozen attendance snapshot from the authenticated HTTPS API, validates its domain and digest, reads the event state and constructs a settlement report.
-
-A failed attendance API or invalid snapshot defers settlement. An accepted empty snapshot explicitly invokes the zero-attendance policy. These are separate outcomes.
-
-The write path checks both transaction success and receiver execution success before reporting completion.
+An unavailable API or invalid snapshot defers settlement. A valid empty snapshot follows the zero-attendance refund policy. Report-delivery transaction status and vault lifecycle execution are checked separately.
 
 ## Current execution mode
 
-The VPS runs **CRE CLI simulation with `--broadcast`**. This sends real Monad testnet transactions through the official MockForwarder to `CommitPassSimulationAutomation`.
+The VPS runs CRE CLI simulation with `--broadcast`. These are real Monad testnet writes through the official simulation MockForwarder to each vault's `onReport`. No separate automation receiver is deployed for the active application.
 
-The CLI selects and immediately executes a simulation trigger. The VPS timer provides the repeated invocation. A deployed Workflow DON would monitor trigger conditions continuously; the current timer is not a deployed DON.
+A timer repeatedly invokes simulation callbacks. It is not a deployed Workflow DON.
 
-The completed live run used the EVM log callback for the host's start request and a recurring cron invocation for settlement. [Receipts](../deployments/live-execution.md) show both onchain writes.
+Simulation reports wrap `(bytes payload, bytes signature)`. Their EIP-712 domain is `CommitPass CRE simulation`, version `1`, chain ID `10143`, and the receiving vault address. The signed type is `SimulationReport(bytes payload)`.
 
-## Signed simulation reports
+The receiver base first checks the immutable forwarder, then the immutable signer. Standard mode instead validates a nonzero workflow ID in metadata. The current simulation configuration deliberately uses workflow ID zero. Credentials are configured outside Git.
 
-The workflow wraps its lifecycle payload as `(bytes payload, bytes signature)`. The EIP-712 domain is `CommitPass CRE simulation`, version `1`, chain ID `10143` and the active receiver address. The signed type is `SimulationReport(bytes payload)`.
+## Workflow source
 
-Signing credentials and the attendance API token are configured outside Git. The receiver accepts only its immutable signer and the configured MockForwarder. Normal schedule, cutoff, expiry, snapshot and accounting checks still apply.
+`main.ts` constructs the SDK Runner. `workflow.ts` registers handlers; separate modules implement configuration, EVM processing, snapshot validation and report delivery.
 
-## Project structure
-
-The workflow follows the official `cre init` structure and lives in `cre/commitpass/`:
-
-```text
-cre/
-  project.yaml
-  commitpass/
-    main.ts
-    workflow.yaml
-    package.json
-    config.testnet.example.json
-  scripts/simulate-testnet.mjs
-```
-
-From the repository root:
-
-```sh
-pnpm --filter @commitpass/cre compile:wasm
-pnpm --filter @commitpass/cre simulate:broadcast
-```
-
-Run broadcast only with the documented testnet configuration, an authenticated CLI and the required signing environment. The preflight checks chain ID, receiver bytecode, signer, forwarder and gas balance.
-
-[Trigger capability](https://docs.chain.link/cre/capabilities/triggers) · [CLI simulation](https://docs.chain.link/cre/reference/cli/workflow) · [Consumer simulation requirements](https://docs.chain.link/cre/guides/workflow/using-evm-client/onchain-write/building-consumer-contracts#4-working-with-simulation)
+[Workflow source](https://github.com/EndPx/commitpass/tree/main/cre/commitpass) · [Confirmed execution](../deployments/live-execution.md) · [Official consumer guide](https://docs.chain.link/cre/guides/workflow/using-evm-client/onchain-write/building-consumer-contracts) · [Forwarder directory](https://docs.chain.link/cre/guides/workflow/using-evm-client/forwarder-directory-ts)

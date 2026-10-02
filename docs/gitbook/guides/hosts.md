@@ -18,7 +18,7 @@ Sign in and choose **Create event**. Configure:
 
 Confirm the create transaction in your wallet. Creation deploys a dedicated event vault and registers its automation schedule in the same transaction. The resulting event page is the place to share and manage the event.
 
-The current automated receiver supports events with up to **500 participants**. Use a small capacity and commitment for a testnet demonstration.
+The current factory supports events with up to **500 participants**. Use a small capacity and commitment for a testnet demonstration.
 
 ## Start the event
 
@@ -28,7 +28,7 @@ The scheduled start also establishes eligibility when participants exist. CRE pr
 
 ## Record attendance
 
-Check in a committed participant from the guest list or supported pass flow. The backend confirms that you are the current event owner and that the participant deposited into this event.
+Manage event has **Event details** and **Participants** tabs. Use the participant table or **Scan QR** to record attendance. A valid QR automatically requests check-in and shows the guest name after API confirmation. The camera stays active for the next guest; duplicate scans do not create duplicate attendance. The backend confirms that you are the current event owner and that the participant deposited into this event.
 
 Check-ins use server timestamps and are append-only in this version. There is no attendance correction/delete endpoint. Record attendance carefully before ending the event.
 

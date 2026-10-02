@@ -6,7 +6,7 @@ description: >-
 
 # Envio and profiles
 
-Envio HyperIndex turns factory, receiver and vault events into the read model used by CommitPass. Its role includes event discovery, participation, lifecycle status, allocations and claims.
+Envio HyperIndex turns factory and vault events into the read model used by CommitPass. Its role includes event discovery, participation, lifecycle status, allocations and claims.
 
 ## Dynamic event discovery
 
@@ -40,12 +40,16 @@ Spendable USDC balance comes from a live token read. It is displayed alongside e
 
 ## Identity and privacy
 
-Wallet activity on Monad is public. Public wallet-profile endpoints expose those chain facts. The signed-in profile derives its wallet set from a fresh verified account response. Names and email addresses are shown in the authenticated frontend, not included as public chain activity.
+Wallet activity on Monad is public. Public wallet-profile endpoints expose those chain facts. The signed-in profile derives its wallet set from a fresh verified account response. Chosen display names live in the application database and can appear as public organizer names. Organizer-only guest-profile reads resolve participant names from verified active wallet links. Email is not used as public identity or recorded as chain activity.
 
 ## Consistency
 
-Envio handlers support reorg rollback. The launcher limits public RPC query ranges and indexes with a short block lag. This lag is an operational choice, not a cryptographic finality guarantee.
+Envio handlers support reorg rollback. The active hosted indexer exposes GraphQL to the Go API. The earlier self-hosted indexer is stopped. This lag is an operational choice, not a cryptographic finality guarantee.
 
 The app can observe a confirmed receipt before indexed history changes. Financial actions use current contract state, while event lists and profiles may update slightly later. The completed demo's activity includes creation, deposit, start, attendance settlement, allocation and claim.
 
-[Indexer source](../../../indexer/) · [Live execution](../deployments/live-execution.md)
+[Indexer source](https://github.com/EndPx/commitpass/tree/main/indexer/) · [Live execution](../deployments/live-execution.md)
+
+## Vault insights
+
+The vault card combines indexed commitments, capacity, allocations and confirmed claims. Available returns are aggregated across participant pages. On phones, the card starts collapsed and expands to reveal its financial details. Forecast yield rates and fabricated balances are not displayed.
