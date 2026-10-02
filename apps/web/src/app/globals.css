@@ -87,6 +87,9 @@ svg {
 .skip-link:focus {
   top: 12px;
 }
+#top {
+  overflow-x: clip;
+}
 .site-header {
   height: 80px;
   padding: 0 4%;
