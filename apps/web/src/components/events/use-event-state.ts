@@ -69,13 +69,15 @@ export async function readEventState(vault: Address) {
         ? "REFUNDED"
         : settled
           ? "SETTLED"
-          : started && block.timestamp >= cutoff
-            ? "SETTLEMENT_REQUESTED"
-            : started
-              ? "ACTIVE"
-              : schedule[3] || block.timestamp >= start
-                ? "START_REQUESTED"
-                : "CREATED";
+          : !started && count === 0n && block.timestamp >= schedule[1]
+            ? "EMPTY_ENDED"
+            : started && block.timestamp >= cutoff
+              ? "SETTLEMENT_REQUESTED"
+              : started
+                ? "ACTIVE"
+                : schedule[3] || block.timestamp >= start
+                  ? "START_REQUESTED"
+                  : "CREATED";
   return {
     outcome,
     revenue,

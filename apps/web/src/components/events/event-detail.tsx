@@ -26,6 +26,7 @@ import {
   dateLabel,
   eventTitle,
   jsonRequest,
+  isEmptyEventEnded,
   shorten,
   statusLabel,
   timeLabel,
@@ -604,6 +605,18 @@ function ReservationPanel({
     !live.settled &&
     live.timestamp < live.deadline &&
     live.count < live.capacity;
+  if (live?.status === "EMPTY_ENDED" || isEmptyEventEnded(event))
+    return (
+      <section className="reservation-panel">
+        <div className="reservation-panel-heading">
+          <strong>Event ended</strong>
+        </div>
+        <p>
+          No guests reserved a spot before this event ended. Registration is
+          closed.
+        </p>
+      </section>
+    );
   return (
     <>
       {deposited && wallet && (

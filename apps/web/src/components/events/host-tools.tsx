@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { usePrivy } from "@privy-io/react-auth";
 import { Check, Copy, QrCode, RefreshCw, Search, Users } from "lucide-react";
 import type { EventSummary, IndexedParticipant } from "@commitpass/shared";
-import { amount, jsonRequest, shorten } from "@/lib/events";
+import { amount, isEmptyEventEnded, jsonRequest, shorten } from "@/lib/events";
 import { ManagedEventEditor } from "./managed-event-editor";
 const QrScanner = dynamic(
   () => import("./guest-qr-scanner").then((module) => module.GuestQrScanner),
@@ -250,7 +250,7 @@ function ParticipantsPanel({ event }: { event: EventSummary }) {
       </div>
       {event.status !== "ACTIVE" && (
         <p className="participant-checkin-note">
-          {terminal
+          {terminal || isEmptyEventEnded(event)
             ? "Check-in is closed for this event."
             : "Check-in opens once the event starts."}
         </p>

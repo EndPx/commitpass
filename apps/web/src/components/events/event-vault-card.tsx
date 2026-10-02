@@ -2,7 +2,13 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { ArrowUpRight, Check, Landmark, RefreshCw } from "lucide-react";
 import type { EventSummary, VaultInsights } from "@commitpass/shared";
-import { amount, dateLabel, jsonRequest, timeLabel } from "@/lib/events";
+import {
+  amount,
+  dateLabel,
+  isEmptyEventEnded,
+  jsonRequest,
+  timeLabel,
+} from "@/lib/events";
 import { explorer } from "@/lib/chain";
 import { utcOffset } from "@/lib/display-time";
 import { usePreferences } from "./preferences";
@@ -55,7 +61,10 @@ export function EventVaultCard({ event }: { event: EventSummary }) {
   }, [event.vault, event.lastTransaction, attempt]);
   const data = record?.vault === event.vault ? record.data : null;
   const snapshot = data?.event ?? event;
-  const ended = ["SETTLED", "REFUNDED", "CANCELLED"].includes(snapshot.status);
+  const emptyEnded = isEmptyEventEnded(snapshot);
+  const ended =
+    emptyEnded ||
+    ["SETTLED", "REFUNDED", "CANCELLED"].includes(snapshot.status);
   const started =
     !!snapshot.yieldDeposited && BigInt(snapshot.yieldDeposited) > 0n;
   const capacity = percent(
@@ -65,19 +74,21 @@ export function EventVaultCard({ event }: { event: EventSummary }) {
   const returned = data ? BigInt(data.returnedToWallets) : 0n;
   const allocated = data ? BigInt(data.totalAllocated) : 0n;
   const claimedPercent = percent(returned, allocated);
-  const state = !ended
-    ? started
-      ? "Event in progress"
-      : snapshot.participantCount
-        ? "Commitments received"
-        : "Waiting for commitments"
-    : !data
-      ? "Event ended"
-      : BigInt(data.availableToCollect) > 0n
-        ? "Returns ready"
-        : returned > 0n
-          ? "Returns collected"
-          : "No returns allocated";
+  const state = emptyEnded
+    ? "Event ended · no reservations"
+    : !ended
+      ? started
+        ? "Event in progress"
+        : snapshot.participantCount
+          ? "Commitments received"
+          : "Waiting for commitments"
+      : !data
+        ? "Event ended"
+        : BigInt(data.availableToCollect) > 0n
+          ? "Returns ready"
+          : returned > 0n
+            ? "Returns collected"
+            : "No returns allocated";
   return (
     <section className="event-vault-card" aria-label="Event vault">
       <div className="event-vault-heading">
@@ -114,10 +125,14 @@ export function EventVaultCard({ event }: { event: EventSummary }) {
         {[
           { label: "Commitments", done: snapshot.participantCount > 0 },
           {
-            label: snapshot.status === "CANCELLED" ? "Cancelled" : "Event",
-            done: started || snapshot.status === "CANCELLED",
+            label: emptyEnded
+              ? "Event ended"
+              : snapshot.status === "CANCELLED"
+                ? "Cancelled"
+                : "Event",
+            done: emptyEnded || started || snapshot.status === "CANCELLED",
           },
-          { label: "Returns", done: ended },
+          { label: emptyEnded ? "No returns" : "Returns", done: ended },
         ].map((step) => (
           <li key={step.label} className={step.done ? "complete" : ""}>
             <span>{step.done ? <Check size={12} /> : <i />}</span>
@@ -167,7 +182,13 @@ export function EventVaultCard({ event }: { event: EventSummary }) {
       </dl>
       <div className="vault-distribution">
         <div className="vault-distribution-heading">
-          <strong>{ended ? "Returns collected" : "Spots committed"}</strong>
+          <strong>
+            {emptyEnded
+              ? "No guest returns"
+              : ended
+                ? "Returns collected"
+                : "Spots committed"}
+          </strong>
           <span>
             {ended
               ? data

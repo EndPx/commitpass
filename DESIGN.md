@@ -379,6 +379,12 @@ remain visible, editor rows wrap and table scrolling is confined to the table.
 
 Public lifecycle copy uses Event ended for SETTLED; internal contract/indexer
 status names are unchanged. List/card price labels use USDC commitment.
+An event with zero reservations is displayed as Event ended once its scheduled
+end passes. Live reads use the chain timestamp; indexed views use the recorded
+end time. EMPTY_ENDED is a presentation state, never a fabricated SETTLED log or
+claim allocation. Hide start/waiting/check-in-open messages for this case and
+show that no guest commitments need returning. Funded events continue to use
+confirmed contract lifecycle and allocation states.
 The 340px event-vault card uses a 28px total-commitment figure, a compact three
 stage timeline (Commitments, Event, Returns), a two-column financial breakdown,
 and a proportional returned/available bar derived from Envio participant data.

@@ -214,8 +214,11 @@ export function HostManagement({
         <Link href={`/events/${event.vault}`}>Back to event</Link>
       </section>
     );
+  const emptyEnded = live.status === "EMPTY_ENDED";
   const starting =
-    !live.started && (live.startRequested || live.timestamp >= live.start);
+    !emptyEnded &&
+    !live.started &&
+    (live.startRequested || live.timestamp >= live.start);
   const ending =
     live.started &&
     !live.settled &&
@@ -262,7 +265,7 @@ export function HostManagement({
               {[
                 ["Registration", true],
                 ["Event started", live.started],
-                ["Event ended", live.settled],
+                ["Event ended", live.settled || emptyEnded],
               ].map(([label, done]) => (
                 <li key={String(label)} className={done ? "complete" : ""}>
                   {done ? <Check size={15} /> : <Clock3 size={15} />} {label}
@@ -271,34 +274,38 @@ export function HostManagement({
             </ol>
             <div className="host-lifecycle">
               <h3>
-                {live.outcome === 3
-                  ? "Event cancelled."
-                  : live.outcome === 2
-                    ? "Full refunds are available."
-                    : live.settled
-                      ? "All wrapped up."
-                      : ending
-                        ? "Your event is wrapping up."
-                        : live.started
-                          ? "Your event is live."
-                          : starting
-                            ? "Waiting for the event to start."
-                            : "Ready when your people are."}
+                {emptyEnded
+                  ? "Event ended with no reservations."
+                  : live.outcome === 3
+                    ? "Event cancelled."
+                    : live.outcome === 2
+                      ? "Full refunds are available."
+                      : live.settled
+                        ? "All wrapped up."
+                        : ending
+                          ? "Your event is wrapping up."
+                          : live.started
+                            ? "Your event is live."
+                            : starting
+                              ? "Waiting for the event to start."
+                              : "Ready when your people are."}
               </h3>
               <p>
-                {live.outcome === 3
-                  ? "Cancellation is confirmed onchain. Every guest can claim their full commitment with no fee."
-                  : live.outcome === 2
-                    ? "No attendance was recorded in the finalized snapshot. Every guest can claim their commitment plus a share of recovered yield. No platform fee applies."
-                    : live.settled
-                      ? "The event has ended. Eligible guests can collect their return from the event page."
-                      : ending
-                        ? "Check-in is closed. Automation will use the attendance snapshot to settle commitments. This page refreshes automatically."
-                        : live.started
-                          ? "Check guests in below. Ending the event closes check-in and starts preparing guest returns."
-                          : starting
-                            ? "Automation is waiting to execute the start. This page updates when the contract confirms it."
-                            : "Starting closes registration and asks automation to put the committed funds into the event’s yield vault."}
+                {emptyEnded
+                  ? "The scheduled end time has passed. No guests reserved a spot, so there are no guest commitments to return."
+                  : live.outcome === 3
+                    ? "Cancellation is confirmed onchain. Every guest can claim their full commitment with no fee."
+                    : live.outcome === 2
+                      ? "No attendance was recorded in the finalized snapshot. Every guest can claim their commitment plus a share of recovered yield. No platform fee applies."
+                      : live.settled
+                        ? "The event has ended. Eligible guests can collect their return from the event page."
+                        : ending
+                          ? "Check-in is closed. Automation will use the attendance snapshot to settle commitments. This page refreshes automatically."
+                          : live.started
+                            ? "Check guests in below. Ending the event closes check-in and starts preparing guest returns."
+                            : starting
+                              ? "Automation is waiting to execute the start. This page updates when the contract confirms it."
+                              : "Starting closes registration and asks automation to put the committed funds into the event’s yield vault."}
               </p>
               {pending ? (
                 <button
@@ -309,7 +316,8 @@ export function HostManagement({
                   {busy ? "Checking request…" : "Check submitted request"}
                 </button>
               ) : (
-                !live.settled && (
+                !live.settled &&
+                !emptyEnded && (
                   <button
                     className="button button--dark"
                     disabled={
@@ -420,7 +428,7 @@ export function HostManagement({
           </form>
         </EditorDialog>
       )}
-      {live.count === 0n && !live.started && (
+      {live.count === 0n && !live.started && !emptyEnded && (
         <p className="field-note">
           At least one guest must reserve a spot before this event can start.
         </p>

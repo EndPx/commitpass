@@ -1,4 +1,4 @@
-import type { EventSummary } from "@commitpass/shared";
+import type { EventSummary, IndexedEvent } from "@commitpass/shared";
 import { formatUnits } from "viem";
 
 export const eventTitle = (event: EventSummary) =>
@@ -32,10 +32,25 @@ export const timeLabel = (seconds: string, timezone?: string) =>
     hourCycle: "h23",
     ...(timezone ? { timeZone: timezone } : {}),
   });
+export function isEmptyEventEnded(
+  event: Pick<IndexedEvent, "participantCount" | "settleAt" | "status">,
+  now = Date.now(),
+) {
+  const end = Number(event.settleAt);
+  return (
+    !["SETTLED", "REFUNDED", "CANCELLED"].includes(event.status) &&
+    event.participantCount === 0 &&
+    Number.isFinite(end) &&
+    end > 0 &&
+    now >= end * 1000
+  );
+}
 export function statusLabel(event: EventSummary) {
   if (event.status === "CANCELLED") return "Cancelled";
   if (event.status === "REFUNDED") return "Refunds available";
   if (event.status === "SETTLED") return "Event ended";
+  if (event.status === "EMPTY_ENDED" || isEmptyEventEnded(event))
+    return "Event ended";
   if (event.status === "SETTLEMENT_REQUESTED") return "Wrapping up";
   if (event.status === "ACTIVE") return "In progress";
   if (event.status === "START_REQUESTED") return "Starting soon";
