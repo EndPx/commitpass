@@ -215,7 +215,7 @@ export function GuestQrScanner({
             {busy ? (
               <>
                 <LoaderCircle size={15} />
-                Reading image…
+                Checking reservation…
               </>
             ) : cameraOn ? (
               cameraReady ? (
