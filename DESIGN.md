@@ -133,6 +133,9 @@ previous watercolor assets remain saved as unused design explorations and are
 not requested by the page. The logo and workshop photograph remain in use.
 The closing CTA and footer share one `closing-area` background extending to the
 page's bottom edge, without a separate solid-color footer strip.
+The closing section uses the existing transparent CommitPass mark at 56px,
+centered with 24px spacing below, replacing the decorative star. Reuse the same
+asset as the header and an empty alt because adjacent copy provides the content.
 
 ## Sign-in
 

@@ -1,4 +1,5 @@
 import brandMedia from "@/lib/brand-media.json";
+import Image from "next/image";
 import { coverImageUrl } from "@/lib/media";
 import { ArrowUpRight, Check, Plus } from "lucide-react";
 import { project } from "@commitpass/shared";
@@ -214,9 +215,14 @@ export default function Home() {
       <footer className="closing-area">
         <section className="closing">
           <Reveal>
-            <span className="closing-star" aria-hidden="true">
-              ✳
-            </span>
+            <Image
+              className="closing-mark"
+              src="/brand/commitpass-mark.png"
+              alt=""
+              width={56}
+              height={56}
+              sizes="56px"
+            />
             <p className="eyebrow">MAKE THE NEXT ONE COUNT</p>
             <h2>
               Less “maybe.”
