@@ -1451,8 +1451,9 @@ svg {
 }
 @media (max-width: 899px), (max-height: 699px) {
   .hero {
-    min-height: 720px;
-    height: calc(100svh - var(--hero-header-height, 80px));
+    min-height: max(720px, calc(100svh - var(--hero-header-height, 80px)));
+    height: auto;
+    padding-bottom: 96px;
   }
   .gathered {
     display: flex;
@@ -1469,7 +1470,7 @@ svg {
 }
 @media (min-width: 900px) and (max-height: 699px) {
   .hero {
-    min-height: 640px;
+    min-height: max(640px, calc(100svh - 80px));
   }
   .hero-copy {
     padding-top: 80px;
@@ -1530,7 +1531,7 @@ svg {
     gap: 4px;
   }
   .hero {
-    min-height: 680px;
+    min-height: max(680px, calc(100svh - var(--hero-header-height)));
   }
   .hero-copy {
     padding-top: 194px;

@@ -13,14 +13,14 @@ const serif = DM_Serif_Display({
 });
 
 export const metadata: Metadata = {
-  title: `${project.name} — Good plans deserve a full house`,
+  title: `${project.name} — ${project.tagline}`,
   description: project.description,
   icons: {
     icon: { url: "/brand/commitpass-mark.png", type: "image/png" },
     apple: "/brand/commitpass-mark.png",
   },
   openGraph: {
-    title: "CommitPass — Good plans deserve a full house",
+    title: `${project.name} — ${project.tagline}`,
     description: project.description,
     type: "website",
   },

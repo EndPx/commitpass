@@ -6,11 +6,13 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { ArrowDown, ArrowUpRight, Check, MapPin } from "lucide-react";
 import { Poster, posters } from "./poster";
+import { project } from "@commitpass/shared";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 export function Hero() {
   const root = useRef<HTMLElement>(null);
+  const [commitment, reward] = project.tagline.split(". ");
   useGSAP(
     () => {
       const mm = gsap.matchMedia();
@@ -148,11 +150,15 @@ export function Hero() {
       </div>
       <div className="hero-copy">
         <p className="eyebrow">
-          <span className="little-star">✳</span> LESS MAYBE. MORE SEE YOU THERE.
+          <span className="little-star" aria-hidden="true">
+            ✳
+          </span>{" "}
+          GOOD PLANS DESERVE A FULL HOUSE.
         </p>
         <h1 id="hero-title">
-          Good plans deserve
-          <br />a <em>full house.</em>
+          {commitment}.
+          <br />
+          <em>{reward}</em>
         </h1>
         <p className="hero-description">
           Create an event. Reserve a spot with a refundable deposit.
