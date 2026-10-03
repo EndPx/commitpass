@@ -6,6 +6,34 @@ description: Why event reservations need a clearer commitment.
 
 Event organizers invest in a gathering before they know who will arrive. A guest list helps them plan, but registering interest and committing to attend are different actions. When these are treated as the same signal, the cost of uncertainty falls on the host and on other potential guests.
 
+## No-show benchmarks: the industry context
+
+[KNVI Labs' 2026 benchmark guide](https://www.knvilabs.com/stories/no-show-rate-definition-and-benchmarks-2026), published on **23 June 2026**, illustrates how no-shows leave planned capacity unused.
+
+![](../../assets/no-show-attendance-illustration.png)
+
+*Illustrative venue layout from KNVI Labs: 412 occupied seats and 196 empty seats out of a capacity of 608.*
+
+The guide reports the following no-show ranges for North American events:
+
+| Event category | Reported no-show range |
+| --- | --- |
+| Free in-person events | **40–60%** |
+| Paid virtual events | **35–55%** |
+| Free virtual webinars | **50–80%** |
+
+The guide also reports a **14–25%** no-show range for free events using **$3–$25 refundable deposits**. This supports investigating a commitment-based reservation model.
+
+These are estimates published by an event-services provider. The article does not provide a linked dataset or detailed sampling method. They are contextual benchmarks, not measured CommitPass results or guaranteed outcomes for a particular community.
+
+### Measuring the problem
+
+```text
+No-show rate = (No-shows / Confirmed registrations) × 100
+```
+
+Track cancellations separately and count attendance among registered guests. If there are no eligible registrations, report the rate as not applicable. CommitPass pilots will compare attendance with equivalent prior events where the organizer has usable records.
+
 ## 1. Reserved seats can remain empty
 
 A person can reserve a workshop or meetup spot and later decide not to attend. If the event has limited capacity, that reservation may prevent another interested guest from joining. The event loses participation even though demand existed.
