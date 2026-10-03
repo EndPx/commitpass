@@ -2,7 +2,7 @@
 description: Shared trigger logic, validated snapshots and real testnet broadcasts.
 ---
 
-# Chainlink CRE
+# Chainlink CRE Workflow
 
 CRE orchestrates start and settlement using frozen attendance snapshots. Each event vault is its own consumer and enforces the financial transition.
 
@@ -34,4 +34,25 @@ The receiver base first checks the immutable forwarder, then the immutable signe
 
 `main.ts` constructs the SDK Runner. `workflow.ts` registers handlers; separate modules implement configuration, EVM processing, snapshot validation and report delivery.
 
-[Workflow source](https://github.com/EndPx/commitpass/tree/main/cre/commitpass) · [Confirmed execution](../deployments/live-execution.md) · [Official consumer guide](https://docs.chain.link/cre/guides/workflow/using-evm-client/onchain-write/building-consumer-contracts) · [Forwarder directory](https://docs.chain.link/cre/guides/workflow/using-evm-client/forwarder-directory-ts)
+[Workflow source](https://github.com/EndPx/commitpass/tree/main/cre/commitpass) Ã‚Â· [Confirmed execution](../deployments/live-execution.md) Ã‚Â· [Official consumer guide](https://docs.chain.link/cre/guides/workflow/using-evm-client/onchain-write/building-consumer-contracts) Ã‚Â· [Forwarder directory](https://docs.chain.link/cre/guides/workflow/using-evm-client/forwarder-directory-ts)
+
+## Handler and report pipeline
+
+```mermaid
+flowchart TB
+    Cron[Cron trigger] --> Batch[Factory batch discovery]
+    Log[Finalized factory request log] --> Known[Validate registered vault]
+    Batch --> Known
+    Known --> Due[Read vault eligible action]
+    Due --> Action{Action}
+    Action -->|Start| Empty[Empty attendance payload]
+    Action -->|Settle| Snapshot[Authenticated frozen snapshot]
+    Snapshot --> Validate[Validate domain, ordering and digest]
+    Empty --> Encode[Encode lifecycle report]
+    Validate --> Encode
+    Encode --> Sign[Signed simulation authorization]
+    Sign --> Write[CRE writeReport through forwarder]
+    Write --> Checks[Check transaction and receiver execution status]
+```
+
+The write succeeds only if both delivery and receiver execution succeed. A valid transaction hash without successful vault execution is insufficient evidence of a completed lifecycle action.

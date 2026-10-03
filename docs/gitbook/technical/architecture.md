@@ -2,9 +2,17 @@
 description: The application, financial contracts and data services around one event.
 ---
 
-# System architecture
+# Overview
 
 CommitPass separates financial execution, attendance records and indexed reads.
+
+## Component map
+
+![Excalidraw component map showing the frontend, Privy, factory, event vault, API, CRE, forwarder, yield source, Neon and hosted Envio.](../assets/diagrams/commitpass-system.png)
+
+[Editable Excalidraw file](../assets/diagrams/commitpass-system.excalidraw) · [Vector SVG](../assets/diagrams/commitpass-system.svg)
+
+Terracotta boxes are financial components, blue boxes represent identity and data services, and green boxes show actors or report delivery. The sketch identifies responsibilities; the Mermaid view below makes the complete data relationships explicit.
 
 ```mermaid
 flowchart TB
@@ -56,4 +64,27 @@ This is real Monad testnet execution through signed simulation. A Workflow DON d
 | Active indexer and indexed GraphQL | Hosted Envio |
 | Factory, event vaults and mock yield source | Monad testnet |
 
-[Smart contracts](smart-contracts.md) · [CRE](chainlink-cre.md) · [Envio](envio-and-profiles.md)
+[Smart contracts](smart-contracts.md) Ã‚Â· [CRE](chainlink-cre.md) Ã‚Â· [Envio](envio-and-profiles.md)
+
+## Read the overview before the implementation details
+
+```mermaid
+flowchart LR
+    UI[Application and wallets] --> Identity[Privy and API identity]
+    Identity --> Finance[Factory and event vaults]
+    Finance --> Automation[CRE reports and forwarder]
+    Finance --> Reads[Envio hosted read model]
+    Identity --> Attendance[Neon attendance and metadata]
+    Attendance --> Automation
+    Reads --> UI
+```
+
+| Detail page | Part of the big picture |
+| --- | --- |
+| [Smart Contract Architecture](smart-contracts.md) | Factory, vault, external yield source and immutable report authorization |
+| [Chainlink CRE Workflow](chainlink-cre.md) | Trigger discovery, snapshot validation and report delivery |
+| [Data Flow and Indexing](envio-and-profiles.md) | Logs, entities, GraphQL, vault cards and profile aggregates |
+| [API and Application Data](api-and-data.md) | Identity, metadata, chosen names, attendance and frozen snapshots |
+| [Authorization and Trust Boundaries](authorization.md) | Permissions for each actor and remaining assumptions |
+
+Read the diagram as a map of responsibilities. Each child page explains the corresponding interfaces, state and failure boundaries.

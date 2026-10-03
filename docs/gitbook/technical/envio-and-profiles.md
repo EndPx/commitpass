@@ -4,7 +4,7 @@ description: >-
   history.
 ---
 
-# Envio and profiles
+# Data Flow and Indexing
 
 Envio HyperIndex turns factory and vault events into the read model used by CommitPass. Its role includes event discovery, participation, lifecycle status, allocations and claims.
 
@@ -44,12 +44,31 @@ Wallet activity on Monad is public. Public wallet-profile endpoints expose those
 
 ## Consistency
 
-Envio handlers support reorg rollback. The active hosted indexer exposes GraphQL to the Go API. The earlier self-hosted indexer is stopped. This lag is an operational choice, not a cryptographic finality guarantee.
+Envio handlers support reorg rollback. The active hosted indexer exposes GraphQL to the Go API. The earlier self-hosted indexer is stopped. Indexed history can lag a transaction receipt; indexed freshness is not a cryptographic finality guarantee.
 
 The app can observe a confirmed receipt before indexed history changes. Financial actions use current contract state, while event lists and profiles may update slightly later. The completed demo's activity includes creation, deposit, start, attendance settlement, allocation and claim.
 
-[Indexer source](https://github.com/EndPx/commitpass/tree/main/indexer/) · [Live execution](../deployments/live-execution.md)
+[Indexer source](https://github.com/EndPx/commitpass/tree/main/indexer/) Ã‚Â· [Live execution](../deployments/live-execution.md)
 
 ## Vault insights
 
 The vault card combines indexed commitments, capacity, allocations and confirmed claims. Available returns are aggregated across participant pages. On phones, the card starts collapsed and expands to reveal its financial details. Forecast yield rates and fabricated balances are not displayed.
+
+## From logs to views
+
+```mermaid
+flowchart TB
+    Logs[Factory and vault logs] --> Event[CommitmentEvent]
+    Logs --> Person[Participant]
+    Logs --> History[ChainActivity]
+    Event --> GraphQL[Hosted GraphQL]
+    Person --> GraphQL
+    History --> GraphQL
+    GraphQL --> API[Go indexed API]
+    Metadata[Application metadata] --> API
+    API --> EventPage[Event discovery and detail]
+    API --> VaultCard[Commitments, allocations and claims]
+    API --> Profile[Linked-wallet positions and history]
+```
+
+Only completed claim logs contribute to received amounts. Application descriptions and chosen names enrich presentation without replacing token accounting.

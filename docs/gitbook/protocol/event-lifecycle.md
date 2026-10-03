@@ -41,3 +41,21 @@ The backend does not mark an event cancelled first. Envio reads the resulting co
 ## UI state and chain state
 
 Requested, pending and confirmed states have different meanings. A wallet submission, a host button click or a frozen attendance list is not proof that funds moved. The vault receipt and emitted events establish the financial transition.
+
+## Lifecycle state diagram
+
+```mermaid
+stateDiagram-v2
+    [*] --> RegistrationOpen: Vault created
+    RegistrationOpen --> StartRequested: Organizer requests start
+    RegistrationOpen --> Active: Scheduled start and valid report
+    StartRequested --> Active: Authorized start report
+    RegistrationOpen --> Cancelled: Eligible organizer cancellation
+    Active --> SettlementDue: End request or scheduled cutoff
+    SettlementDue --> Finalized: Valid snapshot and successful redemption
+    Finalized --> Claimed: Depositor claims allocation
+    Cancelled --> Claimed: Depositor claims principal refund
+    SettlementDue --> SettlementDue: Defer unavailable or invalid inputs
+```
+
+This is a reader-facing lifecycle model. Claim state is per participant; one claim does not imply every allocation was paid. An empty event displayed as ended after its scheduled end has not fabricated a settlement or allocation log.

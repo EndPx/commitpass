@@ -1,44 +1,76 @@
 ---
-description: Follow a reservation from event creation to the guest's wallet.
+description: The complete event journey, followed by detailed pages for each stage.
 ---
 
-# How CommitPass works
+# Overview
 
-Each event has its own contract vault. The vault holds commitments, accepts authorized lifecycle actions and records the final claim allocations.
+CommitPass turns an RSVP into a fixed USDC commitment. Every event has a dedicated vault; the organizer records attendance, CRE orchestrates lifecycle reports, and the vault fixes the resulting guest allocations.
+
+## Visual overview
+
+![Excalidraw overview of event creation, USDC commitment, start, check-in, settlement and claim.](../assets/diagrams/commitpass-journey.png)
+
+[Editable Excalidraw file](../assets/diagrams/commitpass-journey.excalidraw) · [Vector SVG](../assets/diagrams/commitpass-journey.svg)
+
+The sketch gives the order of the guest journey. The Mermaid diagrams below and in each child page explain the calls, data and checks behind those steps.
+
+## The big picture
 
 ```mermaid
-flowchart LR
-    Create[Host creates event] --> Commit[Guest commits USDC]
-    Commit --> Start[CRE starts event]
-    Start --> CheckIn[Host checks in guests]
-    CheckIn --> Settle[CRE settles event]
-    Settle --> Claim[Guest claims to wallet]
+flowchart TB
+    Host[Organizer] --> Create[Create event]
+    Create --> Factory[Factory deploys event vault]
+    Create --> Metadata[Save event description and cover]
+    Metadata --> AppDB[Application records]
+    Guest[Guest] --> Reserve[Approve and deposit USDC]
+    Reserve --> Vault[Event vault and CRE consumer]
+    Factory --> Vault
+    Vault --> Start[Authorized start report]
+    Start --> Yield[Deposit pooled funds into yield source]
+    Host --> Scan[Scan guest reservation QR]
+    Scan --> Check[API validates and records attendance]
+    Check --> AppDB
+    Host --> End[End request or scheduled cutoff]
+    End --> Snapshot[Freeze attendance snapshot]
+    AppDB --> Snapshot
+    Snapshot --> CRE[CRE validates and delivers report]
+    CRE --> Settle[Vault redeems and allocates]
+    Yield --> Settle
+    Settle --> Claim[Guest claims return]
+    Vault --> Envio[Envio indexes chain activity]
+    Claim --> Envio
+    Envio --> UI[Event page and profile history]
 ```
 
-## 1. Create
+Read this as three connected flows: **funds** move through the vault; **attendance and metadata** live in the application database; **chain events** become an indexed read model. These are different sources of truth.
 
-The host sets the event name, cover, description and location, along with capacity, commitment amount, registration deadline and event times. Creating the event deploys a vault and registers its automation schedule atomically. Descriptive content is stored by the application after the chain transaction succeeds.
+## Continue into each stage
 
-## 2. Commit
+| Stage | What the detailed page explains |
+| --- | --- |
+| [Event creation](../how-it-works/event-creation.md) | Which fields go onchain, metadata persistence and creation receipts |
+| [Participant registration](../how-it-works/participant-registration.md) | Approval versus deposit, eligibility and reservation passes |
+| [Start and attendance](../how-it-works/start-and-attendance.md) | Organizer requests, scheduled starts and continuous QR check-in |
+| [Settlement and claims](../how-it-works/settlement-and-claims.md) | Frozen snapshots, redemption, allocation and completed payouts |
+| [Yield vault lifecycle](../how-it-works/yield-vault-lifecycle.md) | ERC-4626 shares and the current test vault |
+| [Indexing and aggregation](../how-it-works/indexing-and-aggregation.md) | How logs become discovery, vault cards and profiles |
 
-The guest approves the vault to spend the required USDC, then deposits the fixed commitment. A successful deposit reserves the place. A token approval alone does not reserve a spot.
+## Requests and completed execution
 
-## 3. Start
+```mermaid
+sequenceDiagram
+    participant Host as Organizer
+    participant Vault as Event vault
+    participant CRE as CRE workflow
+    participant Forwarder as Forwarder
+    Host->>Vault: Request start or settlement
+    Vault-->>CRE: Factory lifecycle-request log
+    CRE->>Vault: Read current eligible action
+    CRE->>Forwarder: Submit authenticated report
+    Forwarder->>Vault: onReport
+    Vault-->>CRE: Lifecycle execution and receipt
+```
 
-The host can request a start, or the scheduled start time can make the event eligible. CRE reads the current contract state and submits a report. The contract closes registration and deposits pooled USDC into the configured ERC-4626 vault.
+A request does not prove execution. A successful allocation does not prove a claim was paid. Each financial step is established by the corresponding contract receipt.
 
-The current testnet yield source is a mock. It does not generate organic yield.
-
-## 4. Check in
-
-The host verifies the attendee and records check-in through the application. The backend validates the organizer, the participant's deposit and the active check-in window.
-
-## 5. Settle
-
-An end request or scheduled cutoff makes settlement eligible. The backend freezes one attendance snapshot for that cutoff. CRE validates the snapshot and writes a report. The event vault redeems its yield shares and fixes the allocations.
-
-## 6. Claim
-
-The guest returns to the event page and confirms a claim transaction. The USDC reaches the original depositing wallet when that transaction succeeds. Envio indexes the receipt so the event page and profile can show the completed payout.
-
-See [For guests](../guides/guests.md) or [For hosts](../guides/hosts.md) for the application steps.
+The current demonstration uses signed CRE CLI broadcast simulation and a mock ERC-4626 yield source. [Technical overview](../technical/architecture.md) explains the components and trust boundaries.

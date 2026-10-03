@@ -2,7 +2,7 @@
 description: Factory discovery, dedicated event vaults and report authorization.
 ---
 
-# Smart contracts
+# Smart Contract Architecture
 
 ## CommitPassFactory
 
@@ -33,6 +33,38 @@ Moving to DON execution requires the actual forwarder and workflow identity in a
 
 The ERC-4626 fixture is backed by Circle native testnet USDC. It exercises deposit and redemption but does not invest in Morpho or generate organic yield.
 
-[Vault source](https://github.com/EndPx/commitpass/blob/main/contracts/src/CommitPassVault.sol) · [Factory source](https://github.com/EndPx/commitpass/blob/main/contracts/src/CommitPassFactory.sol) · [Active addresses](../deployments/monad-testnet.md) · [Payout rules](../protocol/commitments-and-rewards.md)
+[Vault source](https://github.com/EndPx/commitpass/blob/main/contracts/src/CommitPassVault.sol) Ã‚Â· [Factory source](https://github.com/EndPx/commitpass/blob/main/contracts/src/CommitPassFactory.sol) Ã‚Â· [Active addresses](../deployments/monad-testnet.md) Ã‚Â· [Payout rules](../protocol/commitments-and-rewards.md)
 
 The factory and recorded browser-created vault have explorer source verification. Verification is address-specific; later vaults need their exact constructor verified. An independent security audit is not claimed.
+
+## Contract relationships
+
+```mermaid
+classDiagram
+    CommitPassFactory --> CommitPassVault : deploys and registers
+    CommitPassVault --|> ReceiverTemplate : report authorization
+    CommitPassVault --> IERC4626 : external yield source
+    CommitPassVault --> IEventFactory : lifecycle request notification
+    CommitPassVault --> IERC20 : underlying commitment token
+    class CommitPassFactory {
+      createEvent()
+      getBatch(slot)
+      notifyLifecycleRequested(action)
+    }
+    class CommitPassVault {
+      deposit()
+      requestStart()
+      requestSettlement()
+      claimReward()
+    }
+    class ReceiverTemplate {
+      onReport(metadata, report)
+    }
+    class IERC4626 {
+      asset()
+      deposit(assets, receiver)
+      redeem(shares, receiver, owner)
+    }
+```
+
+The event vault consumes CRE reports; the external ERC-4626 source holds invested commitments. These roles must not be combined into a claim that the event vault itself exposes the entire ERC-4626 interface.

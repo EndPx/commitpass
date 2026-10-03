@@ -4,7 +4,7 @@ description: >-
   boundary.
 ---
 
-# API and data model
+# API and Application Data
 
 The Go API serves indexed event data and manages application records. The hosted base URL is:
 
@@ -60,8 +60,30 @@ The payload includes `version`, `chainId`, `vault`, `eventId`, `cutoff`, `frozen
 
 A snapshot records attendance input. It does not prove redemption, allocation or payout succeeded; those are established by contract receipts and indexed logs.
 
-[API implementation](https://github.com/EndPx/commitpass/tree/main/api/) · [Attendance and trust](../protocol/attendance-and-trust.md)
+[API implementation](https://github.com/EndPx/commitpass/tree/main/api/) Ã‚Â· [Attendance and trust](../protocol/attendance-and-trust.md)
 
 ## Chosen names and guest lookup
 
 `PUT /v1/me` stores a chosen name and profile completion. `GET /v1/events/{vault}/guest-profiles?wallets=...` requires the current organizer and accepts up to 100 validated wallet addresses. Only names from completed profiles and active verified links are returned. `PUT /v1/events/{vault}/check-ins/{wallet}` validates ownership, membership and the attendance window; retries return existing records.
+
+## Application and snapshot boundaries
+
+```mermaid
+sequenceDiagram
+    participant Web as Frontend
+    participant Privy as Privy verifier
+    participant API as Go API
+    participant Chain as Chain reads
+    participant DB as Neon
+    participant CRE as CRE workflow
+    Web->>API: Account token and organizer request
+    API->>Privy: Verify identity and linked wallets
+    API->>Chain: Validate current ownership and eligibility
+    API->>DB: Save authorized metadata or attendance
+    CRE->>API: Service-authenticated snapshot request
+    API->>Chain: Validate finalized event and cutoff
+    API->>DB: Serialize and freeze snapshot
+    DB-->>CRE: Immutable snapshot with digest and chain anchor
+```
+
+Participant sessions and the CRE service credential are separate. A public indexed read filter does not grant write authority, and the snapshot endpoint does not transfer participant funds.

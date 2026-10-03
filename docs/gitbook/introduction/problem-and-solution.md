@@ -2,7 +2,7 @@
 description: Give a reservation a clear consequence and reward the people who attend.
 ---
 
-# Why CommitPass
+# Problem and Solution
 
 A workshop has a fixed number of seats. A meetup host books a room, prepares materials and plans around the guest list. An RSVP gives the host a number to work with, but it does not tell them who will actually arrive.
 
