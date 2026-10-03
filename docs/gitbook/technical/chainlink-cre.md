@@ -34,8 +34,6 @@ The receiver base first checks the immutable forwarder, then the immutable signe
 
 `main.ts` constructs the SDK Runner. `workflow.ts` registers handlers; separate modules implement configuration, EVM processing, snapshot validation and report delivery.
 
-[Workflow source](https://github.com/EndPx/commitpass/tree/main/cre/commitpass) · [Official consumer guide](https://docs.chain.link/cre/guides/workflow/using-evm-client/onchain-write/building-consumer-contracts) · [Forwarder directory](https://docs.chain.link/cre/guides/workflow/using-evm-client/forwarder-directory-ts)
-
 ## Handler and report pipeline
 
 ```mermaid

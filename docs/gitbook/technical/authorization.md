@@ -34,5 +34,3 @@ flowchart TB
 The active testnet receiver checks its immutable MockForwarder and EIP-712 simulation signer. The operator controls that signing credential and runtime availability. Standard mode uses an actual nonzero workflow identity; a deployed DON is not currently claimed.
 
 The organizer remains the attendance authority. Append-only records preserve the submitted attestation but do not establish that it was truthful. Source verification is distinct from an independent audit.
-
-[Attendance policy](../protocol/attendance-and-trust.md) · [CRE authorization](chainlink-cre.md)

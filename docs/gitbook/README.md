@@ -44,5 +44,3 @@ The current CRE runtime broadcasts signed CLI simulation reports. The current ER
 | How to use the app | [Using CommitPass](guides/overview.md) |
 | The complete event journey | [How CommitPass Works](introduction/how-it-works.md) |
 | Components and implementation details | [Technical Details](technical/architecture.md) |
-
-[Open CommitPass](https://commitpass-event.vercel.app/) · [Explore events](https://commitpass-event.vercel.app/discover)

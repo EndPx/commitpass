@@ -72,8 +72,6 @@ CRE reads due events and validates lifecycle inputs. Envio indexes creation, dep
 
 Pooled commitments can be supplied to an ERC-4626 source when the event starts and redeemed for settlement. The current source is a mock used to exercise those interfaces; organic yield is not active. CRE currently uses signed CLI broadcasts rather than a deployed Workflow DON.
 
-[Using CommitPass](../guides/overview.md) · [Technical Details](../technical/architecture.md)
-
 ## Visual overview
 
 ```mermaid

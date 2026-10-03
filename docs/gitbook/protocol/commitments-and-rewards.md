@@ -56,5 +56,3 @@ USDC has six decimals. Contract calculations operate on integer token units. The
 All yield shares must redeem and the recovered assets must cover the deposited principal before normal or zero-attendance settlement completes. Redemption failure or principal shortfall reverts the transaction. This implementation does not guarantee a payout during a loss or unavailable-liquidity condition.
 
 Every eligible participant claims from the original depositing wallet, at most once. Gas is separate and is never part of the refund.
-
-[Current contract policy](https://github.com/EndPx/commitpass/blob/main/contracts/SETTLEMENT.md)

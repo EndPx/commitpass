@@ -24,5 +24,3 @@ Metadata enriches indexed events with names, covers, descriptions and locations.
 The vault card distinguishes total commitments, allocations available to collect and confirmed funds returned. Profiles aggregate linked-wallet positions while preserving allocation versus payout meaning.
 
 Indexing can lag a receipt or change following a reorganization. Financial actions use live chain state. Refreshing the read model reconciles a confirmed action without fabricating status or retrying a paid transaction blindly.
-
-[Technical data flow](../technical/envio-and-profiles.md) · [API details](../technical/api-and-data.md)

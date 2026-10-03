@@ -38,5 +38,3 @@ The API requires the organizer's verified account, a registered vault, deposited
 A decoded QR alone is not success. The name notification appears after API confirmation; failures keep attendance unconfirmed. Desktop notifications appear at bottom-right and phone notifications at the top.
 
 Attendance is append-only in this version. The organizer attests presence; the QR does not replace that trust assumption.
-
-[Host guide](../guides/hosts.md) · [Authorization details](../technical/authorization.md)

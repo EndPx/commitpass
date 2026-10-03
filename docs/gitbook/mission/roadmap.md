@@ -73,8 +73,6 @@ CommitPass follows a phased development path. The first phase establishes the ev
 
 Each phase should produce reviewable evidence: confirmed transactions, reconciled accounting, observed service behavior, security findings or user feedback. Mainnet deployment, broader integrations and adoption milestones remain dependent on that evidence.
 
-[Technical Details](../technical/architecture.md)
-
 ## Visual overview
 
 ```mermaid

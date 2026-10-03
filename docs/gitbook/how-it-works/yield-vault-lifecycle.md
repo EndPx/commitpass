@@ -36,5 +36,3 @@ The active source is `MockYieldVault` on Monad testnet. It validates supply/rede
 The public demo currently uses MockYieldVault on Monad testnet. Tenderly testing and the public demo are separate environments; the simulation milestone does not represent a production mainnet deployment or a realized yield payment from the public demo.
 
 All recovered surplus is assigned under the payout policy; no yield rate or return is guaranteed. A treasury share applies to no-show principal in normal settlement, not to surplus.
-
-[Contract architecture](../technical/smart-contracts.md) · [Roadmap](../mission/roadmap.md)

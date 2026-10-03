@@ -48,8 +48,6 @@ Envio handlers support reorg rollback. The active hosted indexer exposes GraphQL
 
 The app can observe a confirmed receipt before indexed history changes. Financial actions use current contract state, while event lists and profiles may update slightly later. The completed demo's activity includes creation, deposit, start, attendance settlement, allocation and claim.
 
-[Indexer source](https://github.com/EndPx/commitpass/tree/main/indexer/)
-
 ## Vault insights
 
 The vault card combines indexed commitments, capacity, allocations and confirmed claims. Available returns are aggregated across participant pages. On phones, the card starts collapsed and expands to reveal its financial details. Forecast yield rates and fabricated balances are not displayed.

@@ -35,5 +35,3 @@ sequenceDiagram
 Creation must succeed before metadata is associated with the deployed vault. If metadata or indexing arrives later, the transaction still establishes the event; the app retries or refreshes the read model rather than inventing another vault.
 
 Capacity is limited to 500 participants. An organizer cannot replace the vault's financial policy through an event-description edit.
-
-[Organizer guide](../guides/hosts.md) · [Factory architecture](../technical/smart-contracts.md)
