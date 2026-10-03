@@ -40,6 +40,7 @@
   * [Smart Contract Architecture](technical/smart-contracts.md)
   * [Chainlink CRE Workflow](technical/chainlink-cre.md)
   * [Data Flow and Indexing](technical/envio-and-profiles.md)
+  * [Onchain and Offchain Data](technical/data-storage.md)
   * [API and Application Data](technical/api-and-data.md)
   * [Authorization and Trust Boundaries](technical/authorization.md)
 

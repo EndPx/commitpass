@@ -56,47 +56,15 @@ This is real Monad testnet execution through signed simulation. A Workflow DON d
 
 ## Onchain and offchain data storage
 
-CommitPass keeps financial state on Monad and application records in an offchain database. Envio maintains an indexed copy of chain activity so the interface can query it efficiently.
+- **Onchain, in Monad contracts:** event financial configuration, deposits, settlement results, allocations and claim transfers.
+- **Offchain, in Neon:** chosen names, wallet links, event metadata, check-ins and frozen attendance payloads.
+- **Offchain index, in Envio:** searchable copies of chain events and aggregates for the interface.
 
-| Data | Storage layer | Stored in | Purpose |
-| --- | --- | --- | --- |
-| Event owner, commitment amount, capacity and contract deadlines | **Onchain** | Monad factory and event vault | Enforce the event's financial configuration |
-| Depositor wallets, deposited amounts and participant membership | **Onchain** | Event vault | Record who committed funds and can receive an allocation |
-| Lifecycle state, yield shares, settled attendance flags and snapshot hash | **Onchain** | Event vault and ERC-4626 source | Execute and bind financial settlement to its attendance input |
-| Guest allocations, protocol revenue and completed claims | **Onchain** | Event vault state, token transfers and logs | Calculate and record financial outcomes |
-| Display names and verified account-to-wallet links | **Offchain** | Neon application database | Connect authenticated accounts to readable profiles |
-| Event description, cover, theme and location metadata | **Offchain** | Neon application database | Present and manage the event experience |
-| Organizer check-in records and timestamps | **Offchain** | Neon application database | Record attendance before settlement |
-| Frozen attendance payload and supporting audit fields | **Offchain** | Neon application database | Supply an immutable input for CRE validation |
-| Searchable events, participants, allocations and transaction history | **Offchain index of onchain data** | Hosted Envio | Provide indexed reads for discovery, vault cards and profiles |
+The sidebar page **Onchain and Offchain Data** explains each category and how attendance moves from application records into settlement.
 
-### How the layers connect
-
-```mermaid
-flowchart TB
-    subgraph AppData[Offchain application data - Neon]
-        Metadata[Names and event metadata]
-        CheckIns[Organizer check-in records]
-        Snapshot[Frozen attendance snapshot]
-        CheckIns --> Snapshot
-    end
-    API[Go API on server] --> Metadata
-    API --> CheckIns
-    Snapshot --> CRE[CRE validates snapshot and builds report]
-    subgraph ChainData[Onchain financial state - Monad]
-        Vault[Event vault]
-        Result[Settled attendance and snapshot hash]
-        Money[Allocations and claim transfers]
-        Vault --> Result
-        Vault --> Money
-    end
-    CRE --> Vault
-    Vault --> Index[Offchain indexed copy - Envio]
-    Index --> Web[CommitPass interface]
-    Metadata --> Web
-```
-
-**Onchain** records are public financial facts enforced by contracts. **Offchain** records support identity, presentation and attendance operations. The full check-in record stays offchain; settlement records the accepted attendance outcome and snapshot hash onchain. Envio reproduces chain activity for reads and does not replace the underlying contract state.
+{% content-ref url="data-storage.md" %}
+[Onchain and Offchain Data](data-storage.md)
+{% endcontent-ref %}
 
 ## Read the overview before the implementation details
 
@@ -116,6 +84,7 @@ flowchart LR
 | [Smart Contract Architecture](smart-contracts.md) | Factory, vault, external yield source and immutable report authorization |
 | [Chainlink CRE Workflow](chainlink-cre.md) | Trigger discovery, snapshot validation and report delivery |
 | [Data Flow and Indexing](envio-and-profiles.md) | Logs, entities, GraphQL, vault cards and profile aggregates |
+| [Onchain and Offchain Data](data-storage.md) | Where financial records, metadata, attendance and indexed copies live |
 | [API and Application Data](api-and-data.md) | Identity, metadata, chosen names, attendance and frozen snapshots |
 | [Authorization and Trust Boundaries](authorization.md) | Permissions for each actor and remaining assumptions |
 
