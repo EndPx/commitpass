@@ -8,9 +8,7 @@ CommitPass separates financial execution, attendance records and indexed reads.
 
 ## Component map
 
-![Excalidraw component map showing the frontend, Privy, factory, event vault, API, CRE, forwarder, yield source, Neon and hosted Envio.](../assets/diagrams/commitpass-system.png)
-
-[Editable Excalidraw file](https://github.com/EndPx/commitpass/blob/main/docs/gitbook/assets/diagrams/commitpass-system.excalidraw) · [Vector SVG](https://github.com/EndPx/commitpass/blob/main/docs/gitbook/assets/diagrams/commitpass-system.svg)
+![](../assets/diagrams/commitpass-system.png)
 
 Terracotta boxes are financial components, blue boxes represent identity and data services, and green boxes show actors or report delivery. The sketch identifies responsibilities; the Mermaid view below makes the complete data relationships explicit.
 
@@ -20,13 +18,13 @@ flowchart TB
     Web --> Privy[Privy authentication and signing]
     Privy --> Vault[Monad event vault and CRE consumer]
     Factory[Monad factory] --> Vault
-    Web --> API[Go API on VPS]
+    Web --> API[Go API on server]
     API --> AppDB[Neon application records]
     Factory --> Envio[Hosted Envio HyperIndex]
     Vault --> Envio
     Envio --> GraphQL[Hosted indexed GraphQL]
     GraphQL --> API
-    Timer[VPS timer] --> CRE[CRE CLI broadcast simulation]
+    Timer[server timer] --> CRE[CRE CLI broadcast simulation]
     CRE --> API
     CRE --> Forwarder[Simulation MockForwarder]
     Forwarder --> Vault
@@ -52,19 +50,53 @@ Profiles and vault cards use indexed records. Financial actions also read curren
 
 ## CRE runtime
 
-A VPS timer invokes CRE CLI simulation with broadcast. Cron reads bounded factory batches and an EVM log callback processes organizer requests. Both share lifecycle processing. Reports travel through the MockForwarder directly to the event vault.
+A server timer invokes CRE CLI simulation with broadcast. Cron reads bounded factory batches and an EVM log callback processes organizer requests. Both share lifecycle processing. Reports travel through the MockForwarder directly to the event vault.
 
 This is real Monad testnet execution through signed simulation. A Workflow DON deployment and organic yield are not active.
 
-| Component | Hosting |
-| --- | --- |
-| Frontend | Vercel |
-| API and CRE CLI timer | VPS |
-| Application records | Neon |
-| Active indexer and indexed GraphQL | Hosted Envio |
-| Factory, event vaults and mock yield source | Monad testnet |
+## Onchain and offchain data storage
 
-[Smart contracts](smart-contracts.md) · [CRE](chainlink-cre.md) · [Envio](envio-and-profiles.md)
+CommitPass keeps financial state on Monad and application records in an offchain database. Envio maintains an indexed copy of chain activity so the interface can query it efficiently.
+
+| Data | Storage layer | Stored in | Purpose |
+| --- | --- | --- | --- |
+| Event owner, commitment amount, capacity and contract deadlines | **Onchain** | Monad factory and event vault | Enforce the event's financial configuration |
+| Depositor wallets, deposited amounts and participant membership | **Onchain** | Event vault | Record who committed funds and can receive an allocation |
+| Lifecycle state, yield shares, settled attendance flags and snapshot hash | **Onchain** | Event vault and ERC-4626 source | Execute and bind financial settlement to its attendance input |
+| Guest allocations, protocol revenue and completed claims | **Onchain** | Event vault state, token transfers and logs | Calculate and record financial outcomes |
+| Display names and verified account-to-wallet links | **Offchain** | Neon application database | Connect authenticated accounts to readable profiles |
+| Event description, cover, theme and location metadata | **Offchain** | Neon application database | Present and manage the event experience |
+| Organizer check-in records and timestamps | **Offchain** | Neon application database | Record attendance before settlement |
+| Frozen attendance payload and supporting audit fields | **Offchain** | Neon application database | Supply an immutable input for CRE validation |
+| Searchable events, participants, allocations and transaction history | **Offchain index of onchain data** | Hosted Envio | Provide indexed reads for discovery, vault cards and profiles |
+
+### How the layers connect
+
+```mermaid
+flowchart TB
+    subgraph AppData[Offchain application data - Neon]
+        Metadata[Names and event metadata]
+        CheckIns[Organizer check-in records]
+        Snapshot[Frozen attendance snapshot]
+        CheckIns --> Snapshot
+    end
+    API[Go API on server] --> Metadata
+    API --> CheckIns
+    Snapshot --> CRE[CRE validates snapshot and builds report]
+    subgraph ChainData[Onchain financial state - Monad]
+        Vault[Event vault]
+        Result[Settled attendance and snapshot hash]
+        Money[Allocations and claim transfers]
+        Vault --> Result
+        Vault --> Money
+    end
+    CRE --> Vault
+    Vault --> Index[Offchain indexed copy - Envio]
+    Index --> Web[CommitPass interface]
+    Metadata --> Web
+```
+
+**Onchain** records are public financial facts enforced by contracts. **Offchain** records support identity, presentation and attendance operations. The full check-in record stays offchain; settlement records the accepted attendance outcome and snapshot hash onchain. Envio reproduces chain activity for reads and does not replace the underlying contract state.
 
 ## Read the overview before the implementation details
 

@@ -22,7 +22,7 @@ An unavailable API or invalid snapshot defers settlement. A valid empty snapshot
 
 ## Current execution mode
 
-The VPS runs CRE CLI simulation with `--broadcast`. These are real Monad testnet writes through the official simulation MockForwarder to each vault's `onReport`. No separate automation receiver is deployed for the active application.
+The server runs CRE CLI simulation with `--broadcast`. These are real Monad testnet writes through the official simulation MockForwarder to each vault's `onReport`. No separate automation receiver is deployed for the active application.
 
 A timer repeatedly invokes simulation callbacks. It is not a deployed Workflow DON.
 

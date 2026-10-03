@@ -8,9 +8,7 @@ CommitPass turns an RSVP into a fixed USDC commitment. Every event has a dedicat
 
 ## Visual overview
 
-![Excalidraw overview of event creation, USDC commitment, start, check-in, settlement and claim.](../assets/diagrams/commitpass-journey.png)
-
-[Editable Excalidraw file](https://github.com/EndPx/commitpass/blob/main/docs/gitbook/assets/diagrams/commitpass-journey.excalidraw) · [Vector SVG](https://github.com/EndPx/commitpass/blob/main/docs/gitbook/assets/diagrams/commitpass-journey.svg)
+![](../assets/diagrams/commitpass-journey.png)
 
 The sketch gives the order of the guest journey. The Mermaid diagrams below and in each child page explain the calls, data and checks behind those steps.
 

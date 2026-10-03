@@ -58,7 +58,7 @@ CommitPass follows a phased development path. The first phase establishes the ev
 - Validate deposit and redemption behavior, including loss and shortfall handling.
 - Conduct an independent security review before a mainnet release decision.
 
-Morpho vaults are a possible evaluation target. The current deployment remains connected to a mock source; no active Morpho integration or organic yield is claimed.
+[Hyperithm USDC Apex on Morpho](https://app.morpho.org/monad/vault/0x78999cc96d2Ba0341588C60CcB0E91c6C33CF371/hyperithm-usdc-apex) is the identified mainnet vault to evaluate. The current testnet deployment remains connected to a mock source; confirmed deposit and redemption records are required to establish an active integration and earned yield.
 
 ## Phase 4: Ecosystem integrations and expanded event tools
 

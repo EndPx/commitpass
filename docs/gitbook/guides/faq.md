@@ -46,8 +46,10 @@ Receipts and indexed activity can arrive at different times. The app uses curren
 
 ## Is CRE deployed to a DON?
 
-The current demo runs CRE CLI simulation with `--broadcast` on a VPS. The broadcasts are real Monad testnet transactions. DON deployment is a separate step and is not active in this release.
+The current demo runs CRE CLI simulation with `--broadcast` on a server. The broadcasts are real Monad testnet transactions. DON deployment is a separate step and is not active in this release.
 
-## Does the demo earn real yield?
+## How does the yield flow work?
 
-No. The configured ERC-4626 yield vault is a mock. The completed live scenario had zero realized yield.
+When the event starts, pooled commitments are supplied to the configured ERC-4626 vault. Settlement redeems its shares and calculates participant returns from the recovered funds. Any recovered surplus is allocated according to the event's payout rules.
+
+The current testnet configuration uses MockYieldVault. Hyperithm USDC Apex on Morpho is the identified mainnet integration target; connecting it requires a compatible deployment and confirmed deposit/redemption records. [Yield Vault Lifecycle](../how-it-works/yield-vault-lifecycle.md) explains the mechanism and links to the vault.

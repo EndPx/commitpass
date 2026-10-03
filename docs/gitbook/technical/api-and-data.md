@@ -12,6 +12,14 @@ The Go API serves indexed event data and manages application records. The hosted
 https://commitpass-api.endpx.cloud
 ```
 
+## Where data is stored
+
+- **Onchain, in Monad contracts:** event financial parameters, deposit membership, lifecycle state, allocations and claims.
+- **Offchain, in Neon:** account profiles, verified wallet links, event metadata, check-ins and frozen attendance payloads.
+- **Offchain, in hosted Envio:** indexed copies of contract events and aggregates used by public read endpoints.
+
+The API combines these layers when presenting an event. It reads chain ownership and membership to authorize application writes. A display name or check-in database row is not a token transfer. At settlement, the vault records the accepted attendance outcome and snapshot hash; the complete application snapshot remains in Neon.
+
 ## Public chain reads
 
 | Route                                           | Purpose                                      |
