@@ -4,6 +4,8 @@
 
 * [Overview](README.md)
 * [Problem and Solution](introduction/problem-and-solution.md)
+  * [Problem](introduction/problem-and-solution/problem.md)
+  * [Solution](introduction/problem-and-solution/solution.md)
 * [Features](introduction/features.md)
 
 ## Mission
