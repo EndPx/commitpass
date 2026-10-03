@@ -10,6 +10,12 @@ CommitPass gives each event an onchain commitment mechanism. The organizer defin
 
 The guest deposits the event's fixed USDC amount into a dedicated vault. The reservation therefore has a recorded financial commitment and an identifiable depositing wallet. A reservation pass gives the guest a QR code to present when they arrive.
 
+### Why a small refundable commitment can matter
+
+[KNVI Labs' 2026 guide](https://www.knvilabs.com/stories/no-show-rate-definition-and-benchmarks-2026) reports that refundable deposits of **$3–$25** reduce free-event no-show rates from **40–60% to 14–25%**, attributing the effect to psychological commitment.
+
+CommitPass applies this principle by linking a reservation to a refundable pledge and published attendance rules. The cited ranges provide context for the design; CommitPass's own attendance outcomes will be measured through pilots.
+
 ## 2. Returns linked to attendance
 
 For normal settlement, attendees reclaim their principal and share the attendee bonus pool. Half of forfeited no-show principal goes to attendees and half to CommitPass. All recovered surplus goes to attendees.

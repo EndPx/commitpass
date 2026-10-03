@@ -22,7 +22,11 @@ The guide reports the following no-show ranges for North American events:
 | Paid virtual events | **35–55%** |
 | Free virtual webinars | **50–80%** |
 
-The guide also reports a **14–25%** no-show range for free events using **$3–$25 refundable deposits**. This supports investigating a commitment-based reservation model.
+### Small refundable deposits and psychological commitment
+
+The guide reports that **$3–$25 refundable deposits** reduce free-event no-show rates from **40–60% to 14–25%**. KNVI Labs attributes this change to psychological commitment: the guest makes an explicit pledge to attend when reserving a place.
+
+This is the behavioral principle CommitPass aims to apply through a refundable USDC commitment, recorded attendance and clear return rules.
 
 These are estimates published by an event-services provider. The article does not provide a linked dataset or detailed sampling method. They are contextual benchmarks, not measured CommitPass results or guaranteed outcomes for a particular community.
 
