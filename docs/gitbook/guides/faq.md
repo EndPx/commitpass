@@ -52,4 +52,4 @@ The current demo runs CRE CLI simulation with `--broadcast` on a server. The bro
 
 When the event starts, pooled commitments are supplied to the configured ERC-4626 vault. Settlement redeems its shares and calculates participant returns from the recovered funds. Any recovered surplus is allocated according to the event's payout rules.
 
-The current testnet configuration uses MockYieldVault. Hyperithm USDC Apex on Morpho is the identified mainnet integration target; connecting it requires a compatible deployment and confirmed deposit/redemption records. [Yield Vault Lifecycle](../how-it-works/yield-vault-lifecycle.md) explains the mechanism and links to the vault.
+The CommitPass team has tested the Morpho integration path to Hyperithm USDC Apex using Tenderly simulation. The public Monad testnet demo currently uses MockYieldVault. [Yield Vault Lifecycle](../how-it-works/yield-vault-lifecycle.md) explains both environments and links to the Morpho vault.

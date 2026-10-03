@@ -34,7 +34,7 @@ The distinction matters: a start request is not a completed start, and an availa
 
 ## 6. A path toward productive pooled commitments
 
-The vault uses ERC-4626 deposit and redemption interfaces for the event's pooled funds. The current deployment exercises this lifecycle through a mock source. A compatible real yield vault is a future integration direction, subject to asset, liquidity and security review.
+The vault uses ERC-4626 deposit and redemption interfaces for the event's pooled funds. The CommitPass team has tested the integration path to Morpho's Hyperithm USDC Apex using Tenderly simulation. The public testnet deployment exercises the lifecycle through a mock source; production integration remains subject to asset, liquidity and security review.
 
 CommitPass adapts ATFI's event commitment mechanism for Monad, Privy, CRE and Envio. [Links and References](../../resources/links.md) records the implementation lineage.
 

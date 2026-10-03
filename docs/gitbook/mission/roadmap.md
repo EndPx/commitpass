@@ -58,7 +58,7 @@ CommitPass follows a phased development path. The first phase establishes the ev
 - Validate deposit and redemption behavior, including loss and shortfall handling.
 - Conduct an independent security review before a mainnet release decision.
 
-[Hyperithm USDC Apex on Morpho](https://app.morpho.org/monad/vault/0x78999cc96d2Ba0341588C60CcB0E91c6C33CF371/hyperithm-usdc-apex) is the identified mainnet vault to evaluate. The current testnet deployment remains connected to a mock source; confirmed deposit and redemption records are required to establish an active integration and earned yield.
+**Tenderly milestone:** the CommitPass team has tested the integration path to [Hyperithm USDC Apex on Morpho](https://app.morpho.org/monad/vault/0x78999cc96d2Ba0341588C60CcB0E91c6C33CF371/hyperithm-usdc-apex) using Tenderly simulation. Production deployment, operational review and observed mainnet accounting remain subsequent steps. The public testnet demo continues to use its mock source.
 
 ## Phase 4: Ecosystem integrations and expanded event tools
 
