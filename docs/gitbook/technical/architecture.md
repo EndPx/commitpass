@@ -8,7 +8,7 @@ CommitPass separates financial execution, attendance records and indexed reads.
 
 ## Component map
 
-![](../assets/diagrams/commitpass-system.png)
+![](../.gitbook/assets/commitpass-system.png)
 
 Terracotta boxes are financial components, blue boxes represent identity and data services, and green boxes show actors or report delivery. The sketch identifies responsibilities; the Mermaid view below makes the complete data relationships explicit.
 
