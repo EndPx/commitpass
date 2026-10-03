@@ -36,7 +36,7 @@ The distinction matters: a start request is not a completed start, and an availa
 
 The vault uses ERC-4626 deposit and redemption interfaces for the event's pooled funds. The CommitPass team has tested the integration path to Morpho's Hyperithm USDC Apex using Tenderly simulation. The public testnet deployment exercises the lifecycle through a mock source; production integration remains subject to asset, liquidity and security review.
 
-CommitPass adapts ATFI's event commitment mechanism for Monad, Privy, CRE and Envio. [Links and References](../../resources/links.md) records the implementation lineage.
+CommitPass adapts ATFI's event commitment mechanism for Monad, Privy, CRE and Envio. Project resources are available on [Links](../../resources/links.md).
 
 {% content-ref url="../how-it-works.md" %}
 [How CommitPass Works](../how-it-works.md)

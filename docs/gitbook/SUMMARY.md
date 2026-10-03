@@ -51,4 +51,4 @@
 
 ## Other
 
-* [Links and References](resources/links.md)
+* [Links](resources/links.md)
