@@ -25,8 +25,6 @@ CommitPass follows a phased development path. The first phase establishes the ev
 - CRE CLI broadcasts through the simulation forwarder.
 - A mock ERC-4626 source for exercising deposit and redemption.
 
-[Live Execution](../deployments/live-execution.md) records the completed journey and accounting.
-
 ## Phase 2: Multi-user validation and operational reliability
 
 **Status: next validation stage.**
@@ -75,7 +73,7 @@ Morpho vaults are a possible evaluation target. The current deployment remains c
 
 Each phase should produce reviewable evidence: confirmed transactions, reconciled accounting, observed service behavior, security findings or user feedback. Mainnet deployment, broader integrations and adoption milestones remain dependent on that evidence.
 
-[Deployment Status](../deployments/status.md) · [Technical Details](../technical/architecture.md)
+[Technical Details](../technical/architecture.md)
 
 ## Visual overview
 

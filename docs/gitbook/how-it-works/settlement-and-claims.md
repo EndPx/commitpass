@@ -44,4 +44,4 @@ Unavailable or malformed attendance data defers settlement; it is not interprete
 
 `ClaimAllocated` records entitlement. `RewardClaimed` records a completed payment. The guest claims from the original depositing wallet, at most once; MON gas is separate.
 
-[Exact payout rules](../protocol/commitments-and-rewards.md) · [Recorded accounting](../deployments/live-execution.md)
+[Exact payout rules](../protocol/commitments-and-rewards.md)

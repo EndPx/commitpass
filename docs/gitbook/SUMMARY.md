@@ -47,8 +47,6 @@
 
 * [Chains](deployments/chains.md)
   * [Monad Testnet](deployments/monad-testnet.md)
-* [Live Execution](deployments/live-execution.md)
-* [Deployment Status](deployments/status.md)
 
 ## Other
 

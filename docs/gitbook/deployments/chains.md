@@ -16,6 +16,6 @@ flowchart TB
     Vault --> Guest[Original depositor claims USDC]
 ```
 
-[Monad testnet](monad-testnet.md) contains the active addresses, source verification and manifest. [Live execution](live-execution.md) records confirmed receipts. Historical networks and deployments from reference projects are not CommitPass deployment evidence.
+[Monad Testnet](monad-testnet.md) contains the network configuration and active contract addresses.
 
 Mainnet and additional-chain deployment are not claimed. Test tokens have no financial value; the current yield source is a mock.

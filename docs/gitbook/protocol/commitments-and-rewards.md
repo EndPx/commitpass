@@ -57,4 +57,4 @@ All yield shares must redeem and the recovered assets must cover the deposited p
 
 Every eligible participant claims from the original depositing wallet, at most once. Gas is separate and is never part of the refund.
 
-[Current contract policy](https://github.com/EndPx/commitpass/blob/main/contracts/SETTLEMENT.md) · [Recorded live accounting](../deployments/live-execution.md)
+[Current contract policy](https://github.com/EndPx/commitpass/blob/main/contracts/SETTLEMENT.md)

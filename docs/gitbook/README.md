@@ -33,7 +33,7 @@ The active release runs on Monad testnet, using Circle native testnet USDC for c
 - **Envio** indexes contract activity for discovery, vault insights and profile history.
 - **The Go API and Neon** store event metadata, chosen names and organizer-recorded attendance.
 
-The current CRE runtime broadcasts signed CLI simulation reports. The current ERC-4626 yield source is a mock. [Deployment Status](deployments/status.md) explains these integration boundaries, and [Live Execution](deployments/live-execution.md) records the completed testnet journey.
+The current CRE runtime broadcasts signed CLI simulation reports. The current ERC-4626 yield source is a mock. [Technical Details](technical/architecture.md) explains the connected components and integration boundaries.
 
 ## Continue exploring
 

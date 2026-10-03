@@ -42,7 +42,7 @@ Reusable integration examples, a developer SDK and compatible yield sources are 
 
 The recorded direct-vault journey covers creation, deposit, organizer check-in, CRE processing and claim through the hosted application. The active network is Monad testnet. The yield source is a mock and CRE uses signed CLI broadcasts.
 
-[Live Execution](../deployments/live-execution.md) contains the receipts. [Roadmap](roadmap.md) explains the next validation and integration stages.
+[Roadmap](roadmap.md) explains the next validation and integration stages.
 
 ## Visual overview
 
