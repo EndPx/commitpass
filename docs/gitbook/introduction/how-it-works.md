@@ -8,7 +8,7 @@ CommitPass turns an RSVP into a fixed USDC commitment. Every event has a dedicat
 
 ## Visual overview
 
-![](../assets/diagrams/commitpass-journey.png)
+![](../.gitbook/assets/commitpass-journey.png)
 
 The sketch gives the order of the guest journey. The Mermaid diagrams below and in each child page explain the calls, data and checks behind those steps.
 
@@ -44,14 +44,14 @@ Read this as three connected flows: **funds** move through the vault; **attendan
 
 ## Continue into each stage
 
-| Stage | What the detailed page explains |
-| --- | --- |
-| [Event creation](../how-it-works/event-creation.md) | Which fields go onchain, metadata persistence and creation receipts |
-| [Participant registration](../how-it-works/participant-registration.md) | Approval versus deposit, eligibility and reservation passes |
-| [Start and attendance](../how-it-works/start-and-attendance.md) | Organizer requests, scheduled starts and continuous QR check-in |
-| [Settlement and claims](../how-it-works/settlement-and-claims.md) | Frozen snapshots, redemption, allocation and completed payouts |
-| [Yield vault lifecycle](../how-it-works/yield-vault-lifecycle.md) | ERC-4626 shares and the current test vault |
-| [Indexing and aggregation](../how-it-works/indexing-and-aggregation.md) | How logs become discovery, vault cards and profiles |
+| Stage                                                                   | What the detailed page explains                                     |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| [Event creation](../how-it-works/event-creation.md)                     | Which fields go onchain, metadata persistence and creation receipts |
+| [Participant registration](../how-it-works/participant-registration.md) | Approval versus deposit, eligibility and reservation passes         |
+| [Start and attendance](../how-it-works/start-and-attendance.md)         | Organizer requests, scheduled starts and continuous QR check-in     |
+| [Settlement and claims](../how-it-works/settlement-and-claims.md)       | Frozen snapshots, redemption, allocation and completed payouts      |
+| [Yield vault lifecycle](../how-it-works/yield-vault-lifecycle.md)       | ERC-4626 shares and the current test vault                          |
+| [Indexing and aggregation](../how-it-works/indexing-and-aggregation.md) | How logs become discovery, vault cards and profiles                 |
 
 ## Requests and completed execution
 

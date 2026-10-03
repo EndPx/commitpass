@@ -8,7 +8,7 @@ CommitPass separates financial execution, attendance records and indexed reads.
 
 ## Component map
 
-![](../assets/diagrams/commitpass-system.png)
+![](../.gitbook/assets/commitpass-system.png)
 
 Terracotta boxes are financial components, blue boxes represent identity and data services, and green boxes show actors or report delivery. The sketch identifies responsibilities; the Mermaid view below makes the complete data relationships explicit.
 
@@ -58,17 +58,17 @@ This is real Monad testnet execution through signed simulation. A Workflow DON d
 
 CommitPass keeps financial state on Monad and application records in an offchain database. Envio maintains an indexed copy of chain activity so the interface can query it efficiently.
 
-| Data | Storage layer | Stored in | Purpose |
-| --- | --- | --- | --- |
-| Event owner, commitment amount, capacity and contract deadlines | **Onchain** | Monad factory and event vault | Enforce the event's financial configuration |
-| Depositor wallets, deposited amounts and participant membership | **Onchain** | Event vault | Record who committed funds and can receive an allocation |
-| Lifecycle state, yield shares, settled attendance flags and snapshot hash | **Onchain** | Event vault and ERC-4626 source | Execute and bind financial settlement to its attendance input |
-| Guest allocations, protocol revenue and completed claims | **Onchain** | Event vault state, token transfers and logs | Calculate and record financial outcomes |
-| Display names and verified account-to-wallet links | **Offchain** | Neon application database | Connect authenticated accounts to readable profiles |
-| Event description, cover, theme and location metadata | **Offchain** | Neon application database | Present and manage the event experience |
-| Organizer check-in records and timestamps | **Offchain** | Neon application database | Record attendance before settlement |
-| Frozen attendance payload and supporting audit fields | **Offchain** | Neon application database | Supply an immutable input for CRE validation |
-| Searchable events, participants, allocations and transaction history | **Offchain index of onchain data** | Hosted Envio | Provide indexed reads for discovery, vault cards and profiles |
+| Data                                                                      | Storage layer                      | Stored in                                   | Purpose                                                       |
+| ------------------------------------------------------------------------- | ---------------------------------- | ------------------------------------------- | ------------------------------------------------------------- |
+| Event owner, commitment amount, capacity and contract deadlines           | **Onchain**                        | Monad factory and event vault               | Enforce the event's financial configuration                   |
+| Depositor wallets, deposited amounts and participant membership           | **Onchain**                        | Event vault                                 | Record who committed funds and can receive an allocation      |
+| Lifecycle state, yield shares, settled attendance flags and snapshot hash | **Onchain**                        | Event vault and ERC-4626 source             | Execute and bind financial settlement to its attendance input |
+| Guest allocations, protocol revenue and completed claims                  | **Onchain**                        | Event vault state, token transfers and logs | Calculate and record financial outcomes                       |
+| Display names and verified account-to-wallet links                        | **Offchain**                       | Neon application database                   | Connect authenticated accounts to readable profiles           |
+| Event description, cover, theme and location metadata                     | **Offchain**                       | Neon application database                   | Present and manage the event experience                       |
+| Organizer check-in records and timestamps                                 | **Offchain**                       | Neon application database                   | Record attendance before settlement                           |
+| Frozen attendance payload and supporting audit fields                     | **Offchain**                       | Neon application database                   | Supply an immutable input for CRE validation                  |
+| Searchable events, participants, allocations and transaction history      | **Offchain index of onchain data** | Hosted Envio                                | Provide indexed reads for discovery, vault cards and profiles |
 
 ### How the layers connect
 
@@ -111,12 +111,12 @@ flowchart LR
     Reads --> UI
 ```
 
-| Detail page | Part of the big picture |
-| --- | --- |
-| [Smart Contract Architecture](smart-contracts.md) | Factory, vault, external yield source and immutable report authorization |
-| [Chainlink CRE Workflow](chainlink-cre.md) | Trigger discovery, snapshot validation and report delivery |
-| [Data Flow and Indexing](envio-and-profiles.md) | Logs, entities, GraphQL, vault cards and profile aggregates |
-| [API and Application Data](api-and-data.md) | Identity, metadata, chosen names, attendance and frozen snapshots |
-| [Authorization and Trust Boundaries](authorization.md) | Permissions for each actor and remaining assumptions |
+| Detail page                                            | Part of the big picture                                                  |
+| ------------------------------------------------------ | ------------------------------------------------------------------------ |
+| [Smart Contract Architecture](smart-contracts.md)      | Factory, vault, external yield source and immutable report authorization |
+| [Chainlink CRE Workflow](chainlink-cre.md)             | Trigger discovery, snapshot validation and report delivery               |
+| [Data Flow and Indexing](envio-and-profiles.md)        | Logs, entities, GraphQL, vault cards and profile aggregates              |
+| [API and Application Data](api-and-data.md)            | Identity, metadata, chosen names, attendance and frozen snapshots        |
+| [Authorization and Trust Boundaries](authorization.md) | Permissions for each actor and remaining assumptions                     |
 
 Read the diagram as a map of responsibilities. Each child page explains the corresponding interfaces, state and failure boundaries.
