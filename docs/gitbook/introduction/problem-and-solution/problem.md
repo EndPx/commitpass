@@ -1,22 +1,36 @@
 ---
-description: An RSVP reserves a place without showing how likely a guest is to attend.
+description: Why event reservations need a clearer commitment.
 ---
 
 # Problem
 
-A workshop has a fixed number of seats. A meetup host books a room, prepares materials and plans around the guest list. An RSVP gives the host a number to work with, but it does not tell them who will actually arrive.
+Event organizers invest in a gathering before they know who will arrive. A guest list helps them plan, but registering interest and committing to attend are different actions. When these are treated as the same signal, the cost of uncertainty falls on the host and on other potential guests.
 
-When a guest does not show up, their reserved place can stay empty while another person misses the chance to attend. Hosts bear the preparation cost and uncertainty.
+## 1. Reserved seats can remain empty
 
-## Who experiences this problem
+A person can reserve a workshop or meetup spot and later decide not to attend. If the event has limited capacity, that reservation may prevent another interested guest from joining. The event loses participation even though demand existed.
 
-- **Community meetups** with limited space and recurring attendees.
-- **Workshops** where preparation depends on the number of participants.
-- **Small gatherings** whose hosts want a clearer commitment than a free RSVP.
+## 2. Preparation depends on an uncertain guest list
 
-## What we are validating
+Rooms, materials, food and volunteer schedules are often planned around registration totals. An unreliable attendance estimate can leave resources unused or make hosts prepare for a different gathering than the one that actually happens.
 
-The product hypothesis is that a clear refundable commitment makes a reservation more meaningful. The current implementation proves the funds and attendance workflow can complete on testnet. It does not yet establish a measured reduction in no-shows or a validated commitment price for every type of event.
+## 3. The alternatives introduce their own tradeoffs
+
+Overbooking can create capacity problems when more guests arrive than expected. Non-refundable tickets can make participation less attractive to people who intend to attend but do not want to pay for a community gathering. A refundable commitment offers another approach that still needs validation with real users.
+
+## 4. Financial outcomes can be hard to follow
+
+Guests need to understand where their deposit is held, which attendance rules apply, and how a return is calculated. If attendance records, refund decisions and payment history are disconnected, resolving those questions becomes a manual task.
+
+## 5. Wallet setup can interrupt the event experience
+
+Account creation, unfamiliar addresses, token balances and transaction gas add steps for guests who are new to onchain applications. A usable commitment flow must explain these requirements in the context of reserving and attending an event.
+
+## What CommitPass is testing
+
+CommitPass is designed for community meetups, workshops and small gatherings with limited capacity. Its product hypothesis is that a clearly explained refundable commitment can strengthen a reservation and reward attendance.
+
+The testnet implementation demonstrates the funds and attendance workflow. A measured reduction in no-shows, the right commitment amount, and repeat organizer adoption remain questions for user validation.
 
 {% content-ref url="solution.md" %}
 [Solution](solution.md)

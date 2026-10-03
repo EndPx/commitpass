@@ -1,22 +1,83 @@
 ---
-description: Implementation milestones and the evidence needed to close remaining gaps.
+description: From the current testnet application to validated integrations and broader use.
 ---
 
 # Roadmap
 
-The roadmap separates existing implementation from further integration and validation. These directions are not dated delivery promises.
+CommitPass follows a phased development path. The first phase establishes the event commitment experience; later phases strengthen evidence, integrate production services and explore wider adoption. Progress depends on the results of validation and review, rather than fixed calendar promises.
 
-| Stage | Status | Evidence or completion criterion |
-| --- | --- | --- |
-| Event and commitment application | Implemented on testnet | Hosted discovery, creation, reservation, check-in and claim |
-| Direct-vault CRE consumer | Implemented | Current factory and verified demo vault |
-| Single-attendee journey | Recorded | Current-contract creation through claim receipts |
-| Hosted indexing and vault insights | Implemented | Envio-backed events, financial history and profiles |
-| Independent two-guest journey | Next validation | One attendee and one no-show, with exact allocation and payout receipts |
-| Manual lifecycle transaction regression | Next validation | Fresh organizer start/end requests after wallet gas configuration changes |
-| Deployed CRE workflow | Integration direction | Actual DON workflow identity, forwarder configuration and observed reports |
-| Compatible real yield vault | Integration direction | Asset, liquidity, loss and deposit/redemption behavior verified for a selected vault |
-| Independent audit and attendance validation | Further work | External review and measured real-user evidence |
+## Phase 1: Event application and testnet foundation
+
+**Status: implemented on Monad testnet, with a recorded single-attendee journey.**
+
+### Core application
+
+- Event discovery, creation and customizable details.
+- Privy authentication, embedded wallets and chosen display names.
+- Fixed USDC commitments and dedicated event vaults.
+- Reservation passes, participant management and continuous QR check-in.
+- Lifecycle reports, allocation tracking and guest claims.
+
+### Connected services
+
+- A hosted Next.js frontend and Go API with Neon application records.
+- Hosted Envio indexing for events, participants and financial history.
+- CRE CLI broadcasts through the simulation forwarder.
+- A mock ERC-4626 source for exercising deposit and redemption.
+
+[Live Execution](../deployments/live-execution.md) records the completed journey and accounting.
+
+## Phase 2: Multi-user validation and operational reliability
+
+**Status: next validation stage.**
+
+### Financial and lifecycle evidence
+
+- Complete a fresh two-guest journey with one attendee and one no-show.
+- Reconcile deposits, allocations, treasury share and paid claims using exact receipts.
+- Validate organizer start and end transactions after wallet gas configuration changes.
+- Exercise cancellation, duplicate scans and delayed indexing in a hosted user flow.
+
+### Guest and organizer feedback
+
+- Gather feedback on commitment amounts, reservation clarity and check-in usability.
+- Review mobile behavior and the distinction between available returns and collected funds.
+- Measure attendance outcomes before claiming a reduction in no-shows.
+
+## Phase 3: Production integrations and security review
+
+**Status: integration direction, subject to compatibility and review.**
+
+### Automation
+
+- Configure an actual CRE Workflow DON deployment and production report authorization.
+- Verify the selected forwarder, workflow identity and observed lifecycle delivery.
+- Define operational monitoring and recovery procedures for delayed execution.
+
+### Yield source and financial readiness
+
+- Evaluate a real ERC-4626 vault for chain, asset, liquidity and security compatibility.
+- Validate deposit and redemption behavior, including loss and shortfall handling.
+- Conduct an independent security review before a mainnet release decision.
+
+Morpho vaults are a possible evaluation target. The current deployment remains connected to a mock source; no active Morpho integration or organic yield is claimed.
+
+## Phase 4: Ecosystem integrations and expanded event tools
+
+**Status: longer-term product direction.**
+
+- Publish developer integration examples and consider an SDK for event commitment flows.
+- Explore organizer analytics, waiting lists and event notifications based on user demand.
+- Pilot the application with communities and workshop hosts.
+- Evaluate additional use cases and networks only after the core event flow is validated.
+
+## How progress is assessed
+
+Each phase should produce reviewable evidence: confirmed transactions, reconciled accounting, observed service behavior, security findings or user feedback. Mainnet deployment, broader integrations and adoption milestones remain dependent on that evidence.
+
+[Deployment Status](../deployments/status.md) · [Technical Details](../technical/architecture.md)
+
+## Visual overview
 
 ```mermaid
 flowchart LR
@@ -24,9 +85,3 @@ flowchart LR
     Evidence --> Integration[DON and compatible yield integrations]
     Integration --> Review[Independent review and user validation]
 ```
-
-## Yield integration direction
-
-The contracts use ERC-4626 deposit and redemption interfaces. Morpho vaults are a possible integration target, subject to network availability, asset compatibility, liquidity and security review. The current deployed source remains a mock; an actual Morpho connection or return is not claimed.
-
-[Deployment status](../deployments/status.md) · [Yield vault lifecycle](../how-it-works/yield-vault-lifecycle.md)

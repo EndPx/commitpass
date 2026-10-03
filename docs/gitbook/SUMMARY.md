@@ -28,10 +28,11 @@
 
 ## Using CommitPass
 
-* [Getting Started](guides/getting-started.md)
-* [For Guests](guides/guests.md)
-* [For Hosts](guides/hosts.md)
-* [Frequently Asked Questions](guides/faq.md)
+* [Overview](guides/overview.md)
+  * [Getting Started](guides/getting-started.md)
+  * [For Guests](guides/guests.md)
+  * [For Hosts](guides/hosts.md)
+  * [Frequently Asked Questions](guides/faq.md)
 
 ## Technical Details
 
