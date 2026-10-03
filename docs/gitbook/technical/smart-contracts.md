@@ -33,7 +33,7 @@ Moving to DON execution requires the actual forwarder and workflow identity in a
 
 The ERC-4626 fixture is backed by Circle native testnet USDC. It exercises deposit and redemption but does not invest in Morpho or generate organic yield.
 
-[Vault source](https://github.com/EndPx/commitpass/blob/main/contracts/src/CommitPassVault.sol) Ã‚Â· [Factory source](https://github.com/EndPx/commitpass/blob/main/contracts/src/CommitPassFactory.sol) Ã‚Â· [Active addresses](../deployments/monad-testnet.md) Ã‚Â· [Payout rules](../protocol/commitments-and-rewards.md)
+[Vault source](https://github.com/EndPx/commitpass/blob/main/contracts/src/CommitPassVault.sol) · [Factory source](https://github.com/EndPx/commitpass/blob/main/contracts/src/CommitPassFactory.sol) · [Active addresses](../deployments/monad-testnet.md) · [Payout rules](../protocol/commitments-and-rewards.md)
 
 The factory and recorded browser-created vault have explorer source verification. Verification is address-specific; later vaults need their exact constructor verified. An independent security audit is not claimed.
 

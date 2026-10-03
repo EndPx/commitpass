@@ -48,7 +48,7 @@ Envio handlers support reorg rollback. The active hosted indexer exposes GraphQL
 
 The app can observe a confirmed receipt before indexed history changes. Financial actions use current contract state, while event lists and profiles may update slightly later. The completed demo's activity includes creation, deposit, start, attendance settlement, allocation and claim.
 
-[Indexer source](https://github.com/EndPx/commitpass/tree/main/indexer/) Ã‚Â· [Live execution](../deployments/live-execution.md)
+[Indexer source](https://github.com/EndPx/commitpass/tree/main/indexer/) · [Live execution](../deployments/live-execution.md)
 
 ## Vault insights
 

@@ -60,7 +60,7 @@ The payload includes `version`, `chainId`, `vault`, `eventId`, `cutoff`, `frozen
 
 A snapshot records attendance input. It does not prove redemption, allocation or payout succeeded; those are established by contract receipts and indexed logs.
 
-[API implementation](https://github.com/EndPx/commitpass/tree/main/api/) Ã‚Â· [Attendance and trust](../protocol/attendance-and-trust.md)
+[API implementation](https://github.com/EndPx/commitpass/tree/main/api/) · [Attendance and trust](../protocol/attendance-and-trust.md)
 
 ## Chosen names and guest lookup
 

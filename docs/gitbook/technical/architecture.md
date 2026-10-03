@@ -10,7 +10,7 @@ CommitPass separates financial execution, attendance records and indexed reads.
 
 ![Excalidraw component map showing the frontend, Privy, factory, event vault, API, CRE, forwarder, yield source, Neon and hosted Envio.](../assets/diagrams/commitpass-system.png)
 
-[Editable Excalidraw file](../assets/diagrams/commitpass-system.excalidraw) · [Vector SVG](../assets/diagrams/commitpass-system.svg)
+[Editable Excalidraw file](https://github.com/EndPx/commitpass/blob/main/docs/gitbook/assets/diagrams/commitpass-system.excalidraw) · [Vector SVG](https://github.com/EndPx/commitpass/blob/main/docs/gitbook/assets/diagrams/commitpass-system.svg)
 
 Terracotta boxes are financial components, blue boxes represent identity and data services, and green boxes show actors or report delivery. The sketch identifies responsibilities; the Mermaid view below makes the complete data relationships explicit.
 
@@ -64,7 +64,7 @@ This is real Monad testnet execution through signed simulation. A Workflow DON d
 | Active indexer and indexed GraphQL | Hosted Envio |
 | Factory, event vaults and mock yield source | Monad testnet |
 
-[Smart contracts](smart-contracts.md) Ã‚Â· [CRE](chainlink-cre.md) Ã‚Â· [Envio](envio-and-profiles.md)
+[Smart contracts](smart-contracts.md) · [CRE](chainlink-cre.md) · [Envio](envio-and-profiles.md)
 
 ## Read the overview before the implementation details
 
