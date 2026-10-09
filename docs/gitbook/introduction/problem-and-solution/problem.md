@@ -10,17 +10,17 @@ Event organizers invest in a gathering before they know who will arrive. A guest
 
 [KNVI Labs' 2026 benchmark guide](https://www.knvilabs.com/stories/no-show-rate-definition-and-benchmarks-2026), published on **23 June 2026**, illustrates how no-shows leave planned capacity unused.
 
-![](../../assets/no-show-attendance-illustration.png)
+![](../../.gitbook/assets/no-show-attendance-illustration.png)
 
-*Illustrative venue layout from KNVI Labs: 412 occupied seats and 196 empty seats out of a capacity of 608.*
+_Illustrative venue layout from KNVI Labs: 412 occupied seats and 196 empty seats out of a capacity of 608._
 
 The guide reports the following no-show ranges for North American events:
 
-| Event category | Reported no-show range |
-| --- | --- |
-| Free in-person events | **40–60%** |
-| Paid virtual events | **35–55%** |
-| Free virtual webinars | **50–80%** |
+| Event category        | Reported no-show range |
+| --------------------- | ---------------------- |
+| Free in-person events | **40–60%**             |
+| Paid virtual events   | **35–55%**             |
+| Free virtual webinars | **50–80%**             |
 
 ### Small refundable deposits and psychological commitment
 
@@ -32,7 +32,7 @@ These are estimates published by an event-services provider. The article does no
 
 ### Measuring the problem
 
-```text
+```
 No-show rate = (No-shows / Confirmed registrations) × 100
 ```
 
@@ -65,5 +65,5 @@ CommitPass is designed for community meetups, workshops and small gatherings wit
 The testnet implementation demonstrates the funds and attendance workflow. A measured reduction in no-shows, the right commitment amount, and repeat organizer adoption remain questions for user validation.
 
 {% content-ref url="solution.md" %}
-[Solution](solution.md)
+[solution.md](solution.md)
 {% endcontent-ref %}

@@ -4,6 +4,8 @@ description: Onchain commitments for events, built on Monad.
 
 # Overview
 
+![CommitPass overview: reserve with USDC, show up and check in, then claim your deposit and eligible rewards after settlement.](.gitbook/assets/commitpass-overview-3d.jpg)
+
 CommitPass is an event commitment application built on Monad. It connects a familiar event experience with a recorded USDC commitment: guests reserve a spot, organizers confirm attendance, and a dedicated event vault applies the financial rules after the event.
 
 The idea is simple: a reservation should carry a clear commitment, and guests should be able to follow what happens to it. CommitPass brings event discovery, account access, QR check-in, lifecycle automation and return claims into one workflow.
@@ -28,19 +30,19 @@ The active release runs on Monad testnet, using Circle native testnet USDC for c
 
 ## 4. A connected application architecture
 
-- **Dedicated event vaults** isolate each event's participants, deposited funds and allocations.
-- **Chainlink CRE** validates lifecycle inputs and delivers reports directly to the event vault.
-- **Envio** indexes contract activity for discovery, vault insights and profile history.
-- **The Go API and Neon** store event metadata, chosen names and organizer-recorded attendance.
+* **Dedicated event vaults** isolate each event's participants, deposited funds and allocations.
+* **Chainlink CRE** validates lifecycle inputs and delivers reports directly to the event vault.
+* **Envio** indexes contract activity for discovery, vault insights and profile history.
+* **The Go API and Neon** store event metadata, chosen names and organizer-recorded attendance.
 
 The current CRE runtime broadcasts signed CLI simulation reports. The current ERC-4626 yield source is a mock. [Technical Details](technical/architecture.md) explains the connected components and integration boundaries.
 
 ## Continue exploring
 
-| Topic | Start here |
-| --- | --- |
+| Topic                                              | Start here                                                   |
+| -------------------------------------------------- | ------------------------------------------------------------ |
 | The reservation problem and the proposed mechanism | [Problem and Solution](introduction/problem-and-solution.md) |
-| What the application offers | [Features](introduction/features.md) |
-| How to use the app | [Using CommitPass](guides/overview.md) |
-| The complete event journey | [How CommitPass Works](introduction/how-it-works.md) |
-| Components and implementation details | [Technical Details](technical/architecture.md) |
+| What the application offers                        | [Features](introduction/features.md)                         |
+| How to use the app                                 | [Using CommitPass](guides/overview.md)                       |
+| The complete event journey                         | [How CommitPass Works](introduction/how-it-works.md)         |
+| Components and implementation details              | [Technical Details](technical/architecture.md)               |
