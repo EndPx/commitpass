@@ -61,7 +61,7 @@ Each event needs affordable reservations, lifecycle transactions, and individual
 ## Architecture and data ownership
 
 ```mermaid
-flowchart LR
+flowchart TB
     Guest[Guest / organizer] --> Web[Next.js app + Privy wallet]
     Web -->|Commitments and claims| Chain[Monad factory + event vaults]
     Web -->|Authenticated metadata and check-in| API[Go HTTPS API]
@@ -74,6 +74,10 @@ flowchart LR
     CRE -->|Signed simulation report| Forwarder[Monad testnet MockForwarder]
     Forwarder -->|Authorized lifecycle execution| Chain
     Chain -->|Deposit / redeem| Yield[Mock ERC-4626 yield vault]
+    classDef chain fill:#fbe9e1,stroke:#be4c2b,color:#29221e
+    classDef app fill:#f6f4ed,stroke:#8a8177,color:#29221e
+    class Chain,Forwarder,Yield chain
+    class Web,API,AppDB,Envio,Timer,CRE app
 ```
 
 | Layer                        | Stores or controls                                                                          | Authority                                                                     |

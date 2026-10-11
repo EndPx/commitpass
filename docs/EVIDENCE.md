@@ -10,7 +10,7 @@ Network: **Monad testnet · 10143**. Event vault: [0xdeD18DAb5D35B2CA9fecb2b4A7f
 
 | Action     | Receipt                                                                                                            | Block    | What the logs establish                                                           |
 | ---------- | ------------------------------------------------------------------------------------------------------------------ | -------- | --------------------------------------------------------------------------------- |
-| Create     | [Transaction](https://testnet.monadscan.com/tx/0x83715de1dd21bee9746e6e6e6ffb7c549f5de4ae06e0b771e86dc8edc57f6f59) | 69949912 | Successful factory transaction and new vault ownership                            |
+| Create     | [Transaction](https://testnet.monadscan.com/tx/0x83715de1dd21bee9746e6e6e6ffb7c549f5de4ae06e0b771e86dc8edc57f6f59) | 69949912 | `VaultCreated`, `EventRegistered`, and new vault ownership                        |
 | Deposit    | [Transaction](https://testnet.monadscan.com/tx/0xa01dfdf5d50319d6eb4767679127c702c44f65702c83dddb03a1ae6b2dabd15f) | 69950134 | `DepositMade`, 1,000,000 raw USDC units                                           |
 | CRE start  | [Transaction](https://testnet.monadscan.com/tx/0x5173c20e647b857606a1b3e3adb6c344cb61812fc3f1ca6cd5ec97f77f3e7041) | 69950581 | `DepositToYieldSource` and `LifecycleExecuted`                                    |
 | CRE settle | [Transaction](https://testnet.monadscan.com/tx/0x363f9a7c9a44d0c50edeb8f0a9c62696c3a7bd7256d7e652e3cd25fdd874efb0) | 69951867 | Accepted attendance, exact allocation, normal settlement, and lifecycle execution |
