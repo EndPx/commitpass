@@ -166,11 +166,17 @@ export function Hero() {
           rewards.
         </p>
         <div className="hero-actions">
-          <a href="#how-it-works" className="button button--dark">
-            Meet CommitPass <ArrowUpRight size={18} />
+          <a href="/discover" className="button button--dark">
+            Explore events <ArrowUpRight size={18} />
           </a>
-          <a href="#for-hosts" className="text-link">
-            Made for hosts, too <ArrowUpRight size={16} />
+          <a
+            href="https://www.youtube.com/watch?v=p8Wsvpcy7ZU"
+            className="text-link"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Watch the CommitPass demo (opens in a new tab)"
+          >
+            Watch the demo <ArrowUpRight size={16} />
           </a>
         </div>
       </div>

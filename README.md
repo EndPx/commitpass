@@ -4,7 +4,9 @@
 
 An event platform on Monad where guests reserve a spot with a refundable deposit and share rewards from people who don't show up.
 
-[Live documentation](https://sama-3.gitbook.io/commitpass-docs/documentation/) · [Documentation source](docs/gitbook/README.md) · [Documentation contents](docs/gitbook/SUMMARY.md)
+[Live app](https://commitpass-event.vercel.app/) · [Technical demo](https://www.youtube.com/watch?v=p8Wsvpcy7ZU) · [Live documentation](https://sama-3.gitbook.io/commitpass-docs/documentation/)
+
+[Documentation source](docs/gitbook/README.md) · [Documentation contents](docs/gitbook/SUMMARY.md)
 
 Participants reserve a place by depositing a fixed commitment into an event contract. Organizers record attendance. At settlement, attendees become eligible to claim their commitment, half of forfeited no-show deposits, and all recovered yield. The other half of no-show commitments goes to CommitPass. Valid zero-attendance settlement refunds all depositors; a host cancellation before start opens full refunds. See [settlement policy](contracts/SETTLEMENT.md). The legacy deployment retains its immutable pre-policy behavior; the current USDC deployment includes the updated policy.
 
@@ -17,7 +19,7 @@ check-in → settlement → claim through Privy, Go/Neon, Envio and CRE CLI on A
 See [the recorded local application flow](cre/evidence/interactive-local-2026-09-28.json).
 Use `pnpm local:app` to run it with a local MockUSDC fixture. The public deployment uses Circle's native Monad testnet USDC; historical local evidence retains its original token and deployment identifiers.
 
-The frontend is now hosted at [commitpass-kappa.vercel.app](https://commitpass-kappa.vercel.app).
+The frontend is hosted at [commitpass-event.vercel.app](https://commitpass-event.vercel.app).
 The Go API, Envio indexer and recurring signed CRE simulation run on the Hostinger
 VPS, with [HTTPS API](https://commitpass-api.endpx.cloud/health). Google sign-in
 and the deployed account workspace were checked in the browser. The broadcast path uses a Monad-testnet-only simulation receiver with signed
@@ -77,8 +79,9 @@ pnpm dev
 - API liveness: `http://localhost:8080/health`
 - These endpoints prove the processes and shared imports work. They do not check a database or chain connection.
 - Landing page: `http://localhost:3000/`. Includes an animated event-poster hero,
-  interactive RSVP walkthrough, host section, and FAQ. The preview does not submit
-  bookings or payments. Privy sign-in is at `/signin`, with event pages at
+  illustrative RSVP walkthrough, host section, and current testnet FAQ. The landing
+  illustration submits no payment; the live application provides event creation,
+  reservations, check-in, settlement, and claims. Privy sign-in is at `/signin`, with event pages at
   `/events`, `/discover`, `/events/[vault]`, `/events/[vault]/manage` and `/events/new`. Event creation is
   enabled for the configured signed simulation receiver; local drafts also work. See
   [web setup and execution boundaries](apps/web/README.md).

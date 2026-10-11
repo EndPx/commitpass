@@ -95,6 +95,11 @@ preserving reading/focus order and pointer access to the real CTA links.
   observer are cleaned up on unmount.
 - FAQ: native details/summary sharing `name="commitpass-faq"` so only one answer
   can be open. Generous tap targets and plus/minus affordance.
+  Copy describes the available testnet flow, funding, organizer-recorded attendance,
+  and refunds. It keeps illustrative landing artwork distinct from actual listings.
+- Landing conversion: Explore events opens `/discover`; Watch the demo opens the
+  recorded technical demonstration. The closing CTA also opens discovery. Public
+  footer status reads Monad testnet / Test funds only and includes Docs and GitHub.
 
 ## 6. Motion and interaction
 

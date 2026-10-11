@@ -34,6 +34,9 @@ pnpm --filter @commitpass/web start
   image is labeled as illustrative and loads lazily from Cloudinary's CDN.
 
 The landing walkthrough is illustrative and submits no payment or booking.
+Its Explore events CTA opens the live workspace, and Watch the demo links to the
+recorded product journey. The FAQ describes the available Monad testnet flow,
+token funding, organizer-recorded attendance, and refund outcomes.
 The `/signin` route uses real Privy authentication; successful backend verification
 redirects to `/events` (or an allowlisted event destination).
 No photo assets or product claims are copied from the references. Design tokens,
@@ -150,9 +153,10 @@ the guest/check-in list. Hosts can search a wallet or paste a pass URL and mark
 attendance. Start/End actions simulate and send receiver requests from the owner
 wallet; request confirmation does not mark CRE execution completed. End permits an empty guest list: only a valid frozen empty snapshot can activate full refunds. Cancel event sends directly to the vault before start and before any Start request. UI distinguishes cancellation, zero-attendance refunds, and ordinary settlement. Claims depend on allocated amounts, not attendance flags.
 
-Public testnet publishing remains blocked until a real CRE workflow is registered
-and configured on that receiver. Local mode uses separate configured Anvil
-contracts and does not unlock or change the public receiver.
+Public Monad testnet event creation is enabled for the configured signed simulation
+receiver. The hosted MVP uses recurring CRE CLI simulation with broadcast on the
+server for lifecycle execution. Deployed DON execution is deferred. Local mode
+uses separate configured Anvil contracts and does not change the public receiver.
 
 ## Registration closes shortcut
 

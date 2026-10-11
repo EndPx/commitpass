@@ -19,22 +19,32 @@ const faqs = [
   {
     question: "What happens if I don’t show up?",
     answer:
-      "If you don’t attend, your commitment is forfeited. Those deposits are shared among the people whose attendance is confirmed, according to the event’s settlement rules. Check the event details before committing.",
+      "In a normally settled event, your commitment is forfeited if you don’t attend. Half of the forfeited deposits goes to confirmed attendees and half to CommitPass. Cancellation and events with no confirmed attendees follow separate refund rules. Check the event details before committing.",
   },
   {
     question: "Where do the rewards come from?",
     answer:
-      "Rewards can come from forfeited no-show deposits and any net yield earned while the event funds are deposited in a vault. They vary by event and are not guaranteed. Vault strategies also carry risk; the event should explain its terms before you join.",
+      "Attendance rewards come from the attendees’ share of forfeited no-show deposits and any recovered surplus. The current Monad testnet demo uses a mock yield vault to demonstrate deposit and redemption. Rewards depend on the event outcome and are not guaranteed.",
   },
   {
     question: "Do I need to know anything about crypto?",
     answer:
-      "Start with your email and a verification code. CommitPass is being built around familiar sign-in and an embedded wallet powered by Privy, with clear amounts and actions. Sign-in is available now; booking and payment screens are coming next.",
+      "Sign in with email or Google. Privy provides an embedded wallet inside the app, so you can reserve and claim without installing a wallet extension. For this testnet demo, you need testnet USDC for your commitment and MON for transaction gas. The Faucet button in your workspace links to both token faucets.",
   },
   {
-    question: "Can I book an event here yet?",
+    question: "Can I create or reserve an event now?",
     answer:
-      "Not yet. This is a preview of CommitPass. The contracts are deployed on Monad testnet, while we connect the guest and organizer experience. The event artwork and reservation shown here are examples, not live listings.",
+      "Yes. The app supports event creation, USDC reservations, QR check-in, settlement, and return claims on Monad testnet. Explore events or sign in to create your own. Testnet tokens have no financial value. The posters and reservations on this landing page are illustrative examples.",
+  },
+  {
+    question: "How is my attendance confirmed?",
+    answer:
+      "Your organizer scans your QR pass and records your check-in. Check that your pass shows Checked in before leaving. If your attendance looks wrong, contact the organizer before check-in closes. The finalized attendance record determines the settlement allocation.",
+  },
+  {
+    question: "What happens if the event is cancelled?",
+    answer:
+      "A confirmed cancellation before the event starts opens deposit refund claims for registered guests. Settlement with no confirmed attendees also follows a refund rule. Once your refund is available, claim it from the event page.",
   },
 ];
 
@@ -229,8 +239,8 @@ export default function Home() {
               <br />
               <em>More memories.</em>
             </h2>
-            <a className="button button--dark" href="#how-it-works">
-              See how it comes together <ArrowUpRight size={18} />
+            <a className="button button--dark" href="/discover">
+              Explore events <ArrowUpRight size={18} />
             </a>
             <p className="closing-note">{project.tagline}</p>
           </Reveal>
@@ -240,8 +250,15 @@ export default function Home() {
           <span>Made for showing up.</span>
           <div>
             <span className="footer-status">
-              <span className="status-dot" /> Built on Monad · Testnet preview
+              <span className="status-dot" /> Monad testnet · Test funds only
             </span>
+            <a
+              href="https://sama-3.gitbook.io/commitpass-docs/documentation"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Docs <ArrowUpRight size={14} aria-hidden="true" />
+            </a>
             <a
               href="https://github.com/EndPx/commitpass"
               target="_blank"
