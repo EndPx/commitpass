@@ -1,0 +1,197 @@
+{
+  "recordedAt": "2026-10-11T12:06:55.737Z",
+  "chainId": 10143,
+  "network": "Monad testnet",
+  "rpc": "https://testnet-rpc.monad.xyz",
+  "vault": "0xdeD18DAb5D35B2CA9fecb2b4A7f0f127C07f939b",
+  "execution": "Server-operated CRE CLI broadcast simulation; not a deployed Workflow DON",
+  "token": {
+    "symbol": "USDC",
+    "decimals": 6
+  },
+  "scenario": "One attendee, 1 USDC commitment, normal settlement, claimed principal; no no-show participant or organic yield",
+  "receipts": {
+    "create": {
+      "transactionHash": "0x83715de1dd21bee9746e6e6e6ffb7c549f5de4ae06e0b771e86dc8edc57f6f59",
+      "status": "success",
+      "to": "0x94f7408816cc9eab7e5043e92bddddaff3a9931f",
+      "blockNumber": "69949912",
+      "blockHash": "0x52874458bd38847b1f932269002e987805a9118583811947efd1150d55cfe015",
+      "events": [
+        {
+          "address": "0xded18dab5d35b2ca9fecb2b4a7f0f127c07f939b",
+          "name": "OwnershipTransferred",
+          "args": {
+            "previousOwner": "0x0000000000000000000000000000000000000000",
+            "newOwner": "0x256C80e80Fc91DA7509A3acd77c4E17DA00c7bf6"
+          }
+        },
+        {
+          "address": "0x94f7408816cc9eab7e5043e92bddddaff3a9931f",
+          "name": "VaultCreated",
+          "args": {
+            "eventId": "6",
+            "vault": "0xdeD18DAb5D35B2CA9fecb2b4A7f0f127C07f939b",
+            "organizer": "0x256C80e80Fc91DA7509A3acd77c4E17DA00c7bf6",
+            "stakeAmount": "1000000",
+            "maxParticipant": "30",
+            "registrationDeadline": "1791673199",
+            "eventDate": "1791673200"
+          }
+        },
+        {
+          "address": "0x94f7408816cc9eab7e5043e92bddddaff3a9931f",
+          "name": "EventRegistered",
+          "args": {
+            "vault": "0xdeD18DAb5D35B2CA9fecb2b4A7f0f127C07f939b",
+            "startAt": "1791673200",
+            "settleAt": "1791675000"
+          }
+        }
+      ]
+    },
+    "deposit": {
+      "transactionHash": "0xa01dfdf5d50319d6eb4767679127c702c44f65702c83dddb03a1ae6b2dabd15f",
+      "status": "success",
+      "to": "0xded18dab5d35b2ca9fecb2b4a7f0f127c07f939b",
+      "blockNumber": "69950134",
+      "blockHash": "0x1028fea977f7657c3b463ed575e98d9d62f3f250bfd409834076f2d59c372170",
+      "events": [
+        {
+          "address": "0xded18dab5d35b2ca9fecb2b4a7f0f127c07f939b",
+          "name": "Transfer",
+          "args": {
+            "from": "0x0000000000000000000000000000000000000000",
+            "to": "0xD91DC1e8561cC50C67aDB754c700d471ad283496",
+            "value": "1000000"
+          }
+        },
+        {
+          "address": "0xded18dab5d35b2ca9fecb2b4a7f0f127c07f939b",
+          "name": "DepositMade",
+          "args": {
+            "participant": "0xD91DC1e8561cC50C67aDB754c700d471ad283496",
+            "amount": "1000000"
+          }
+        }
+      ]
+    },
+    "start": {
+      "transactionHash": "0x5173c20e647b857606a1b3e3adb6c344cb61812fc3f1ca6cd5ec97f77f3e7041",
+      "status": "success",
+      "to": "0xb9f79d863261869b234c481d1f9a7af84aead192",
+      "blockNumber": "69950581",
+      "blockHash": "0xc76177c952a5d387c7e2c2364a46e841ac5a04e59658488e422d7e84e5dc845b",
+      "events": [
+        {
+          "address": "0xded18dab5d35b2ca9fecb2b4a7f0f127c07f939b",
+          "name": "DepositToYieldSource",
+          "args": {
+            "amount": "1000000"
+          }
+        },
+        {
+          "address": "0xded18dab5d35b2ca9fecb2b4a7f0f127c07f939b",
+          "name": "LifecycleExecuted",
+          "args": {
+            "vault": "0xdeD18DAb5D35B2CA9fecb2b4A7f0f127C07f939b",
+            "action": 1,
+            "snapshotHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          }
+        }
+      ]
+    },
+    "settle": {
+      "transactionHash": "0x363f9a7c9a44d0c50edeb8f0a9c62696c3a7bd7256d7e652e3cd25fdd874efb0",
+      "status": "success",
+      "to": "0xb9f79d863261869b234c481d1f9a7af84aead192",
+      "blockNumber": "69951867",
+      "blockHash": "0xe1ad6cb9e81d8a4c4d84d0fd3b5090f5388564cefd633111298a9aef96be77cf",
+      "events": [
+        {
+          "address": "0xded18dab5d35b2ca9fecb2b4a7f0f127c07f939b",
+          "name": "AttendanceMarked",
+          "args": {
+            "participant": "0xD91DC1e8561cC50C67aDB754c700d471ad283496"
+          }
+        },
+        {
+          "address": "0xded18dab5d35b2ca9fecb2b4a7f0f127c07f939b",
+          "name": "ClaimAllocated",
+          "args": {
+            "participant": "0xD91DC1e8561cC50C67aDB754c700d471ad283496",
+            "amount": "1000000"
+          }
+        },
+        {
+          "address": "0xded18dab5d35b2ca9fecb2b4a7f0f127c07f939b",
+          "name": "EventSettled",
+          "args": {
+            "totalYield": "0",
+            "protocolFee": "0"
+          }
+        },
+        {
+          "address": "0xded18dab5d35b2ca9fecb2b4a7f0f127c07f939b",
+          "name": "SettlementFinalized",
+          "args": {
+            "outcome": 1,
+            "noShowPrincipal": "0",
+            "platformRevenue": "0",
+            "totalAllocated": "1000000"
+          }
+        },
+        {
+          "address": "0xded18dab5d35b2ca9fecb2b4a7f0f127c07f939b",
+          "name": "LifecycleExecuted",
+          "args": {
+            "vault": "0xdeD18DAb5D35B2CA9fecb2b4A7f0f127C07f939b",
+            "action": 2,
+            "snapshotHash": "0x3c5de2296c17b14629a1cb49f9565c063604936d1d35ad2f30cd7865755a6f52"
+          }
+        }
+      ]
+    },
+    "claim": {
+      "transactionHash": "0x012226c9cd17b11158ebf88210cc0fe47937b80a1d12018d93a7536d179b2c81",
+      "status": "success",
+      "to": "0xded18dab5d35b2ca9fecb2b4a7f0f127c07f939b",
+      "blockNumber": "69952109",
+      "blockHash": "0x358c63c1b2f154921e187477d5858f0413e8908901c0639041c16d0da22651bd",
+      "events": [
+        {
+          "address": "0xded18dab5d35b2ca9fecb2b4a7f0f127c07f939b",
+          "name": "RewardClaimed",
+          "args": {
+            "participant": "0xD91DC1e8561cC50C67aDB754c700d471ad283496",
+            "rewardAmount": "1000000"
+          }
+        }
+      ]
+    }
+  },
+  "state": {
+    "blockNumber": "70107116",
+    "getState": ["6", 0, "1791673487"],
+    "eventSettled": true,
+    "depositedToYield": true,
+    "totalDepositedToYield": "1000000",
+    "totalAllocated": "1000000",
+    "totalClaimed": "1000000",
+    "USDC_TOKEN": "0x534b2f3A21130d7a60830c2Df862319e593943A3",
+    "yieldVault": "0xA0e884769DF132a80e951010eC6c88712b8275E9",
+    "factory": "0x94f7408816cc9eAB7e5043E92bdDdDAFf3A9931F"
+  },
+  "indexer": {
+    "url": "https://commitpass-api.endpx.cloud/v1/events/0xded18dab5d35b2ca9fecb2b4a7f0f127c07f939b/activity",
+    "source": "envio",
+    "provider": "cloud",
+    "chainId": 10143
+  },
+  "limits": [
+    "One attendee does not demonstrate public no-show redistribution.",
+    "The deployed yield source is a mock ERC-4626 vault.",
+    "Receipt success proves chain execution, not independent physical attendance.",
+    "Local fixture evidence is recorded separately."
+  ]
+}

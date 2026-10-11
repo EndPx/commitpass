@@ -79,13 +79,13 @@ flowchart LR
     Reads --> UI
 ```
 
-| Detail page | Part of the big picture |
-| --- | --- |
-| [Smart Contract Architecture](smart-contracts.md) | Factory, vault, external yield source and immutable report authorization |
-| [Chainlink CRE Workflow](chainlink-cre.md) | Trigger discovery, snapshot validation and report delivery |
-| [Data Flow and Indexing](envio-and-profiles.md) | Logs, entities, GraphQL, vault cards and profile aggregates |
-| [Onchain and Offchain Data](data-storage.md) | Where financial records, metadata, attendance and indexed copies live |
-| [API and Application Data](api-and-data.md) | Identity, metadata, chosen names, attendance and frozen snapshots |
-| [Authorization and Trust Boundaries](authorization.md) | Permissions for each actor and remaining assumptions |
+| Detail page                                            | Part of the big picture                                                  |
+| ------------------------------------------------------ | ------------------------------------------------------------------------ |
+| [Smart Contract Architecture](smart-contracts.md)      | Factory, vault, external yield source and immutable report authorization |
+| [Chainlink CRE Workflow](chainlink-cre.md)             | Trigger discovery, snapshot validation and report delivery               |
+| [Data Flow and Indexing](envio-and-profiles.md)        | Logs, entities, GraphQL, vault cards and profile aggregates              |
+| [Onchain and Offchain Data](data-storage.md)           | Where financial records, metadata, attendance and indexed copies live    |
+| [API and Application Data](api-and-data.md)            | Identity, metadata, chosen names, attendance and frozen snapshots        |
+| [Authorization and Trust Boundaries](authorization.md) | Permissions for each actor and remaining assumptions                     |
 
 Read the diagram as a map of responsibilities. Each child page explains the corresponding interfaces, state and failure boundaries.

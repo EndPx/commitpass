@@ -21,13 +21,13 @@ flowchart TB
     Allocation --> Claim
 ```
 
-| Actor | Allowed operation | Limit |
-| --- | --- | --- |
-| Organizer | Request start/end; attest attendance; edit metadata | Cannot override immutable report permissions or payout policy |
-| Participant | Deposit once and claim their allocation once | Cannot check in another guest or execute a lifecycle report |
-| Forwarder | Deliver reports to `onReport` | Workflow metadata or simulation signature must also match |
-| Snapshot service | Freeze organizer-recorded attendance | Cannot prove physical presence or execute token claims |
-| Indexer | Materialize emitted chain facts | Cannot authorize financial writes |
+| Actor            | Allowed operation                                   | Limit                                                         |
+| ---------------- | --------------------------------------------------- | ------------------------------------------------------------- |
+| Organizer        | Request start/end; attest attendance; edit metadata | Cannot override immutable report permissions or payout policy |
+| Participant      | Deposit once and claim their allocation once        | Cannot check in another guest or execute a lifecycle report   |
+| Forwarder        | Deliver reports to `onReport`                       | Workflow metadata or simulation signature must also match     |
+| Snapshot service | Freeze organizer-recorded attendance                | Cannot prove physical presence or execute token claims        |
+| Indexer          | Materialize emitted chain facts                     | Cannot authorize financial writes                             |
 
 ## Current execution trust
 

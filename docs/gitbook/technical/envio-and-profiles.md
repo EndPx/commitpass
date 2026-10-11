@@ -26,13 +26,13 @@ An organizer request is not treated as a completed start or settlement. Vault ev
 
 The profile combines indexed public chain facts into:
 
-* Events joined and hosted.
-* Attendance rate for applicable completed events.
-* Commitments still locked in events.
-* Allocations still available to collect.
-* Confirmed claims received.
-* Registration activity across six UTC monthly buckets.
-* Event positions and their activity history.
+- Events joined and hosted.
+- Attendance rate for applicable completed events.
+- Commitments still locked in events.
+- Allocations still available to collect.
+- Confirmed claims received.
+- Registration activity across six UTC monthly buckets.
+- Event positions and their activity history.
 
 Cancellation and zero-attendance refund events do not count as attended events. Linked wallets are deduplicated where appropriate. A claim allocation is not a received claim; only the payout event contributes to received funds.
 

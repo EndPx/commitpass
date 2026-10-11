@@ -24,8 +24,8 @@ Reports validate chain and vault domain, eligible action, expiry, cutoff, snapsh
 
 This abstract base is included in each vault and is never deployed separately. Forwarder and report authorization are immutable.
 
-* Standard mode checks a nonzero workflow ID in forwarded metadata.
-* Current simulation mode requires chain ID 10143, an immutable signer and workflow ID zero. It verifies an EIP-712 signature bound to the receiving vault.
+- Standard mode checks a nonzero workflow ID in forwarded metadata.
+- Current simulation mode requires chain ID 10143, an immutable signer and workflow ID zero. It verifies an EIP-712 signature bound to the receiving vault.
 
 Moving to DON execution requires the actual forwarder and workflow identity in a new immutable configuration.
 

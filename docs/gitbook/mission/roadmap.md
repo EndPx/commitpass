@@ -52,15 +52,15 @@ Pilot success will be judged primarily by attendance completion, reliable return
 
 ### 6. Metrics and phase gates
 
-| Measure | What we want to learn |
-| --- | --- |
-| Outreach-to-pilot conversion | Whether the reservation problem matters enough for a host to try CommitPass |
-| Time to first published event | Whether organizers can get started with reasonable support |
-| Event-view-to-deposit conversion | Whether guests understand and accept the commitment flow |
+| Measure                              | What we want to learn                                                                    |
+| ------------------------------------ | ---------------------------------------------------------------------------------------- |
+| Outreach-to-pilot conversion         | Whether the reservation problem matters enough for a host to try CommitPass              |
+| Time to first published event        | Whether organizers can get started with reasonable support                               |
+| Event-view-to-deposit conversion     | Whether guests understand and accept the commitment flow                                 |
 | Checked-in guests / committed guests | The attendance outcome for each pilot; compare equivalent prior events where data exists |
-| Settled events and completed claims | Whether the full financial journey works in practice |
-| Hosts running a second event | Whether organizers find continuing value |
-| Support effort and recurring issues | Which onboarding and operational friction must be resolved |
+| Settled events and completed claims  | Whether the full financial journey works in practice                                     |
+| Hosts running a second event         | Whether organizers find continuing value                                                 |
+| Support effort and recurring issues  | Which onboarding and operational friction must be resolved                               |
 
 After the initial pilots, the team will review these results before broadening acquisition, introducing paid features or planning a mainnet launch. Attendance improvement, customer counts and revenue will be reported only when measured.
 

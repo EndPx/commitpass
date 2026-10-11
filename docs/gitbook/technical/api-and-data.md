@@ -48,10 +48,10 @@ Privy token verification and wallet-link synchronization establish identity. Met
 
 Application tables include:
 
-* `users` and `wallet_links` for account identity and verified wallets.
-* `events` for descriptions associated with a validated chain event.
-* `check_ins` for server-timestamped attendance and audit fields.
-* `attendance_snapshots` for immutable settlement payloads.
+- `users` and `wallet_links` for account identity and verified wallets.
+- `events` for descriptions associated with a validated chain event.
+- `check_ins` for server-timestamped attendance and audit fields.
+- `attendance_snapshots` for immutable settlement payloads.
 
 The application schema is separate from Envio's indexed entities. Envio does not write attendance snapshots.
 

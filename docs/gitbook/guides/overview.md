@@ -30,9 +30,9 @@ Start with **Getting Started** to prepare your account, wallet and time settings
 
 ## Choose your workflow
 
-| Your role | Main steps |
-| --- | --- |
-| Guest | Discover an event, review its rules, reserve with USDC, present your QR pass and claim your allocation |
-| Organizer | Create the event, manage details and participants, scan arrivals and request lifecycle actions |
+| Your role | Main steps                                                                                             |
+| --------- | ------------------------------------------------------------------------------------------------------ |
+| Guest     | Discover an event, review its rules, reserve with USDC, present your QR pass and claim your allocation |
+| Organizer | Create the event, manage details and participants, scan arrivals and request lifecycle actions         |
 
 For the mechanics behind these actions, read [How CommitPass Works](../introduction/how-it-works.md). For return calculations and exceptions, see [Commitments and Rewards](../protocol/commitments-and-rewards.md).

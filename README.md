@@ -1,167 +1,156 @@
-# CommitPass
+<p align="center"><img src="apps/web/public/brand/commitpass-mark.png" alt="CommitPass" width="72" /></p>
+<h1 align="center">CommitPass</h1>
+<p align="center"><strong>Commit to show up. Get rewarded when you do.</strong></p>
+<p align="center">Refundable USDC commitments for events on Monad.</p>
+<p align="center">
+  <a href="https://commitpass-event.vercel.app/">Try the app</a> ·
+  <a href="https://www.youtube.com/watch?v=p8Wsvpcy7ZU">Watch the product demo</a> ·
+  <a href="https://sama-3.gitbook.io/commitpass-docs/documentation/">Read the docs</a> ·
+  <a href="docs/JUDGES.md">Judge's guide</a>
+</p>
 
-**Commit to show up. Get rewarded when you do.**
+![CommitPass live landing page: event discovery, refundable commitments, and the product demo](docs/assets/commitpass-live.jpg)
 
-An event platform on Monad where guests reserve a spot with a refundable deposit and share rewards from people who don't show up.
+_Live testnet application. Event posters in the landing illustration demonstrate the design; they are not customer or attendance claims._
 
-[Live app](https://commitpass-event.vercel.app/) · [Technical demo](https://www.youtube.com/watch?v=p8Wsvpcy7ZU) · [Live documentation](https://sama-3.gitbook.io/commitpass-docs/documentation/)
+## A reservation should mean something
 
-[Documentation source](docs/gitbook/README.md) · [Documentation contents](docs/gitbook/SUMMARY.md)
+Reserving a free workshop takes seconds. Showing up takes commitment. When guests reserve limited seats and never arrive, hosts face empty rooms, wasted preparation, and a waitlist that could have used those spots.
 
-Participants reserve a place by depositing a fixed commitment into an event contract. Organizers record attendance. At settlement, attendees become eligible to claim their commitment, half of forfeited no-show deposits, and all recovered yield. The other half of no-show commitments goes to CommitPass. Valid zero-attendance settlement refunds all depositors; a host cancellation before start opens full refunds. See [settlement policy](contracts/SETTLEMENT.md). The legacy deployment retains its immutable pre-policy behavior; the current USDC deployment includes the updated policy.
+CommitPass connects a familiar event experience to a small, refundable USDC commitment. A guest reserves, receives a QR pass, checks in, and claims their return after settlement. Hosts set the terms before registration opens. The event contract applies those terms to the final attendance record.
 
-## Status
+The initial audience is organizers of free, capacity-limited Web3 workshops and community meetups. Informal review feedback and the builder's observations motivate the product; an independent pilot and measured no-show reduction are future validation work.
 
-CommitPass targets Monad testnet (10143) with Circle's native testnet USDC. The factory, USDC-backed MockYieldVault and signed simulation receiver are deployed. Envio and the Go API serve indexed event and profile data alongside Privy identity, owner-authorized check-ins and immutable attendance snapshots. A one-attendee journey completed through the live frontend and Privy, with CRE simulation broadcasting the start and settlement transactions and the attendee claiming their return. See [live execution evidence](cre/evidence/frontend-monad-broadcast-2026-10-01.json), [deployment evidence](contracts/DEPLOYMENT.md), [contract boundaries](contracts/README.md) and [CRE setup](cre/README.md). Deployed DON execution and organic yield are not claimed.
+## Watch, try, inspect
 
-The interactive local application has completed create → reserve → start →
-check-in → settlement → claim through Privy, Go/Neon, Envio and CRE CLI on Anvil.
-See [the recorded local application flow](cre/evidence/interactive-local-2026-09-28.json).
-Use `pnpm local:app` to run it with a local MockUSDC fixture. The public deployment uses Circle's native Monad testnet USDC; historical local evidence retains its original token and deployment identifiers.
+| Resource                                                                    | What it shows                                                            |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| [Live app](https://commitpass-event.vercel.app/discover)                    | Event discovery and the participant/organizer workspace on Monad testnet |
+| [Product demo · 2:23](https://www.youtube.com/watch?v=p8Wsvpcy7ZU)          | Working create → reserve → QR check-in → settlement → claim flow         |
+| [Pitch · 1:59](https://www.youtube.com/watch?v=63YxHvnsKsY)                 | Problem, solution, product story, and direction                          |
+| [Chainlink CRE demo · 1:56](https://www.youtube.com/watch?v=NJs1KMFsMWQ)    | CRE CLI simulation and public testnet lifecycle execution                |
+| [Product advertisement · 0:30](https://www.youtube.com/watch?v=X1fK7IrGbho) | A short introduction to CommitPass                                       |
+| [GitBook](https://sama-3.gitbook.io/commitpass-docs/documentation/)         | Product guides, technical design, deployments, and roadmap               |
+| [Evidence guide](docs/EVIDENCE.md)                                          | Transaction links, decoded receipts, accounting, and proof boundaries    |
 
-The frontend is hosted at [commitpass-event.vercel.app](https://commitpass-event.vercel.app).
-The Go API, Envio indexer and recurring signed CRE simulation run on the Hostinger
-VPS, with [HTTPS API](https://commitpass-api.endpx.cloud/health). Google sign-in
-and the deployed account workspace were checked in the browser. The broadcast path uses a Monad-testnet-only simulation receiver with signed
-lifecycle payloads; it does not claim deployed DON execution.
+## How it works
 
-## Repository layout
+1. **Create an event.** The host chooses capacity, a fixed USDC commitment, registration deadline, start time, and settlement time. Each event gets its own vault.
+2. **Reserve a spot.** Guests sign in with email or Google through Privy and confirm their commitment with an embedded wallet.
+3. **Start the event.** An organizer request or the scheduled time makes the start eligible. CRE reads the contract and moves pooled commitments into the configured ERC-4626 yield source.
+4. **Check in.** The organizer scans the guest's QR pass. The authenticated API records attendance before the contract's cutoff.
+5. **Settle.** CRE freezes and validates the attendance snapshot, then delivers a lifecycle report. The vault redeems assets and fixes each claim allocation.
+6. **Claim the return.** Guests claim through the app. Envio indexes confirmed transactions for event pages, activity, and personal profiles.
+
+### Where the money goes
+
+| Outcome                          | Distribution                                                                                                                                                                             |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Normal settlement with attendees | Attendees recover their commitments, share half of no-show principal, and receive all recovered surplus. CommitPass receives the other half of no-show principal. No-shows receive zero. |
+| Valid zero-attendance settlement | All depositors receive their principal plus their allocated share of recovered surplus; platform revenue is zero.                                                                        |
+| Host cancellation before start   | All depositors can claim their original commitment; platform revenue is zero.                                                                                                            |
+
+**Illustrative example:** two guests each commit 5 USDC; one attends and one does not. With no surplus, the attendee is allocated 7.5 USDC and CommitPass receives 2.5 USDC. This explains the policy; it is not a reported customer result. Gas is separate. Exact rounding, cancellation conditions, and liquidity limitations are defined in the [settlement policy](contracts/SETTLEMENT.md).
+
+The live demo uses a **mock ERC-4626 yield vault**. It exercises deposit and redemption; organic Morpho yield is not part of the public testnet evidence.
+
+## Why Monad
+
+Each event needs affordable reservations, lifecycle transactions, and individual claims. Monad's EVM environment lets CommitPass combine Solidity vaults, USDC, embedded wallets, and an ERC-4626 interface in one application. Public contract state makes commitments and payout rules inspectable; the organizer remains responsible for attesting attendance.
+
+## Architecture and data ownership
+
+```mermaid
+flowchart LR
+    Guest[Guest / organizer] --> Web[Next.js app + Privy wallet]
+    Web -->|Commitments and claims| Chain[Monad factory + event vaults]
+    Web -->|Authenticated metadata and check-in| API[Go HTTPS API]
+    API --> AppDB[(Neon application records)]
+    Chain -->|Confirmed contract logs| Envio[Hosted Envio HyperIndex]
+    Envio -->|GraphQL read model| API
+    Timer[Server timer / CRE CLI] --> CRE[TypeScript CRE workflow]
+    CRE -->|Read state and requests| Chain
+    CRE -->|Freeze and validate snapshot| API
+    CRE -->|Signed simulation report| Forwarder[Monad testnet MockForwarder]
+    Forwarder -->|Authorized lifecycle execution| Chain
+    Chain -->|Deposit / redeem| Yield[Mock ERC-4626 yield vault]
+```
+
+| Layer                        | Stores or controls                                                                          | Authority                                                                     |
+| ---------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| **Onchain · Monad**          | Event terms, USDC deposits, lifecycle state, allocations, claims, and treasury payments     | Contracts enforce financial rules and timing                                  |
+| **Offchain · Neon / Go API** | Event descriptions, account links, organizer check-ins, and frozen attendance snapshots     | Authenticated app writes; host-attested attendance                            |
+| **Derived · Envio Cloud**    | Event discovery, participant positions, activity, and profile aggregates from contract logs | A reorg-aware read model; current contract state determines claim eligibility |
+
+Frontend hosting is Vercel. The Go API and recurring CRE CLI broadcast simulation run on a server. The active public indexer is hosted Envio Cloud. [Full architecture](docs/gitbook/technical/architecture.md) · [Data storage](docs/gitbook/technical/data-storage.md)
+
+## Sponsor integrations that drive the product
+
+| Integration          | Role in the working flow                                                                                                                                         | Start reading here                                                                                                                                     |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Privy**            | Email/Google onboarding, embedded EVM wallets, and in-app signing for reservations and claims; the backend derives current linked wallets from verified identity | [Web authentication](apps/web/src/components/auth/) · [Server verification](api/internal/auth/privy.go)                                                |
+| **Envio HyperIndex** | Discovers factory-created vaults and indexes deposits, lifecycle transitions, exact allocations, and paid claims; powers event/activity/profile views            | [Event handlers](indexer/src/handlers/commitpass.ts) · [Hosted API reader](api/internal/indexed/hosted.go)                                             |
+| **Chainlink CRE**    | Cron and EVM log triggers share a read → decide → write flow; authenticated HTTP snapshots connect host attendance to onchain settlement                         | [Workflow](cre/commitpass/workflow.ts) · [Snapshot validation](cre/commitpass/attendance.ts) · [CRE demo](https://www.youtube.com/watch?v=NJs1KMFsMWQ) |
+
+**Execution scope:** the live MVP uses authenticated CRE CLI simulation with broadcast and a chain/vault-bound signed receiver. It is not a deployed Workflow DON. Guests currently need testnet MON for gas and testnet USDC for commitments; gas sponsorship is not claimed.
+
+## Public execution evidence
+
+The latest recorded workshop completed the one-attendee, **1 USDC** flow on Monad testnet. Public receipts were read again on 11 October 2026; final allocation and claimed principal are both **1,000,000 raw units**, with zero no-show revenue and zero surplus.
+
+| Step              | Public transaction                                                                                                               |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Create event      | [Factory creation receipt](https://testnet.monadscan.com/tx/0x83715de1dd21bee9746e6e6e6ffb7c549f5de4ae06e0b771e86dc8edc57f6f59)  |
+| Commit 1 USDC     | [Deposit receipt](https://testnet.monadscan.com/tx/0xa01dfdf5d50319d6eb4767679127c702c44f65702c83dddb03a1ae6b2dabd15f)           |
+| CRE starts event  | [Start report execution](https://testnet.monadscan.com/tx/0x5173c20e647b857606a1b3e3adb6c344cb61812fc3f1ca6cd5ec97f77f3e7041)    |
+| CRE settles event | [Settlement and allocation](https://testnet.monadscan.com/tx/0x363f9a7c9a44d0c50edeb8f0a9c62696c3a7bd7256d7e652e3cd25fdd874efb0) |
+| Guest claims      | [Paid claim receipt](https://testnet.monadscan.com/tx/0x012226c9cd17b11158ebf88210cc0fe47937b80a1d12018d93a7536d179b2c81)        |
+
+[Decoded receipts and block-pinned state](docs/evidence/monad-workshop-2026-10-11.json) · [Indexed public activity](https://commitpass-api.endpx.cloud/v1/events/0xded18dab5d35b2ca9fecb2b4a7f0f127c07f939b/activity) · [Evidence scope and local scenarios](docs/EVIDENCE.md)
+
+The active addresses and deployment receipts are in the [canonical manifest](packages/shared/src/deployments/monad-testnet.json). Historical evidence keeps its original deployment identifiers.
+
+## Explore the source
 
 ```text
-apps/
-  web/                  Next.js 15 landing, Privy sign-in and event workspace
-api/                    Go API; metadata, attendance, and snapshot endpoints
-cre/                    Chainlink CRE start/settlement workflow
-indexer/                Envio HyperIndex, schema and event handlers
-contracts/              Event contracts, CRE receiver, scripts and inherited tests
-packages/
-  shared/               Public shared code and language-neutral project data
-  typescript-config/    Common TypeScript compiler settings
+apps/web/              Next.js participant and organizer application
+api/                   Go authentication, metadata, attendance, and indexed reads
+contracts/             Solidity factory, event vaults, receiver, and policy
+cre/                   TypeScript CRE workflow and isolated local fixtures
+indexer/               Envio configuration, schema, ABI snapshots, and handlers
+packages/shared/       Canonical ABIs, deployment manifest, TS/Go shared data
+docs/                  Judge guide, evidence, development guide, GitBook source
 ```
 
-`apps/web`, `api`, `cre`, and `indexer` may depend on `packages/*`. Shared packages must not import application code. Each workspace declares local package dependencies with `workspace:*`.
+Applications depend on shared packages; shared packages do not import application code. Go modules are connected by `go.work`. Generated output, credentials, private operational scripts, and raw media deliverables stay outside public source.
 
-The API and shared Go package are connected through `go.work`. Project identity is defined once in `packages/shared/src/project.json`, imported by TypeScript and embedded by Go. Both health endpoints consume this source. See [shared package boundaries](packages/shared/README.md).
+### Run locally
 
-## Local development
-
-### Current CRE execution choice
-
-The hosted application uses recurring CRE CLI simulation with `--broadcast` on
-the VPS and the signed Monad testnet receiver. DON deployment is deferred.
-For a separate disposable local fixture, start the lifecycle runner from the
-repository root:
+Use Node.js 24 (`.node-version`), pnpm 10.21, and Go 1.25+. Solidity and CRE lifecycle work also require Foundry, Bun, and a logged-in CRE CLI.
 
 ```sh
-pnpm cre:local
-```
-
-This runs the real CRE CLI/WASM against a disposable Anvil chain and the local
-attendance fixture. It requires CLI login, not deployment access. See
-[local setup](cre/local/README.md) and [recorded evidence](cre/evidence/README.md).
-For the interactive frontend + Privy + Go/Neon + Envio + CRE environment, use
-`pnpm local:app`. See [interactive local setup](cre/local/INTERACTIVE.md).
-The normal application commands target public Monad testnet with event creation
-enabled through the signed simulation receiver. The two Anvil fixture commands
-do not configure or submit transactions to that public receiver.
-
-### Application development
-
-Requirements: Node.js 22 or 24 (CI uses `.node-version`), pnpm 10.21.0, and Go 1.25 or newer. Foundry is needed when working on Solidity. Bun 1.3.8+ is also needed for CRE WASM compilation.
-
-```sh
+git clone --recurse-submodules https://github.com/EndPx/commitpass.git
+cd commitpass
 pnpm install --frozen-lockfile
-git submodule update --init --recursive
+# Configure module-owned environment files before starting connected services.
 pnpm dev
 ```
 
-- Web liveness: `http://localhost:3000/health`
-- API liveness: `http://localhost:8080/health`
-- These endpoints prove the processes and shared imports work. They do not check a database or chain connection.
-- Landing page: `http://localhost:3000/`. Includes an animated event-poster hero,
-  illustrative RSVP walkthrough, host section, and current testnet FAQ. The landing
-  illustration submits no payment; the live application provides event creation,
-  reservations, check-in, settlement, and claims. Privy sign-in is at `/signin`, with event pages at
-  `/events`, `/discover`, `/events/[vault]`, `/events/[vault]/manage` and `/events/new`. Event creation is
-  enabled for the configured signed simulation receiver; local drafts also work. See
-  [web setup and execution boundaries](apps/web/README.md).
+Web: `http://localhost:3000` · API: `http://localhost:8080`. External Privy, Neon, and indexer configuration is required for the connected product. `pnpm dev` does not provision those services. [Development and configuration](docs/DEVELOPMENT.md) · [Interactive Anvil app](cre/local/INTERACTIVE.md) · [CRE fixture](cre/local/README.md)
 
-| Command                | Purpose                                          |
-| ---------------------- | ------------------------------------------------ |
-| `pnpm dev`             | Run web, API, and the shared TypeScript watcher  |
-| `pnpm dev:web`         | Build shared dependencies and run Next.js        |
-| `pnpm dev:api`         | Build shared dependencies and run the Go API     |
-| `pnpm build`           | Build shared TypeScript, Next.js, and the Go API |
-| `pnpm typecheck`       | Run TypeScript checks and Go vet                 |
-| `pnpm format`          | Format repository files and Go source            |
-| `pnpm check`           | Check formatting, types, Go vet, and builds      |
-| `pnpm contracts:build` | Run Foundry separately; requires `forge`         |
+## Next milestones
 
-Use `pnpm contracts:test` to run the inherited Foundry tests. Indexer codegen and TypeScript compilation participate in builds; indexing starts explicitly after deployment configuration. CRE participates in TypeScript builds; run `pnpm --filter @commitpass/cre compile:wasm` for its executable artifact. CI checks the active JS/Go code and runs a separate Solidity build/test job. The inherited mock vault tests do not verify real Morpho integration.
+| Stage                  | Deliverable                                                                                                                                          | Status                       |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| Hackathon MVP          | Connected testnet app, QR check-in, indexed activity, CRE broadcast lifecycle, and paid claims                                                       | Demonstrated; evidence above |
+| Organizer discovery    | Interviews with capacity-limited workshop hosts; collect actual RSVP/attendance baselines and funding-friction feedback                              | Planned                      |
+| Pilot                  | A small community event with independent participants; measure reservation completion, attendance, claims, and host repeat intent                    | Planned                      |
+| Production preparation | Attendance correction/dispute policy, loss/liquidity recovery, security review, production workflow execution, and compatible live yield integration | Pending                      |
 
-## Event lifecycle
+Initial acquisition is organizer-led: community hosts bring attendees through event links. Informal feedback is an early signal, not adoption. The implemented revenue policy is half of forfeited no-show principal in normal settlement; willingness to accept that fee remains to be validated. [Roadmap and go-to-market](docs/gitbook/mission/roadmap.md)
 
-1. **Create:** an organizer configures an event, capacity, commitment amount, registration deadline, start time, check-in window, and settlement time.
-2. **Commit:** participants deposit the event's supported stablecoin into its contract through a Privy embedded wallet.
-3. **Start:** an authorized organizer request or the scheduled start time makes a Chainlink CRE action eligible. The contract closes registration and deposits pooled funds into the configured ERC-4626 vault, currently a mock on testnet.
-4. **Check in:** the organizer verifies attendance through the application. The Go backend records check-ins in Neon PostgreSQL.
-5. **Settle:** an authorized organizer request or the scheduled settlement time triggers CRE. The workflow retrieves a finalized attendance snapshot and submits it to the contract, which withdraws vault assets and calculates claims.
-6. **Claim:** eligible participants claim their return through Privy. Envio indexes confirmed contract events so the application reflects deposits, lifecycle transitions, settlements, and claims.
+## Builder and acknowledgments
 
-The contract must enforce timing, authorization, and one-time execution. Scheduled timestamps establish eligibility; active CRE workflows submit the transactions.
+Built by **Muhammad Meidy Noor Al Barry (Albary / EndPx)**, solo fullstack developer. [X · @endpx_](https://x.com/endpx_)
 
-## Trust and accounting
-
-- **Attendance:** the organizer attests who attended. QR check-in is not independent proof of physical presence.
-- **Funds:** event contracts manage commitments and enforce distributions. The database does not determine whether an onchain payment succeeded.
-- **Yield:** distributions use recovered assets and realized yield. Morpho withdrawal availability and potential losses must be handled explicitly; a settlement deadline is not a guarantee of immediate liquidity.
-- **Data:** Envio owns indexed chain data. The backend owns metadata, profiles, check-ins, and immutable settlement snapshots in separate database schemas.
-
-The current target uses Circle USDC (`0x534b2f3A21130d7a60830c2Df862319e593943A3`, 6 decimals) and a mock ERC-4626 vault on Monad testnet. Mainnet Clearstar is not part of this deployment configuration. Cancellation and zero-attendance policies are present in the current USDC contracts; their funded public execution still needs an end-to-end run. Permanent loss/liquidity recovery still needs an explicit policy.
-
-## Stack
-
-| Component              | Role                                                                   |
-| ---------------------- | ---------------------------------------------------------------------- |
-| Monad and Solidity     | Event factory, event contracts, and financial settlement               |
-| Next.js and TypeScript | Participant and organizer application                                  |
-| Privy                  | Onboarding, embedded wallets, and transaction signing                  |
-| Go                     | Metadata, organizer authorization, attendance, and snapshot APIs       |
-| Envio HyperIndex       | Contract discovery and indexing of confirmed onchain activity          |
-| Neon PostgreSQL        | Indexed data and application data                                      |
-| Chainlink CRE          | Event start and settlement orchestration                               |
-| ERC-4626 yield vault   | Mock testnet deposit/redeem lifecycle; real yield integration deferred |
-
-## Implementation references
-
-CommitPass adopts the event commitment mechanism from ATFI and uses ShowOrSow as the frontend reference:
-
-- [ATFI contracts, commit `1c57d35`](https://github.com/ATFi-Event/smart-contract/tree/1c57d35b80bb67afc04ee3d9a26292721695aed5)
-- [ATFI backend, commit `3413119`](https://github.com/ATFi-Event/backend/tree/3413119726c2fd3038253020f940378c192ae2b6)
-- [ShowOrSow frontend, commit `8fbe3f0`](https://github.com/EndPx/ShowOrSow/tree/8fbe3f04a05eb19eca10710173057f65d9aadf84/web)
-
-The implementation should retain their direct product flows while adapting account access, indexing, automation, and accounting to CommitPass.
-
-## Metropolis integration targets
-
-- [Best Use of Envio](https://hackathon.monad.xyz/tracks/best-use-of-envio)
-- [Best workflow with CRE](https://hackathon.monad.xyz/tracks/best-workflow-with-cre)
-- [Privy](https://hackathon.monad.xyz/tracks/privy)
-
-Privy is the primary account and wallet integration. Mera is deferred until we have a useful role for it in the core attendance flow; alternate login methods and Agora bounty work are outside the current scope.
-
-## Live frontend execution evidence
-
-The current direct-vault model completed a one-attendee happy path on Monad testnet through the live frontend
-and the authorized Privy wallet: create → approve 0.1 USDC → deposit → host start
-request → CRE simulation broadcast start → host check-in → end request → CRE
-simulation broadcast settlement → claim. The wallet's funded 1 USDC balance
-returned to 1 USDC after claiming. Allocation and claimed amount were both
-100,000 units; protocol revenue and realized yield were zero for this scenario.
-
-[Structured receipts, frozen snapshot and final accounting](cre/evidence/frontend-direct-vault-2026-10-01.json)
-record the scope. This confirms the single-attendee normal flow; it does not
-claim a public DON, organic yield, or browser coverage of every no-show/refund
-scenario. The VPS uses the isolated `envio_usdc_vault` indexer namespace;
-previous namespaces are preserved. Operational `deploy/` and root `scripts/`
-folders remain local; module-owned tooling is committed for reproducible builds.
+CommitPass adopts the event commitment mechanism from [ATFI contracts](https://github.com/ATFi-Event/smart-contract/tree/1c57d35b80bb67afc04ee3d9a26292721695aed5) and references [ATFI backend](https://github.com/ATFi-Event/backend/tree/3413119726c2fd3038253020f940378c192ae2b6). [ShowOrSow](https://github.com/EndPx/ShowOrSow/tree/8fbe3f04a05eb19eca10710173057f65d9aadf84/web) informed the frontend flow. This repository adapts identity, indexing, automation, and settlement accounting for CommitPass.

@@ -19,7 +19,7 @@ Anvil addresses/RPC and a new `envio_local_<runId>` schema without resetting the
 public `envio` schema. The Go reader selects the matching namespace. Run public
 codegen again before returning to the normal testnet indexer command.
 
-HyperIndex **3.12.1**, targeting **Monad testnet (10143)**. This service discovers event vaults from the factory and materializes their chain state in Neon. The Go API consumes those tables for event pages, capacity, participant eligibility, rewards and transaction history.
+HyperIndex **3.12.1**, targeting **Monad testnet (10143)**. This service discovers event vaults from the factory and materializes their chain state. The active public API consumes Envio Cloud GraphQL for event pages, capacity, participant eligibility, rewards and transaction history. The optional self-hosted mode below uses a separate Neon indexer database.
 
 ## Data model
 
@@ -31,9 +31,9 @@ HyperIndex **3.12.1**, targeting **Monad testnet (10143)**. This service discove
 
 `VaultCreated` dynamically registers event vaults. Receiver events record schedules and requests; vault events establish actual start and settlement. A request does not mark an event settled. Reward estimates use the contract's integer formula; payments use `RewardClaimed` amounts.
 
-All writes use HyperIndex entity operations and participate in reorg rollback. Handlers account for v3's preload pass. `AttendanceMarked` represents attendance accepted during settlement, not live application check-in. Share transfers do not transfer participant claim rights. New contract logs distinguish `CANCELLED`, `REFUNDED` (zero attendance) and `SETTLED`. `ClaimAllocated` stores each participant’s exact raw-token entitlement, including remainder units; `RewardClaimed` proves payout. Envio materializes confirmed logs, while host buttons and check-in rows never set financial status. Existing public testnet contracts do not emit the new events.
+All writes use HyperIndex entity operations and participate in reorg rollback. Handlers account for v3's preload pass. `AttendanceMarked` represents attendance accepted during settlement, not live application check-in. Share transfers do not transfer participant claim rights. Current direct-vault contract logs distinguish `CANCELLED`, `REFUNDED` (zero attendance) and `SETTLED`. `ClaimAllocated` stores each participant's exact raw-token entitlement, including remainder units; `RewardClaimed` proves payout. Envio materializes confirmed logs, while host buttons and check-in rows never set financial status. Historical contracts retain their original event interface.
 
-## Neon
+## Optional self-hosted Neon mode
 
 Project: `withered-snow-61403908` (CommitPass). Branch: `br-restless-firefly-b398t5lv` (production). The blockchain target remains testnet despite the branch name.
 
@@ -42,7 +42,7 @@ Project: `withered-snow-61403908` (CommitPass). Branch: `br-restless-firefly-b39
 - Direct Neon connection with TLS certificate verification. Hasura is disabled; Go reads Postgres.
 - Credentials are stored in git-ignored `indexer/.env` and `api/.env`.
 
-The database and HyperIndex schema have been initialized for the deployed testnet contracts. The launcher reads addresses and the start block from `packages/shared/src/deployments/monad-testnet.json`, with environment overrides supported. No event has been created yet, so application entity tables remain empty.
+The launcher reads addresses and the start block from `packages/shared/src/deployments/monad-testnet.json`, with environment overrides supported. This SQL mode is retained for self-hosted and isolated Anvil runs; it is not the active public Cloud read path. Public event creation, deposits, settlement and claims are recorded in the [execution evidence](../docs/EVIDENCE.md).
 
 ## Commands
 
@@ -75,8 +75,8 @@ Config reads compiled ABIs from `packages/shared/abi`. After changing Solidity, 
 
 Go exposes `/v1/events`, `/v1/events/{vault}`, `/v1/events/{vault}/participants`, and `/v1/events/{vault}/activity`. Lists return up to 100 records and a `nextCursor`; pass it as `?after=`. Onchain integers use decimal strings. Missing connection/schema returns 503.
 
-## Remaining bounty evidence
+## Public integration evidence
 
-The [Envio bounty](https://hackathon.monad.xyz/tracks/best-use-of-envio) requires live onchain data driving a useful feature. Source, codegen and empty tables do not establish that. Deploy CommitPass, configure its real addresses, start indexing, and show the API/UI reflecting actual deposits, settlement and claims with transaction references.
+The public API's [workshop activity](https://commitpass-api.endpx.cloud/v1/events/0xded18dab5d35b2ca9fecb2b4a7f0f127c07f939b/activity) reports `source: envio`, `provider: cloud`, chain 10143, and actual deposit, lifecycle and paid-claim transaction references. See the [curated receipt trail](../docs/EVIDENCE.md) and [product demo](https://www.youtube.com/watch?v=p8Wsvpcy7ZU). Source or a successful Cloud build alone is not indexing proof; inspect returned records and their chain receipts.
 
 References: [AI migration guide](https://docs.envio.dev/docs/HyperIndex/migrate-with-ai), [handlers](https://docs.envio.dev/docs/HyperIndex/event-handlers), [dynamic discovery](https://docs.envio.dev/docs/HyperIndex/dynamic-contracts), [Postgres configuration](https://docs.envio.dev/docs/HyperIndex/environment-variables).

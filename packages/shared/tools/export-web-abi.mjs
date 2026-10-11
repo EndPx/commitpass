@@ -4,7 +4,14 @@ const contracts = [
   [
     "CommitPassFactory",
     "factoryAbi",
-    ["createEvent", "VaultCreated", "isVault", "isConfigured", "getBatch", "LifecycleRequested"],
+    [
+      "createEvent",
+      "VaultCreated",
+      "isVault",
+      "isConfigured",
+      "getBatch",
+      "LifecycleRequested",
+    ],
   ],
   [
     "CommitPassVault",

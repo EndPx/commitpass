@@ -38,3 +38,6 @@ Thumbs.db
 # Local operational folders (build tooling lives in its owning module)
 /deploy/
 /scripts/
+
+# Raw video, slide, and operational deliverables stay local.
+/deliverables/

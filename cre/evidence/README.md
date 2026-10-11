@@ -1,4 +1,12 @@
-# Lifecycle acceptance — 28 September 2026
+# Lifecycle evidence index
+
+## Current public execution
+
+The live MVP now uses a server-operated, signed CRE CLI broadcast simulation on Monad testnet. The [11 October workshop record](../../docs/EVIDENCE.md) links successful start, settlement, and paid-claim receipts, with one attendee and a 1 USDC commitment. The [1 October direct-vault record](frontend-direct-vault-2026-10-01.json) records an earlier 0.1 USDC frontend journey.
+
+These public receipts do not establish deployed Workflow DON execution or organic yield. The dated activation blockers and empty-registry observations below describe earlier work sessions; they are preserved as history and are not the current public MVP status.
+
+## Historical lifecycle acceptance — 28 September 2026
 
 ## Monad testnet trigger/read-path check — 30 September 2026
 

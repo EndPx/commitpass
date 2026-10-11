@@ -1,6 +1,6 @@
 # CommitPass CRE lifecycle
 
-Target: **Monad testnet (10143)**. SDK 1.22.0. Execution currently uses the authenticated CRE CLI with `--broadcast` on the VPS, not a deployed DON workflow.
+Target: **Monad testnet (10143)**. SDK 1.22.0. Execution currently uses the authenticated CRE CLI with `--broadcast` on the server, not a deployed DON workflow. [Public workshop receipts](../docs/EVIDENCE.md) · [CRE demo video](https://www.youtube.com/watch?v=NJs1KMFsMWQ).
 
 ## Flow
 

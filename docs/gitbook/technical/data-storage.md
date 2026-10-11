@@ -10,14 +10,14 @@ CommitPass uses three connected data layers. **Monad contracts** hold the financ
 
 These records are public contract state or transaction logs. Contracts enforce deposits, settlement and claim eligibility.
 
-| Data | Stored in |
-| --- | --- |
-| Event owner, commitment amount, capacity and financial deadlines | Factory and event vault |
-| Depositor wallets, commitment amounts and participant membership | Event vault |
-| Event lifecycle state and finalized attendance flags | Event vault |
-| Accepted settlement snapshot hash | Event vault |
-| Yield-source shares and underlying token transfers | Event vault, ERC-4626 source and USDC contract |
-| Guest allocations, protocol revenue and paid claims | Event vault state and transaction logs |
+| Data                                                             | Stored in                                      |
+| ---------------------------------------------------------------- | ---------------------------------------------- |
+| Event owner, commitment amount, capacity and financial deadlines | Factory and event vault                        |
+| Depositor wallets, commitment amounts and participant membership | Event vault                                    |
+| Event lifecycle state and finalized attendance flags             | Event vault                                    |
+| Accepted settlement snapshot hash                                | Event vault                                    |
+| Yield-source shares and underlying token transfers               | Event vault, ERC-4626 source and USDC contract |
+| Guest allocations, protocol revenue and paid claims              | Event vault state and transaction logs         |
 
 The wallet deposit and completed claim are onchain financial facts. A change in the application database cannot create a deposit or pay a claim.
 
@@ -25,13 +25,13 @@ The wallet deposit and completed claim are onchain financial facts. A change in 
 
 The Go API manages these records after authentication and permission checks. They make events readable and support the organizer's attendance workflow.
 
-| Data | Stored in |
-| --- | --- |
-| Chosen display names and account profiles | Application users |
-| Verified account-to-wallet links | Application wallet links |
-| Event descriptions, cover references, themes and locations | Event metadata |
-| Organizer check-ins, timestamps and audit fields | Check-in records |
-| Frozen attendance payloads and supporting chain anchors | Attendance snapshots |
+| Data                                                       | Stored in                |
+| ---------------------------------------------------------- | ------------------------ |
+| Chosen display names and account profiles                  | Application users        |
+| Verified account-to-wallet links                           | Application wallet links |
+| Event descriptions, cover references, themes and locations | Event metadata           |
+| Organizer check-ins, timestamps and audit fields           | Check-in records         |
+| Frozen attendance payloads and supporting chain anchors    | Attendance snapshots     |
 
 Event metadata is separate from financial parameters enforced by the vault. Check-in records remain offchain before settlement; the accepted attendance outcome and snapshot hash are later recorded onchain.
 

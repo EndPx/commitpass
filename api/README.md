@@ -15,7 +15,7 @@ qualification. Default mode continues to use `app` and `envio`; migration file
 checksums remain unchanged. Privy verification and attendance authorization are
 identical in both modes. See [local setup](../cre/local/INTERACTIVE.md).
 
-Go API for Privy identity, event metadata, organizer check-in and frozen attendance snapshots, alongside read access to Envio's Neon database. Requires Go 1.25+. Port 8080 by default; override with `PORT`. The development command loads `api/.env`. Build/dev commands select the portable Go implementation with CGO disabled.
+Go API for Privy identity, event metadata, organizer check-in and frozen attendance snapshots, alongside Envio Cloud indexed reads. The self-hosted SQL reader remains available when Cloud is not configured. Requires Go 1.25+. Port 8080 by default; override with `PORT`. The development command loads `api/.env`. Build/dev commands select the portable Go implementation with CGO disabled.
 
 ```sh
 # From the repository root
@@ -56,8 +56,8 @@ profile links to the event's existing claim flow, which reads current chain stat
 
 `INDEXER_DATABASE_URL` must target `commitpass_indexer`. Connections default to read-only transactions, with two connections and bounded query timeouts. Connection and SQL errors are not exposed to callers. Missing configuration or schema yields 503; an unindexed event detail yields 404.
 
-The VPS uses `COMMITPASS_INDEXER_SCHEMA=envio_usdc_vault` to read the USDC
-indexer namespace. Historical `envio` and `envio_hosted` schemas are preserved.
+The previous server-operated SQL reader used `COMMITPASS_INDEXER_SCHEMA=envio_usdc_vault` for the USDC
+indexer namespace. The active public reader uses Envio Cloud. Historical `envio` and `envio_hosted` schemas are preserved.
 `envio_hosted`, `envio_usdc`, and `envio_usdc_vault` are accepted hosted overrides.
 
 These routes report Envio's indexed state, which may be delayed and can roll back after a reorg. They do not independently prove finality.

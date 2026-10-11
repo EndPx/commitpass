@@ -10,3 +10,5 @@ contracts/lib/
 indexer/.envio/
 indexer/envio-env.d.ts
 cre/.local/
+.vercel/
+/deliverables/
