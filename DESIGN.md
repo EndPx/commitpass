@@ -76,6 +76,11 @@ preserving reading/focus order and pointer access to the real CTA links.
 - Brand: GPT Image-generated terracotta C and check symbol, paired with a live
   text wordmark. Transparent PNG served through Next Image; also the favicon.
   Home link has an accessible name.
+- Documentation links: a quiet Docs link beside Faucet in the workspace header
+  and beside the network status in the footer. Both open the shared GitBook
+  documentation destination in a new tab with an accessible name. Below 420px,
+  header actions wrap into compact rows so Docs remains readable; footer metadata
+  wraps when needed.
 - Button/link: 48px minimum height, pill, dark solid or quiet outline. Hover lift
   2px; press returns to baseline; 3px visible focus ring. Real destination required.
 - Event poster: framed artwork, original typography and graphical motifs. Entirely

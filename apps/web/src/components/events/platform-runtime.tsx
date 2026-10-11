@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { usePrivy } from "@privy-io/react-auth";
 import {
+  BookOpen,
   CalendarDays,
   Compass,
   LogOut,
@@ -23,6 +24,9 @@ import { PreferencesProvider, usePreferences } from "./preferences";
 import { AccountSettings } from "./account-settings";
 import { clockLabel } from "@/lib/display-time";
 import { isLocal } from "@/lib/runtime-network";
+
+const documentationUrl =
+  "https://sama-3.gitbook.io/commitpass-docs/documentation";
 
 export default function PlatformRuntime({ children }: { children: ReactNode }) {
   if (!authConfigured)
@@ -45,11 +49,21 @@ export default function PlatformRuntime({ children }: { children: ReactNode }) {
             </GuestAccess>
             <footer className="workspace-footer">
               <Brand compact href="/" />
-              <span>
-                {isLocal
-                  ? "Local Anvil · CRE simulation · Test funds only"
-                  : "Monad testnet · Test funds only"}
-              </span>
+              <div className="workspace-footer-meta">
+                <a
+                  href={documentationUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="CommitPass documentation (opens in a new tab)"
+                >
+                  Docs
+                </a>
+                <span>
+                  {isLocal
+                    ? "Local Anvil · CRE simulation · Test funds only"
+                    : "Monad testnet · Test funds only"}
+                </span>
+              </div>
             </footer>
           </PageThemeProvider>
         </PreferencesProvider>
@@ -172,6 +186,16 @@ function Navigation() {
         </nav>
         <div className="workspace-header-actions">
           {ready && authenticated && <Faucet />}
+          <a
+            className="workspace-docs-link"
+            href={documentationUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="CommitPass documentation (opens in a new tab)"
+          >
+            <BookOpen size={16} aria-hidden="true" />
+            <span>Docs</span>
+          </a>
           {ready && authenticated && clock && (
             <time
               className="workspace-clock"
