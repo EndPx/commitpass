@@ -36,6 +36,7 @@ import {
   Shuffle,
 } from "lucide-react";
 import { chainClient, factoryAddress, explorer } from "@/lib/chain";
+import { privyTransactionOptions } from "@/lib/gas-sponsorship";
 import { jsonRequest } from "@/lib/events";
 import { useAccount } from "./account-context";
 import { EventCover } from "./event-cover";
@@ -325,7 +326,7 @@ export function CreateEvent() {
             args,
           }),
         },
-        { address: wallet.address, uiOptions: { showWalletUIs: true } },
+        privyTransactionOptions(wallet),
       );
       const transaction: Pending = {
         hash,

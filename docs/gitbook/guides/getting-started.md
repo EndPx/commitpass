@@ -18,12 +18,14 @@ Your account menu shows your full wallet address with a copy button. Use the add
 
 Open **Faucet** from the app navigation. The popup shows the wallet address and two links:
 
-| Token | Faucet                                      | Purpose           |
-| ----- | ------------------------------------------- | ----------------- |
-| USDC  | [Circle Faucet](https://faucet.circle.com/) | Event commitments |
-| MON   | [Monad Faucet](https://faucet.monad.xyz/)   | Transaction gas   |
+| Token | Faucet                                      | Purpose                     |
+| ----- | ------------------------------------------- | --------------------------- |
+| USDC  | [Circle Faucet](https://faucet.circle.com/) | Event commitments           |
+| MON   | [Monad Faucet](https://faucet.monad.xyz/)   | Gas for direct transactions |
 
-At Circle Faucet, select **Monad Testnet** and send USDC to the address copied from CommitPass. At Monad Faucet, request testnet MON for the same wallet. Complete any verification requested by the provider yourself.
+At Circle Faucet, select **Monad Testnet** and send USDC to the address copied from CommitPass. Complete any verification requested by the provider yourself.
+
+CommitPass requests Privy gas sponsorship for in-app wallet transactions on Monad testnet, including USDC approval, reservation and return claims. The USDC commitment remains yours to provide. Review the wallet's fee display before confirming. Direct transactions, including external organizer wallets, still require MON from [Monad Faucet](https://faucet.monad.xyz/).
 
 Check the chosen network before requesting or using tokens. USDC issued on Base Sepolia is a different contract and cannot be used as a Monad event commitment.
 
@@ -39,4 +41,4 @@ For example, `Asia/Jakarta · UTC+07:00` and `UTC+00:00` can display different c
 - [Create an event](hosts.md).
 - [Understand commitment returns](../protocol/commitments-and-rewards.md).
 
-The current release uses testnet tokens with no financial value. Transaction gas is paid separately from the commitment.
+The current release uses testnet tokens with no financial value. Gas sponsorship and the refundable USDC commitment are separate; sponsorship does not provide the commitment amount.

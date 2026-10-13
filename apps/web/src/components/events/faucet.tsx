@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ArrowUpRight, Droplets } from "lucide-react";
 import { EditorDialog } from "./editor-dialog";
 import { WalletAddress } from "./wallet-address";
+import { testnetGasSponsorshipEnabled } from "@/lib/gas-sponsorship";
 
 export function Faucet() {
   const [open, setOpen] = useState(false);
@@ -25,6 +26,13 @@ export function Faucet() {
           onClose={() => setOpen(false)}
         >
           <WalletAddress />
+          {testnetGasSponsorshipEnabled && (
+            <p className="field-note">
+              Get test USDC for your commitment. Gas sponsorship is enabled for
+              your in-app wallet on Monad testnet. Review the fee before
+              confirming a transaction.
+            </p>
+          )}
           <div className="faucet-actions">
             <a
               className="button"

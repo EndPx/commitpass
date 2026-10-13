@@ -13,7 +13,7 @@ CommitPass is a refundable USDC commitment application for events on Monad. This
 ## Try the live product
 
 1. Open Discover and sign in with email or Google. The app uses a Privy embedded wallet.
-2. For a reservation, obtain testnet MON and Circle testnet USDC through the workspace's Faucet links. A commitment uses USDC; transaction gas uses MON. Use test funds only.
+2. For a reservation, obtain Circle testnet USDC through the workspace's Faucet links. The deployed web app requests Privy gas sponsorship for its embedded wallets on Monad testnet. Review the wallet's fee display before confirming. Direct transactions, including external organizer wallets, still require testnet MON. Use test funds only.
 3. As an organizer, create an event with future registration, start, and settlement times, a capacity, and a fixed USDC commitment. Its vault is created onchain; metadata is stored by the API.
 4. As a guest, reserve a spot, approve the required USDC amount, confirm the deposit, and open the QR pass. Use a separate account to evaluate the host/guest experience.
 5. As the host, open Manage event. Request Start or wait for scheduled eligibility. The server-operated CRE runner processes eligible work. After onchain start, scan the guest's QR pass before the attendance cutoff.
@@ -41,6 +41,6 @@ If no upcoming event is visible, use the recorded demo and public receipt trail,
 - Attendance is organizer-attested. QR scanning does not independently prove physical attendance. A formal correction/dispute workflow is pending.
 - The latest public workshop demonstrates one attendee receiving principal back. Multi-participant no-show redistribution and exceptional policies have separately recorded local fixture evidence.
 - There is no measured independent customer pilot or demonstrated no-show reduction yet.
-- Gas sponsorship, an audited production release, and guaranteed recovery from unavailable liquidity or losses are not claimed.
+- Gas sponsorship is configured as a testnet-only transaction path; a user-approved sponsored receipt is required for live acceptance. An audited production release and guaranteed recovery from unavailable liquidity or losses are not claimed.
 
 [Product pitch](https://www.youtube.com/watch?v=63YxHvnsKsY) · [Documentation](https://sama-3.gitbook.io/commitpass-docs/documentation/) · [Local development](DEVELOPMENT.md)

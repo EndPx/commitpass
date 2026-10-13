@@ -77,6 +77,16 @@ part of the sign-in screen. Wallet setup is available on event action screens.
 
 ## Event workspace
 
+### Testnet gas sponsorship
+
+Set `NEXT_PUBLIC_COMMITPASS_TESTNET_GAS_SPONSORSHIP=true` for a deployment configured with Privy's App pays gas sponsorship on **Monad Testnet (10143) only**, with client transactions enabled and TEE wallet execution. This is a build-time public feature flag; changing it requires a new web build.
+
+The shared transaction options request sponsorship only for Privy embedded wallets on public Monad testnet. It applies to USDC approval, reservation, claim, event creation, and organizer lifecycle requests. Participants still provide the USDC commitment. Local Anvil execution and external organizer wallets retain direct gas payment. Sponsored host requests let Privy estimate fees rather than forcing the legacy direct-transaction gas fields or requiring a MON balance first.
+
+Wallet confirmation, exact USDC approval amounts, contract preflight, and successful receipt checks remain in place. A sponsorship failure is not automatically retried as a direct transaction. The React SDK returns the final chain transaction hash after sponsored execution confirms; this hash feeds the existing recovery and receipt handling. CRE server broadcasts use their own gas and are separate from Privy sponsorship.
+
+Dashboard configuration and a deployed flag establish readiness to request sponsorship. A user-confirmed transaction with a successful sponsored receipt is still required to establish live acceptance. Do not infer that billing will accept a transaction solely from a zero credit balance or development mode.
+
 - `/events`: personal Upcoming/Past timeline with All/Hosting/Going filters.
 - `/discover`: public event timeline, search across loaded results, cursor pagination.
 - `/events/[vault]`: indexed event facts plus API metadata, reservation/claim

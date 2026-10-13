@@ -8,6 +8,7 @@ import {
   useWallets,
 } from "@privy-io/react-auth";
 import { encodeFunctionData, erc20Abi, type Address, type Hash } from "viem";
+import { privyTransactionOptions } from "@/lib/gas-sponsorship";
 import {
   eventVaultAbi,
   factoryAbi,
@@ -473,7 +474,7 @@ function ReservationPanel({
               functionName: "claimReward",
             }),
           },
-          { address: wallet.address, uiOptions: { showWalletUIs: true } },
+          privyTransactionOptions(wallet),
         );
         await confirm(tx.hash);
         setMessage("Claim confirmed. Your return is in your wallet.");
@@ -554,7 +555,7 @@ function ReservationPanel({
               args: [event.vault, stake],
             }),
           },
-          { address: wallet.address, uiOptions: { showWalletUIs: true } },
+          privyTransactionOptions(wallet),
         );
         await confirm(approval.hash);
       }
@@ -574,7 +575,7 @@ function ReservationPanel({
             functionName: "deposit",
           }),
         },
-        { address: wallet.address, uiOptions: { showWalletUIs: true } },
+        privyTransactionOptions(wallet),
       );
       await confirm(deposit.hash);
       setMessage("Your commitment is confirmed. Your spot is reserved.");

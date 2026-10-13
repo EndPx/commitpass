@@ -10,6 +10,7 @@ import {
 } from "@commitpass/shared";
 import { ArrowUpRight, Check, Clock3, Play, Square } from "lucide-react";
 import { chainClient, explorer } from "@/lib/chain";
+import { privyTransactionOptions } from "@/lib/gas-sponsorship";
 import { amount, statusLabel, jsonRequest } from "@/lib/events";
 import { EditorDialog, DialogActions } from "./editor-dialog";
 import { HostTools } from "./host-tools";
@@ -149,16 +150,22 @@ export function HostManagement({
         });
       }
       const signer = wallet.address as `0x${string}`;
-      const [estimate, gasPrice, balance] = await Promise.all([
-        chainClient.estimateGas({ account: signer, to, data, value: 0n }),
-        chainClient.getGasPrice(),
-        chainClient.getBalance({ address: signer }),
-      ]);
-      const gasLimit = (estimate * 120n + 99n) / 100n;
-      if (balance < gasLimit * gasPrice)
-        throw new Error(
-          `Your organizer wallet needs about ${formatEther(gasLimit * gasPrice)} MON for gas. Use the faucet to add test MON, then retry.`,
-        );
+      const options = privyTransactionOptions(wallet);
+      let directGas:
+        { gasLimit: bigint; gasPrice: bigint; type: 0 } | undefined;
+      if (!options.sponsor) {
+        const [estimate, gasPrice, balance] = await Promise.all([
+          chainClient.estimateGas({ account: signer, to, data, value: 0n }),
+          chainClient.getGasPrice(),
+          chainClient.getBalance({ address: signer }),
+        ]);
+        const gasLimit = (estimate * 120n + 99n) / 100n;
+        if (balance < gasLimit * gasPrice)
+          throw new Error(
+            `Your organizer wallet needs about ${formatEther(gasLimit * gasPrice)} MON for gas. Use the faucet to add test MON, then retry.`,
+          );
+        directGas = { gasLimit, gasPrice, type: 0 };
+      }
       setMessage("Confirm this request in your wallet.");
       const tx = await sendTransaction(
         {
@@ -167,11 +174,9 @@ export function HostManagement({
           chainId: MONAD_TESTNET.chainId,
           data,
           value: 0n,
-          gasLimit,
-          gasPrice,
-          type: 0,
+          ...directGas,
         },
-        { address: wallet.address, uiOptions: { showWalletUIs: true } },
+        options,
       );
       setPending(tx.hash);
       localStorage.setItem(key, tx.hash);

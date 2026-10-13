@@ -9,6 +9,7 @@ import { Walkthrough } from "@/components/landing/walkthrough";
 import { Poster } from "@/components/landing/poster";
 import { Reveal } from "@/components/landing/reveal";
 import { LandingSessionGate } from "@/components/landing/session-gate";
+import { testnetGasSponsorshipEnabled } from "@/lib/gas-sponsorship";
 
 const faqs = [
   {
@@ -28,8 +29,9 @@ const faqs = [
   },
   {
     question: "Do I need to know anything about crypto?",
-    answer:
-      "Sign in with email or Google. Privy provides an embedded wallet inside the app, so you can reserve and claim without installing a wallet extension. For this testnet demo, you need testnet USDC for your commitment and MON for transaction gas. The Faucet button in your workspace links to both token faucets.",
+    answer: testnetGasSponsorshipEnabled
+      ? "Sign in with email or Google. Privy provides an in-app wallet, so you can reserve and claim without installing a wallet extension. Get testnet USDC for your commitment from the Faucet button. Gas sponsorship is enabled for in-app transactions on Monad testnet; review the fee shown in your wallet before confirming."
+      : "Sign in with email or Google. Privy provides an embedded wallet inside the app, so you can reserve and claim without installing a wallet extension. For this testnet demo, you need testnet USDC for your commitment and MON for transaction gas. The Faucet button in your workspace links to both token faucets.",
   },
   {
     question: "Can I create or reserve an event now?",

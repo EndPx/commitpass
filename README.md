@@ -96,7 +96,7 @@ Frontend hosting is Vercel. The Go API and recurring CRE CLI broadcast simulatio
 | **Envio HyperIndex** | Discovers factory-created vaults and indexes deposits, lifecycle transitions, exact allocations, and paid claims; powers event/activity/profile views            | [Event handlers](indexer/src/handlers/commitpass.ts) · [Hosted API reader](api/internal/indexed/hosted.go)                                             |
 | **Chainlink CRE**    | Cron and EVM log triggers share a read → decide → write flow; authenticated HTTP snapshots connect host attendance to onchain settlement                         | [Workflow](cre/commitpass/workflow.ts) · [Snapshot validation](cre/commitpass/attendance.ts) · [CRE demo](https://www.youtube.com/watch?v=NJs1KMFsMWQ) |
 
-**Execution scope:** the live MVP uses authenticated CRE CLI simulation with broadcast and a chain/vault-bound signed receiver. It is not a deployed Workflow DON. Guests currently need testnet MON for gas and testnet USDC for commitments; gas sponsorship is not claimed.
+**Execution scope:** the live MVP uses authenticated CRE CLI simulation with broadcast and a chain/vault-bound signed receiver. It is not a deployed Workflow DON. Guests provide testnet USDC for commitments. The web app can request Privy gas sponsorship for embedded wallets on public Monad testnet; local Anvil and external organizer wallets use direct gas payment. [Configuration and acceptance scope](apps/web/README.md#testnet-gas-sponsorship).
 
 ## Public execution evidence
 

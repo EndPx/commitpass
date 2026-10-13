@@ -30,7 +30,9 @@ Circle's native USDC on **Monad testnet**, at `0x534b2f3A21130d7a60830c2Df862319
 
 ## Do I need MON?
 
-Yes, the wallet needs testnet MON for transaction gas. Use the app's Faucet MON link or [Monad Faucet](https://faucet.monad.xyz/).
+CommitPass requests Privy gas sponsorship for its in-app wallets on Monad testnet. Sponsored approval, reservation and claim transactions do not require the participant to fund gas with MON. You still need USDC for the commitment, and you should review the fee display before confirming. Direct transactions, including external organizer wallets, require testnet MON from the app's Faucet MON link or [Monad Faucet](https://faucet.monad.xyz/).
+
+The CRE runner's lifecycle broadcasts use a separate server signing wallet and are not paid through this Privy sponsorship path.
 
 ## Who decides whether I attended?
 
